@@ -21,16 +21,16 @@
 - prompt files
 - local repo conventions
 
-## V1 boundary
+## Initial Release Boundary
 
 This project is a repository-first memory workflow, not a dynamic memory runtime.
 
-V1 intentionally relies on:
+The initial release intentionally relies on:
 - explicit Markdown files
 - shared folder conventions
 - command-driven usage
 
-V1 intentionally does not include:
+The initial release intentionally does not include:
 - automatic hierarchical memory loading
 - database-backed retrieval
 - hidden memory state outside the repository

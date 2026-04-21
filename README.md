@@ -9,15 +9,20 @@ It helps teams:
 
 ---
 
-# 🧠 V1 Scope
+# 🧠 Current Scope
 
-This V1 release is intentionally simple:
+The current pre-1.0 release is intentionally simple:
 - **repo-first**
 - **file-structured**
 - **command-driven**
 - **Git-reviewable**
 
 It is **not** trying to be a full Claude-style auto-loading memory runtime yet.
+
+Versioning note:
+- the current extension version is `0.5.0`
+- “initial release scope” in this document refers to the product scope and workflow shape
+- a `1.0.0` tag has not been released yet
 
 ---
 
@@ -87,8 +92,8 @@ Do not use this extension if you want:
 - It does not automatically record everything  
 
 ### ❌ Claude-style hierarchical auto-loading
-- V1 does not resolve layered memory automatically
-- V1 expects commands and team workflow to drive memory usage
+- the current pre-1.0 release does not resolve layered memory automatically
+- the current pre-1.0 release expects commands and team workflow to drive memory usage
 
 ### ❌ A complete historical archive
 - It is not meant to store:
@@ -317,9 +322,14 @@ Use this flow whenever memory starts feeling messy.
 
 specify extension add --dev /path/to/spec-kit-memory-hub  
 
-## From GitHub (after publishing)
+Use this now if you are trying the extension before the first tagged release.
+
+## From GitHub (after a tagged release exists)
 
 specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.5.0.zip  
+
+The install example above works only after the `v0.5.0` release tag is published.
+When you cut a newer release, replace that tag with the actual version you publish.
 
 ---
 
@@ -330,7 +340,7 @@ specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-mem
 - README includes install and usage instructions
 - `LICENSE` included
 - Extension tested in a fresh Spec Kit project
-- Command descriptions and file paths reflect the shipped V1 behavior
+- Command descriptions and file paths reflect the shipped initial-release behavior
 
 ---
 

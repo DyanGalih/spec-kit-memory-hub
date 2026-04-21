@@ -17,15 +17,15 @@ Review whether memory entries are:
 ## Phase 4
 Roll out to more repos and standardize via this hub.
 
-## V1 rollout guidance
+## Initial Release Rollout Guidance
 
-Use V1 when your team wants:
+Use the initial release when your team wants:
 - shared, reviewable project memory in Git
 - a lightweight process around decisions and recurring bugs
 - better AI context without adding infrastructure
 
 Do not wait for automatic memory features before piloting this.
-The main question for V1 is whether teams will consistently maintain high-signal memory files.
+The main question for the initial release is whether teams will consistently maintain high-signal memory files.
 
 ## Quality bar for memory entries
 
