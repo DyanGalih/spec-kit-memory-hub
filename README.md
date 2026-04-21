@@ -19,8 +19,13 @@ The current pre-1.0 release is intentionally simple:
 
 It is **not** trying to be a full Claude-style auto-loading memory runtime yet.
 
+Compatibility note:
+- this repo ships the repository-side files Copilot agents memory expects, including `docs/memory/` and `.github/copilot-instructions.md`
+- the VS Code memory tool and GitHub-hosted Copilot Memory are enabled outside this repo in your editor and GitHub settings
+- this project provides the repo conventions and prompts that make those agents useful on this codebase
+
 Versioning note:
-- the current extension version is `0.5.0`
+- the current extension version is `0.5.1`
 - “initial release scope” in this document refers to the product scope and workflow shape
 - a `1.0.0` tag has not been released yet
 
@@ -80,6 +85,11 @@ Use this extension when you want to:
 - Let AI read consistent, structured context  
 - Guide planning and implementation with real project knowledge  
 - Improve output quality without increasing prompt complexity  
+
+### ✅ Work with VS Code Copilot agents memory
+- Provide repository-scoped memory files that agents can read and update
+- Keep memory visible in Git instead of storing it in hidden state
+- Pair the repo conventions with VS Code's memory tool or Copilot Memory when those features are enabled
 
 ---
 
@@ -186,6 +196,8 @@ prompts/
 4. Use `/speckit.memory-md.plan-with-memory` before implementation.
 5. Use `/speckit.memory-md.capture` or `/speckit.memory-md.capture-from-diff` after meaningful work.
 6. Run `/speckit.memory-md.audit` occasionally to keep memory high-signal.
+
+If you are using VS Code Copilot agents memory, also enable the Copilot Memory settings in VS Code and GitHub. This repository provides the files and conventions those agents use, but the feature itself is controlled by your editor and GitHub account settings.
 
 ---
 
@@ -326,9 +338,9 @@ Use this now if you are trying the extension before the first tagged release.
 
 ## From GitHub (after a tagged release exists)
 
-specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.5.0.zip  
+specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.5.1.zip
 
-The install example above works only after the `v0.5.0` release tag is published.
+The install example above works only after the `v0.5.1` release tag is published.
 When you cut a newer release, replace that tag with the actual version you publish.
 
 ---

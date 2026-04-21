@@ -21,9 +21,13 @@
 - prompt files
 - local repo conventions
 
+These files make the repository usable by VS Code Copilot agents memory without requiring hidden state.
+
 ## Initial Release Boundary
 
 This project is a repository-first memory workflow, not a dynamic memory runtime.
+
+It supports the repository-side conventions used by Copilot agents memory, but it does not provision the GitHub or VS Code feature flags for you.
 
 The initial release intentionally relies on:
 - explicit Markdown files
@@ -34,6 +38,8 @@ The initial release intentionally does not include:
 - automatic hierarchical memory loading
 - database-backed retrieval
 - hidden memory state outside the repository
+
+Copilot Memory remains an external, opt-in feature in GitHub and VS Code settings.
 
 ## Principle
 
