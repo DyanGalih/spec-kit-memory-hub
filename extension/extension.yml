@@ -1,0 +1,21 @@
+id: spec-kit-memory-md
+name: Spec Kit Memory MD
+version: 0.4.0
+description: Markdown-first durable memory layer for Spec Kit projects.
+author: OpenAI
+commands:
+  - name: bootstrap
+    path: commands/bootstrap.md
+    description: Bootstrap memory and spec starter files in a target repo.
+  - name: plan-with-memory
+    path: commands/plan-with-memory.md
+    description: Plan feature work using specs plus durable memory.
+  - name: capture
+    path: commands/capture.md
+    description: Reflect on completed work and update durable memory selectively.
+  - name: capture-from-diff
+    path: commands/capture-from-diff.md
+    description: Review code changes and persist durable lessons if needed.
+  - name: audit
+    path: commands/audit.md
+    description: Audit memory quality and remove stale or noisy entries.

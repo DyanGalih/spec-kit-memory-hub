@@ -1,0 +1,4 @@
+memory_root: docs/memory
+specs_root: specs
+use_project_copilot_instructions: true
+definition_of_done_includes_memory_review: true
