@@ -1,34 +1,34 @@
-schema_version: "1.0"
+schema_version: '1.0'
 
 extension:
   id: memory-md
-  name: "Spec Kit Memory MD"
-  version: "0.5.1"
-  description: "Markdown-first durable memory layer for Spec Kit projects."
+  name: 'Spec Kit Memory MD'
+  version: '0.5.2'
+  description: 'Markdown-first durable memory layer for Spec Kit projects.'
   author: OpenAI
   repository: https://github.com/DyanGalih/spec-kit-memory-hub.git
   license: MIT
 
 requires:
-  speckit_version: ">=0.2.0"
+  speckit_version: '>=0.2.0'
 
 provides:
   commands:
     - name: speckit.memory-md.bootstrap
       file: commands/speckit.memory-md.bootstrap.md
-      description: "Bootstrap memory and spec starter files in a target repo."
+      description: 'Bootstrap memory and spec starter files in a target repo.'
     - name: speckit.memory-md.plan-with-memory
       file: commands/speckit.memory-md.plan-with-memory.md
-      description: "Plan feature work using specs plus durable memory."
+      description: 'Plan feature work using specs plus durable memory.'
     - name: speckit.memory-md.capture
       file: commands/speckit.memory-md.capture.md
-      description: "Reflect on completed work and update durable memory selectively."
+      description: 'Reflect on completed work and update durable memory selectively.'
     - name: speckit.memory-md.capture-from-diff
       file: commands/speckit.memory-md.capture-from-diff.md
-      description: "Review code changes and persist durable lessons if needed."
+      description: 'Review code changes and persist durable lessons if needed.'
     - name: speckit.memory-md.audit
       file: commands/speckit.memory-md.audit.md
-      description: "Audit memory quality and remove stale or noisy entries."
+      description: 'Audit memory quality and remove stale or noisy entries.'
 
 tags:
   - memory

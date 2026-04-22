@@ -1,6 +1,6 @@
 id: spec-kit-memory-md
 name: Spec Kit Memory MD
-version: 0.5.1
+version: 0.5.2
 description: Markdown-first durable memory layer for Spec Kit projects.
 author: OpenAI
 commands:
