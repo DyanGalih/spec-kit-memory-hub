@@ -18,7 +18,13 @@
 - recurring bugs
 - worklog
 
-### 3. Editor/runtime behavior layer
+### 3. Active feature memory layer
+
+- feature-local memory
+- memory synthesis
+- open questions and watchpoints for the active feature
+
+### 4. Editor/runtime behavior layer
 
 - Copilot instructions
 - prompt files
@@ -52,4 +58,5 @@ Specifications are for active delivery.
 Memory is for durable learning.
 
 Do not overload feature specs with cross-feature memory.
-Do not overload memory with routine implementation detail.
+Do not overload durable memory with routine implementation detail or feature-local notes.
+Use feature memory plus synthesis to keep active context close to execution without turning the repo into a knowledge base.

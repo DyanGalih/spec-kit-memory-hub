@@ -10,12 +10,23 @@ Check for:
 - missing high-value lessons
 - misplaced entries in the wrong memory file
 - entries that are too long, vague, or repetitive
+- speculative entries
+- feature-specific details leaking into durable memory
+- missing synthesis or stale synthesis in active feature folders
 
 Suggest:
 - removals
 - merges
 - concise rewrites
 - gaps worth documenting
+
+Use this scoring rubric for each kept or proposed entry:
+- durable
+- actionable
+- non-obvious
+- evidenced
+- correctly scoped
+- concise
 
 Use these cleanup rules:
 - Remove entries that are obsolete, speculative, or routine implementation history.
@@ -40,4 +51,6 @@ When proposing changes, prefer this output structure:
    - missing durable knowledge worth adding
 
 Prefer preserving signal over preserving wording.
+Flag hard issues when an entry is contradictory, clearly stale, or stored in the wrong layer.
+Flag soft issues when an entry is wordy, weakly evidenced, or duplicative but still salvageable.
 Do not invent missing knowledge.

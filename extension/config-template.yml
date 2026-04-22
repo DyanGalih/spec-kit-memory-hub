@@ -2,3 +2,7 @@ memory_root: docs/memory
 specs_root: specs
 use_project_copilot_instructions: true
 definition_of_done_includes_memory_review: true
+feature_memory_filename: memory.md
+memory_synthesis_filename: memory-synthesis.md
+require_memory_synthesis_before_plan: true
+require_memory_review_before_verify: true
