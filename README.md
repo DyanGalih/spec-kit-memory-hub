@@ -29,7 +29,7 @@ Compatibility note:
 
 Versioning note:
 
-- the current extension version is `0.6.0`
+- the current extension version is `0.6.2`
 - “initial release scope” in this document refers to the product scope and workflow shape
 - a `1.0.0` tag has not been released yet
 
@@ -357,7 +357,7 @@ If you are using VS Code Copilot agents memory, also enable the Copilot Memory s
 
 Important:
 
-- in `0.6.0`, “required” means required by prompts, repo conventions, and agent instructions
+- in this release, “required” means required by prompts, repo conventions, and agent instructions
 - the extension does not yet ship separate `/tasks` or `/verify` commands or a CLI-level enforcement hook
 - teams should treat the synthesis and review steps as workflow gates today, with optional automation to be added later
 
@@ -547,12 +547,12 @@ Use it when:
 
 Enforcement note:
 
-- this command is the main shipped gate in `0.6.0`
+- this command is the main shipped gate in this release
 - `/tasks`, `/implement`, and `/verify` are integrated by shared prompts and instructions, not by separate extension commands yet
 
 ## Design update
 
-Version `0.6.0` shifts the extension from passive documentation toward workflow-integrated AI memory:
+This release shifts the extension from passive documentation toward workflow-integrated AI memory:
 
 - durable project memory stays in `docs/memory/`
 - active feature memory lives in `specs/<feature>/memory.md`
@@ -687,10 +687,10 @@ Use this now if you are trying the extension before the first tagged release.
 ## From GitHub (after a tagged release exists)
 
 ```
-specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.0.zip
+specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.2.zip
 ```
 
-The install example above works only after the `v0.6.0` release tag is published.
+The install example above works only after the `v0.6.2` release tag is published.
 When you cut a newer release, replace that tag with the actual version you publish.
 
 ## Manual install via scripts
