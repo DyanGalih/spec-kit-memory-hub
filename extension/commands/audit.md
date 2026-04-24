@@ -3,6 +3,7 @@
 Review the memory files for quality.
 
 Check for:
+
 - stale entries
 - duplicate entries
 - trivial noise
@@ -15,12 +16,16 @@ Check for:
 - missing synthesis or stale synthesis in active feature folders
 
 Suggest:
+
 - removals
 - merges
 - concise rewrites
 - gaps worth documenting
+- a follow-up question for each finding: do we need to address or clean up this finding?
+- if a finding should be tracked externally, route it to `/speckit.memory-md.log-finding`
 
 Use this scoring rubric for each kept or proposed entry:
+
 - durable
 - actionable
 - non-obvious

@@ -3,6 +3,7 @@
 Review the memory files for quality.
 
 Check for:
+
 - stale entries
 - duplicate entries
 - trivial noise
@@ -15,12 +16,16 @@ Check for:
 - missing synthesis or stale synthesis in active feature folders
 
 Suggest:
+
 - removals
 - merges
 - concise rewrites
 - gaps worth documenting
+- a follow-up question for each finding: do we need to address or clean up this finding?
+- if a finding should be tracked externally, route it to `/speckit.memory-md.log-finding`
 
 Use this scoring rubric for each kept or proposed entry:
+
 - durable
 - actionable
 - non-obvious
@@ -29,6 +34,7 @@ Use this scoring rubric for each kept or proposed entry:
 - concise
 
 Use these cleanup rules:
+
 - Remove entries that are obsolete, speculative, or routine implementation history.
 - Merge entries that describe the same lesson, decision, or bug pattern.
 - Rewrite entries that are too verbose into short durable guidance.
@@ -40,6 +46,7 @@ Use these cleanup rules:
   - `WORKLOG.md` for concise high-value milestone notes
 
 When proposing changes, prefer this output structure:
+
 1. Findings
    - file
    - issue

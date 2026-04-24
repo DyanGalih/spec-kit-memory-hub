@@ -29,7 +29,7 @@ Compatibility note:
 
 Versioning note:
 
-- the current extension version is `0.6.3`
+- the current extension version is `0.6.5`
 - “initial release scope” in this document refers to the product scope and workflow shape
 - a `1.0.0` tag has not been released yet
 
@@ -653,12 +653,13 @@ Use it when:
 ## For cleanup and simplification
 
 1. Run `/speckit.memory-md.audit`.
-2. Review suggested removals, merges, rewrites, and file moves.
+2. Review suggested removals, merges, rewrites, file moves, and follow-up questions.
 3. Simplify entries until they are:
    - durable
    - concise
    - reusable
-4. Keep only information that improves future work.
+4. If a finding should become a tracked task or bug, run `/speckit.memory-md.log-finding`.
+5. Keep only information that improves future work.
 
 Use this flow whenever memory starts feeling messy.
 
@@ -666,11 +667,12 @@ Use this flow whenever memory starts feeling messy.
 
 # 🧩 Commands (Spec Kit extension)
 
-/speckit.memory-md.bootstrap  
-/speckit.memory-md.plan-with-memory  
-/speckit.memory-md.capture  
-/speckit.memory-md.capture-from-diff  
-/speckit.memory-md.audit
+- /speckit.memory-md.bootstrap
+- /speckit.memory-md.plan-with-memory
+- /speckit.memory-md.capture
+- /speckit.memory-md.capture-from-diff
+- /speckit.memory-md.audit
+- /speckit.memory-md.log-finding
 
 ---
 
@@ -687,10 +689,10 @@ Use this now if you are trying the extension before the first tagged release.
 ## From GitHub (after a tagged release exists)
 
 ```
-specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.3.zip
+specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.5.zip
 ```
 
-The install example above works only after the `v0.6.3` release tag is published.
+The install example above works only after the `v0.6.5` release tag is published.
 When you cut a newer release, replace that tag with the actual version you publish.
 
 ## Manual install via scripts
