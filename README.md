@@ -531,7 +531,7 @@ Use it when:
 
 ## `/speckit.memory-md.plan-with-memory`
 
-Use this before planning or implementing a feature.
+Use this during `/plan`, after `/specify` has produced the spec and feature memory, and before `/tasks` or `/implement`.
 
 It should:
 
@@ -619,16 +619,19 @@ Use it when:
    - create or refresh `specs/<feature>/memory.md`
    - create or refresh `specs/<feature>/memory-synthesis.md`
 
-2. During `/plan` and `/tasks`:
-   - run `/speckit.memory-md.plan-with-memory`
+2. During `/plan`:
+   - run `/speckit.memory-md.plan-with-memory` after `/specify`
    - block or resolve hard conflicts before continuing
+
+3. During `/tasks`:
+   - rerun `/speckit.memory-md.plan-with-memory` if the plan, spec, or memory changed
    - keep tasks aligned with synthesis watchpoints
 
-3. During `/implement`:
+4. During `/implement`:
    - re-read `memory-synthesis.md`
    - treat implementation watchpoints as active constraints
 
-4. After `/implement` and `/verify`:
+5. After `/implement` and `/verify`:
    - run `/speckit.memory-md.capture` or `/speckit.memory-md.capture-from-diff`
    - update durable memory only when the lesson is evidenced and reusable
 
