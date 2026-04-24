@@ -678,13 +678,21 @@ Use this flow whenever memory starts feeling messy.
 
 # 🚀 Installation
 
-## Local development install
+## Community extension install
 
 ```
+specify extension add memory-md
+```
+
+Use this when installing the approved community extension from the Spec Kit origin repo.
+
+## Local development install
+
+```bash
 specify extension add --dev /path/to/spec-kit-memory-hub
 ```
 
-Use this now if you are trying the extension before the first tagged release.
+Use this only when you are developing the extension locally.
 
 ## From GitHub (after a tagged release exists)
 
