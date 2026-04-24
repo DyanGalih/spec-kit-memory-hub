@@ -1,6 +1,6 @@
 # Spec Kit Memory (Markdown-first)
 
-A **Spec Kit extension** for **repository-native durable memory**.
+A **Spec Kit extension** for **repository-native Markdown memory** that captures durable decisions, bugs, and project context.
 
 It helps teams:
 
@@ -29,7 +29,7 @@ Compatibility note:
 
 Versioning note:
 
-- the current extension version is `0.6.2`
+- the current extension version is `0.6.3`
 - “initial release scope” in this document refers to the product scope and workflow shape
 - a `1.0.0` tag has not been released yet
 
@@ -687,10 +687,10 @@ Use this now if you are trying the extension before the first tagged release.
 ## From GitHub (after a tagged release exists)
 
 ```
-specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.2.zip
+specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.3.zip
 ```
 
-The install example above works only after the `v0.6.2` release tag is published.
+The install example above works only after the `v0.6.3` release tag is published.
 When you cut a newer release, replace that tag with the actual version you publish.
 
 ## Manual install via scripts
