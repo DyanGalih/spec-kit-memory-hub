@@ -6,7 +6,7 @@ Inputs to review:
 - active spec / plan / tasks
 - final implementation diff or summary
 - tests or validation results
-- review findings, if any
+- review findings (Architecture Guard, Security Review, etc.), if any
 - incident or bug-fix context, if any
 
 For each candidate lesson, require all of these:
