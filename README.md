@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.6.7-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.6.8-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -54,6 +54,17 @@ The `capture` command should be used selectively. To help you decide what belong
 - ✅ **Capture**: "We decided to avoid the `XYZ` library because it has threading issues with our DB driver."
 - ❌ **Skip**: "Added a new field to the User model." (Already in Git)
 - ❌ **Skip**: "Fixed a typo in the login page." (Trivial)
+
+---
+
+## Choosing Your Capture Style
+
+You don't need to run both capture commands. Choose the one that fits your current task:
+
+| Command | Best For | Inputs |
+| --- | --- | --- |
+| **`capture`** | **Full Features** | Reflects on the journey from Spec → Plan → Code. Best for capturing **Intent and Rationale**. |
+| **`capture-from-diff`**| **Bug Fixes / "Vibe Coding"** | Extracts lessons directly from the code changes. Best for **Technical Gotchas** when you skipped the formal Spec process. |
 
 ---
 
@@ -264,7 +275,7 @@ specify extension add memory-md
 
 ```text
 specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.6.zip
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.8.zip
 ```
 
 ### Local Development
