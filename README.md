@@ -1,6 +1,8 @@
-# 🧠 Spec Kit Memory (Markdown-first)
+# 🧠 Memory Hub
 
-[![Version](https://img.shields.io/badge/version-0.6.6-22c55e)](extension.yml)
+> Durable project memory and context for AI-assisted development.
+
+[![Version](https://img.shields.io/badge/version-0.6.7-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -26,15 +28,34 @@ Without memory:
 
 **Memory Hub solves this** by storing durable project knowledge in plain Markdown files inside your repo. Before planning or implementing, the AI reads what the project has already learned. After delivery, only the lessons worth keeping are captured back.
 
-## What It Actually Does
+# Recommended Memory Lifecycle
 
-| When | What Happens | Where It Lives |
-| --- | --- | --- |
-| **Once** (setup) | Bootstrap creates the memory structure | `docs/memory/` |
-| **Before planning** | AI reads past decisions, constraints, and bug patterns | `memory-synthesis.md` |
-| **During a feature** | Feature-specific notes, open questions, and relevant context | `specs/<feature>/memory.md` |
-| **After delivery** | Only durable, evidenced lessons are captured | `docs/memory/DECISIONS.md`, `BUGS.md`, etc. |
-| **Periodically** | Audit removes stale, noisy, or duplicate memory | `docs/memory/` |
+Memory Hub is a **context and knowledge layer** that runs alongside Spec Kit workflows. It ensures the AI learns from the past before planning the future.
+
+| Milestone | Recommended Command | Phase Integration | Purpose |
+| --- | --- | --- | --- |
+| **Milestone: Foundation** | `bootstrap` | Once at project setup | Create the memory structure and initial project context. |
+| **Milestone: Synthesis** | `plan-with-memory` | After `/specify` | Read past decisions and synthesize them into active constraints. |
+| **Milestone: Strategy** | `plan-with-memory` | After `/tasks` | Ensure the technical plan and tasks respect known constraints. |
+| **Milestone: Capture** | `capture` | After implementation | Extract and store only the durable lessons for future features. |
+
+---
+
+## What to Capture
+
+The `capture` command should be used selectively. To help you decide what belongs in durable memory, use the **Durable Lesson Test**:
+
+1.  **Is it reusable?** Will this knowledge help a different feature 3 months from now?
+2.  **Is it evidenced?** Did we actually prove this lesson during implementation?
+3.  **Is it unique?** Is this something that isn't already obvious from the code or the constitution?
+
+### Examples
+- ✅ **Capture**: "The external Payment API requires a 15s timeout for production webhooks."
+- ✅ **Capture**: "We decided to avoid the `XYZ` library because it has threading issues with our DB driver."
+- ❌ **Skip**: "Added a new field to the User model." (Already in Git)
+- ❌ **Skip**: "Fixed a typo in the login page." (Trivial)
+
+---
 
 ### Key Behavior: Selective, Not Automatic
 
