@@ -3,7 +3,7 @@ schema_version: '1.0'
 extension:
   id: memory-md
   name: 'Spec Kit Memory MD'
-  version: '0.6.9'
+  version: '0.7.0'
   description: 'Spec Kit extension for repository-native Markdown memory that captures durable decisions, bugs, and project context.'
   author: DyanGalih
   repository: https://github.com/DyanGalih/spec-kit-memory-hub

@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.6.9-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.7.0-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -27,6 +27,19 @@ Without memory:
 - You explain the same constraints in every prompt because the AI forgot
 
 **Memory Hub solves this** by storing durable project knowledge in plain Markdown files inside your repo. Before planning or implementing, the AI reads what the project has already learned. After delivery, only the lessons worth keeping are captured back.
+
+## Extension Interoperability (vNext)
+
+This extension acts as a cooperative citizen in the Spec Kit ecosystem by sharing context through explicit handoff artifacts in the `specs/<feature>/` directory.
+
+**The Governance Workflow:**
+1. `/specify` -> Write initial feature spec.
+2. `/speckit.memory-md.plan-with-memory` -> Emits `specs/<feature>/memory-synthesis.md` (Historical Context).
+3. `/speckit.security-review.specify` (or audit) -> Emits `specs/<feature>/security-constraints.md` (Trust Boundaries).
+4. `/speckit.architecture-guard.architecture-review` -> Validates the feature against the Constitution, Memory Synthesis, and Security Constraints. Emits `architecture-findings.md`.
+5. `/speckit.architecture-guard.refactor-generator` -> Creates an incremental `architecture-migration-plan.md` to resolve drift safely.
+
+By using explicit markdown files, extensions remain decoupled, and all constraints and decisions are fully reviewable in Git.
 
 # Recommended Memory Lifecycle
 
@@ -75,6 +88,27 @@ Memory is curated, not dumped. The guiding principle:
 > If this information will help future work make better decisions, store it. If not, leave it out.
 
 Not memory: logs, full implementation history, temporary notes, trivial refactors. Use Git for those.
+
+## Retrieval Intelligence
+Memory Hub uses scoped, high-signal retrieval instead of maximum memory loading.
+- **Prioritization**: Prioritizes direct feature scope, active architecture decisions, and accepted deviations before historical bugs.
+- **Conflict Handling**: Newer accepted decisions overwrite older ones. Unresolved conflicts are explicitly surfaced to the user.
+- **Budgets**: Imposes strict retrieval limits (e.g., max 5 core decisions) to prevent context window bloat and AI confusion.
+
+## Why Memory Synthesis Exists
+The goal is not to load all memory. The goal is to provide the minimum high-value context needed for accurate reasoning. Memory synthesis acts as a focused lens, translating years of project history into exactly what matters for the current feature.
+
+## Relationship to Architecture Guard
+- **Memory Hub** provides contextual synthesis (the "What did we decide?").
+- **Architecture Guard** enforces architecture standards (the "Are we breaking the rules?").
+Memory Hub does not enforce architecture rules or block implementation on its own.
+
+## Non-Goals
+Memory Hub is NOT:
+- a full knowledge graph or vector database.
+- a full repository ingestion engine.
+- a memory dump system.
+- an architecture enforcement engine.
 
 ## Benefits
 
