@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.7.1-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.7.3-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -39,6 +39,153 @@ This extension acts as a cooperative citizen in the Spec Kit ecosystem by sharin
 4. **`/speckit.architecture-guard.governed-implement`** -> Orchestrates implementation with memory context and post-implementation governance review.
 
 By using explicit markdown files, extensions remain decoupled, and all constraints and decisions are fully reviewable in Git.
+
+---
+
+## Usage Modes
+
+Memory Hub operates in two primary modes:
+
+### 1. Direct Usage
+
+The user runs memory commands manually.
+
+Example:
+
+```text
+/speckit.memory-md.plan-with-memory
+/speckit.memory-md.capture
+/speckit.memory-md.audit
+```
+
+### 2. Orchestrated Usage
+
+Architecture Guard orchestrator commands may consume memory synthesis automatically when available.
+
+Example:
+
+```text
+/speckit.architecture-guard.governed-plan
+```
+
+may use:
+
+```text
+specs/<feature>/memory-synthesis.md
+```
+
+as context.
+
+---
+
+## Using memory-md with Architecture Guard
+
+memory-md can be used as a context provider for Architecture Guard governed workflows.
+
+When Architecture Guard orchestrator commands are used, memory-md may provide scoped context synthesis through:
+
+```text
+specs/<feature>/memory-synthesis.md
+```
+
+Architecture Guard can then validate plans, tasks, or implementations with awareness of:
+
+* previous decisions
+* accepted deviations
+* known architecture patterns
+* relevant historical lessons
+
+memory-md remains responsible for memory retrieval and synthesis.
+
+Architecture Guard remains responsible for architecture validation and governance orchestration.
+
+---
+
+## Capture vs Synthesis
+
+memory-md separates two different operations:
+
+### Synthesis
+
+Synthesis prepares relevant memory for the current workflow.
+
+It is safe to use during governed workflows because it reads and summarizes context.
+
+Examples:
+
+```text
+memory-synthesis.md
+```
+
+### Capture
+
+Capture persists new durable memory.
+
+It should be intentional and human-approved.
+
+Architecture Guard orchestration should not automatically capture memory without approval.
+
+Instead, governed workflows may produce capture candidates, such as:
+
+* accepted architecture decisions
+* approved deviations
+* security constraints
+* migration lessons
+* repeated failure patterns
+
+The user can then decide whether to run memory capture.
+
+---
+
+## Memory Capture Candidates
+
+When used with Architecture Guard, governed workflows may produce memory capture candidates.
+
+Example:
+
+```text
+Memory Capture Candidates:
+- Accepted deviation: Invoice export may use async processing during migration.
+- Architecture decision: New validation boundaries use FormRequest classes.
+- Security constraint: Pricing authority must remain server-side.
+```
+
+These are recommendations only.
+
+They do not become durable memory until the user explicitly captures them.
+
+---
+
+## Orchestrated Workflow Example
+
+```text
+/speckit.architecture-guard.governed-plan
+```
+
+Possible internal flow:
+
+```text
+memory-md synthesis
+↓
+Spec Kit plan
+↓
+Security Review
+↓
+Architecture Guard violation detection
+↓
+Governance summary
+↓
+Optional memory capture candidates
+```
+
+In this flow:
+
+* memory-md provides scoped context
+* security-review provides security constraints
+* architecture-guard validates architecture
+* capture remains manual unless explicitly approved
+
+---
 
 # Recommended Memory Lifecycle
 
@@ -89,12 +236,26 @@ Memory is curated, not dumped. The guiding principle:
 Not memory: logs, full implementation history, temporary notes, trivial refactors. Use Git for those.
 
 ## Retrieval Intelligence
-Memory Hub uses scoped, high-signal retrieval instead of maximum memory loading.
-- **Prioritization**: Prioritizes direct feature scope, active architecture decisions, and accepted deviations before historical bugs.
-- **Conflict Handling**: Newer accepted decisions overwrite older ones. Unresolved conflicts are explicitly surfaced to the user.
-- **Budgets**: Imposes strict retrieval limits (e.g., max 5 core decisions) to prevent context window bloat and AI confusion.
 
-## Why Memory Synthesis Exists
+memory-md should avoid loading all memory into every workflow.
+
+Synthesis should prioritize:
+
+- current feature scope
+- affected modules
+- active decisions
+- accepted deviations
+- relevant security constraints
+- recent decisions that supersede older ones
+
+Synthesis should avoid:
+
+- deprecated decisions
+- unrelated history
+- stale notes
+- full memory dumps
+
+### Why Memory Synthesis Exists
 The goal is not to load all memory. The goal is to provide the minimum high-value context needed for accurate reasoning. Memory synthesis acts as a focused lens, translating years of project history into exactly what matters for the current feature.
 
 ## Relationship to Architecture Guard
@@ -103,11 +264,14 @@ The goal is not to load all memory. The goal is to provide the minimum high-valu
 Memory Hub does not enforce architecture rules or block implementation on its own.
 
 ## Non-Goals
-Memory Hub is NOT:
-- a full knowledge graph or vector database.
-- a full repository ingestion engine.
-- a memory dump system.
-- an architecture enforcement engine.
+
+memory-md does not:
+
+- enforce architecture rules
+- perform security review
+- automatically approve durable memory capture
+- replace Architecture Guard orchestration
+- load all memory into every workflow
 
 ## Benefits
 
@@ -283,16 +447,17 @@ cp config-template.yml .specify/extensions/memory-md/config.yml
 
 ---
 
-## Companion Extensions
+## Extension Compatibility
 
-Memory Hub is designed to work alongside:
+memory-md is designed to work independently or as part of a governed workflow.
 
-| Extension | Relationship |
+| Extension | Role |
 | --- | --- |
-| **Architecture Guard** | Reads memory context for architecture reviews. Memory Hub is read-only context, not a write target. |
-| **Security Review** | Can reference memory for security-relevant constraints. Separate ownership. |
+| memory-md | Retrieves and synthesizes relevant memory |
+| security-review | Produces security findings or constraints |
+| architecture-guard | Validates architecture and orchestrates governed workflows |
 
-Memory Hub provides context. Other extensions consume it. No extension writes to memory on your behalf.
+memory-md does not enforce architecture or security rules. It provides context.
 
 ---
 
@@ -308,7 +473,7 @@ specify extension add memory-md
 
 ```text
 specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.7.1.zip
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.7.3.zip
 ```
 
 ### Local Development
