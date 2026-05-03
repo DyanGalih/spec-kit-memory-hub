@@ -6,7 +6,7 @@ Thank you for your interest in contributing!
 
 1. Fork and clone this repository.
 2. Read the [README.md](README.md) for project context.
-3. Read `docs/memory-workflow-v0.6.md` for the full workflow design.
+3. Read `docs/governed-memory-workflow.md` for the full workflow design.
 
 ## Repository Structure
 

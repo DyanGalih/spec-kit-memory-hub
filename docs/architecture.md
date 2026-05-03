@@ -9,6 +9,7 @@
 - plans
 - tasks
 - implementation work
+- **governed orchestration** (via Architecture Guard)
 
 ### 2. Durable project memory layer
 
@@ -43,6 +44,7 @@ The initial release intentionally relies on:
 - explicit Markdown files
 - shared folder conventions
 - command-driven usage
+- governed orchestration
 
 The initial release intentionally does not include:
 
