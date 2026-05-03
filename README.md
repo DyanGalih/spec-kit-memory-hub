@@ -309,7 +309,7 @@ specify extension add memory-md
 
 ```text
 specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.6.9.zip
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.7.0.zip
 ```
 
 ### Local Development
