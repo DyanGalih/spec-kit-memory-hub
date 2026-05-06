@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.7.7-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.7.8-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -329,31 +329,67 @@ memory-md does not:
 
 ## Quick Start
 
-1. Install the extension:
-   ```text
-   specify extension add memory-md
-   ```
-
-2. Bootstrap the memory structure:
+1. **Install** the extension (see [Installation](#installation) section below for all methods)
+2. **Bootstrap** the memory structure:
    ```text
    /speckit.memory-md.bootstrap
    ```
-
-3. Fill in the two most important files:
+3. **Fill in** the two most important files:
    - `docs/memory/PROJECT_CONTEXT.md` — what this project is, key constraints
    - `docs/memory/ARCHITECTURE.md` — system shape, boundaries, integrations
-
-4. Start a feature with memory:
+4. **Start** a feature with memory:
    ```text
    /speckit.memory-md.plan-with-memory
    ```
-
-5. After delivery, capture only durable lessons:
+5. **Capture** only durable lessons after delivery:
    ```text
    /speckit.memory-md.capture
    ```
 
 That's it. Steps 4–5 repeat for each feature.
+
+---
+
+## Installation
+
+### From Extension Registry
+
+```text
+specify extension add memory-md
+```
+
+### From GitHub
+
+```text
+specify extension add memory-md --from \
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.7.8.zip
+```
+
+### Local Development
+
+```bash
+specify extension add --dev /path/to/spec-kit-memory-hub
+```
+
+### Manual Install (Without Spec Kit CLI)
+
+```bash
+# Copy starter files into a project
+scripts/install-into-project.sh /path/to/hub /path/to/project
+
+# Sync copilot instructions only
+scripts/sync-from-hub.sh /path/to/hub /path/to/project
+```
+
+### Verification and CI
+
+```bash
+# Check a project's memory structure
+scripts/check-memory.sh /path/to/project
+
+# Smoke test the hub itself
+scripts/test-install.sh
+```
 
 ---
 
@@ -390,12 +426,12 @@ These files help the **current feature only**:
 
 | Command | When To Use | What It Does |
 | --- | --- | --- |
-| `bootstrap` | Once, at project setup | Creates `docs/memory/` files, feature templates, and copilot instructions |
-| `plan-with-memory` | Before planning each feature | Reads memory, refreshes synthesis, surfaces conflicts and watchpoints |
-| `capture` | After meaningful work is done | Reviews what happened, captures only durable lessons to memory |
-| `capture-from-diff` | After implementation (fast mode) | Extracts lessons directly from code changes |
-| `audit` | When memory feels noisy or stale | Finds duplicates, stale entries, contradictions; suggests cleanup |
-| `log-finding` | When an audit finding should become a task | Converts a finding into a tracked task or bug |
+| `bootstrap` | Once, at project setup | Creates durable memory folder (`docs/memory/`), feature memory starter files, `.github/copilot-instructions.md`, and `.specify/extensions/memory-md/config.yml` |
+| `plan-with-memory` | Before planning each feature | Reads durable memory, synthesizes relevant constraints and decisions, surfaces conflicts and watchpoints for this feature |
+| `capture` | After meaningful work is done | Reviews what happened, extracts durable lessons from the full feature journey (Spec → Plan → Code → Tests) |
+| `capture-from-diff` | After implementation (fast mode) | Extracts lessons directly from code diffs when you skipped formal spec process (useful for bug fixes or rapid iteration) |
+| `audit` | When memory feels noisy or stale | Finds duplicates, stale entries, contradictions, misplaced content; suggests cleanup and rewrites |
+| `log-finding` | When audit finds something actionable | Converts a high-signal audit finding into a tracked task for GitHub, GitLab, Jira, or other issue tracker |
 
 All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 
@@ -403,13 +439,23 @@ All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 
 ## Workflow
 
+### Bootstrap (One-Time Setup)
+
+**Before you start any features**, initialize the memory system:
+
+1. Run `/speckit.memory-md.bootstrap` to create the memory folder structure and starter templates.
+2. Fill in `docs/memory/PROJECT_CONTEXT.md` — product identity, domain language, key constraints.
+3. Fill in `docs/memory/ARCHITECTURE.md` — system shape, module boundaries, integrations, and key technologies.
+4. Optional: Fill in `docs/memory/DECISIONS.md` and `docs/memory/BUGS.md` if you have existing lessons.
+
 ### New Feature
 
-1. **`/specify`** — Read constitution + durable memory. Create `specs/<feature>/memory.md` and `memory-synthesis.md`.
-2. **`/plan`** — Run `/speckit.memory-md.plan-with-memory`. Block or resolve hard conflicts before continuing.
-3. **`/tasks`** — Rerun `plan-with-memory` if anything changed. Keep tasks aligned with synthesis watchpoints.
-4. **`/implement`** — Re-read `memory-synthesis.md`. Treat watchpoints as active constraints.
-5. **After `/verify`** — Run `/speckit.memory-md.capture`. Update durable memory only if the lesson is evidenced and reusable.
+1. **`/specify`** — Write the initial feature spec. Read constitution + durable memory first.
+2. **`/speckit.memory-md.plan-with-memory`** — Synthesize relevant memory. Create `specs/<feature>/memory.md` and `memory-synthesis.md`. Block or resolve hard conflicts before continuing.
+3. **`/plan`** — Generate technical plan respecting the synthesis constraints.
+4. **`/tasks`** — Generate tasks. Rerun `plan-with-memory` if anything changed. Keep tasks aligned with synthesis watchpoints.
+5. **`/implement`** — Re-read `memory-synthesis.md`. Treat watchpoints as active constraints during coding.
+6. **After `/verify`** — Run `/speckit.memory-md.capture`. Update durable memory only if the lesson is evidenced and reusable.
 
 ### Bug Fix
 
@@ -424,26 +470,91 @@ All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 2. Review suggested removals, merges, and rewrites.
 3. Keep only entries that are durable, concise, and useful for future work.
 
+### Advanced: Rapid Iteration (Bug Fixes / Vibe Coding)
+
+If you're working outside formal specs (e.g., quick bug fix):
+
+1. Fix and test the change.
+2. Run `/speckit.memory-md.capture-from-diff` to extract lessons directly from the diff.
+3. Review suggested captures and approve only what's truly reusable.
+
+### Advanced: Using log-finding
+
+After running audit:
+
+1. If a finding is actionable and should become a task: run `/speckit.memory-md.log-finding`.
+2. This converts the finding into a tracker-ready issue (GitHub, GitLab, Jira, etc.).
+3. Reduces back-and-forth between memory review and task tracking.
+
+---
+
+## Templates and Prompts
+
+### What Are Templates?
+
+When you run `/speckit.memory-md.bootstrap`, Memory Hub creates starter files in your project from the hub's `templates/` directory:
+
+| Template Files | Created In Project | Purpose |
+| --- | --- | --- |
+| `PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, etc. | `docs/memory/` | Pre-populated memory file templates for you to customize with your project context |
+| Feature starter template | `specs/<feature_name>/` | Includes example `memory.md`, `memory-synthesis.md`, spec, plan, and tasks starters |
+| `.github/copilot-instructions.md` | `.github/` | Pre-populated Copilot agent instructions requiring memory review before planning and implementation |
+| `config.yml` | `.specify/extensions/memory-md/` | Default configuration (can be customized to change memory folder path, feature scope, etc.) |
+
+You can customize all templates after bootstrap. They are just starter content.
+
+### What Are Prompts?
+
+Prompts are the **instruction templates** that define how each Memory Hub command operates. They live in the hub at `templates/prompts/` and are not deployed to your projects.
+
+| Prompt File | Used By | Purpose |
+| --- | --- | --- |
+| `bootstrap.memory.prompt.md` | `/speckit.memory-md.bootstrap` | Instructs bootstrap to create memory structure and templates correctly |
+| `plan-with-memory.prompt.md` | `/speckit.memory-md.plan-with-memory` | Instructs synthesis to extract relevant constraints and decisions |
+| `capture.memory.prompt.md` | `/speckit.memory-md.capture` | Instructs capture to extract durable lessons from full feature journey |
+| `capture-from-diff.memory.prompt.md` | `/speckit.memory-md.capture-from-diff` | Instructs capture to extract lessons from code diffs |
+| `audit.memory.prompt.md` | `/speckit.memory-md.audit` | Instructs audit to find duplicates, stale entries, contradictions |
+| `log-finding.prompt.md` | `/speckit.memory-md.log-finding` | Instructs log-finding to convert audit findings into tasks |
+| `specify.memory.prompt.md` | `/specify` (Spec Kit core command) | Instructs spec writing to incorporate memory context |
+
+**These prompts are not customized per-project.** They are shared infrastructure that ensure consistent behavior across all projects using Memory Hub.
+
 ---
 
 ## Configuration
 
-Copy `config-template.yml` into your project and adjust:
+### When You Need to Configure
+
+Configuration is **optional**. You only need it if:
+- Your project uses non-standard folder paths (not `docs/memory/` or `specs/`)
+- You want to change memory file names or behavior
+- You need to enforce memory review gates
+
+### How to Configure
+
+Bootstrap creates a default config at `.specify/extensions/memory-md/config.yml`. To customize:
 
 ```bash
 cp config-template.yml .specify/extensions/memory-md/config.yml
 ```
 
-| Key | Default | Purpose |
-| --- | --- | --- |
-| `memory_root` | `docs/memory` | Path to durable memory folder |
-| `specs_root` | `specs` | Path to specs folder |
-| `use_project_copilot_instructions` | `true` | Maintain `.github/copilot-instructions.md` |
-| `definition_of_done_includes_memory_review` | `true` | Require memory review before feature is done |
-| `feature_memory_filename` | `memory.md` | Filename for per-feature memory |
-| `memory_synthesis_filename` | `memory-synthesis.md` | Filename for per-feature synthesis |
-| `require_memory_synthesis_before_plan` | `true` | Gate planning on current synthesis |
-| `require_memory_review_before_verify` | `true` | Gate verification on memory review |
+Then edit the YAML file:
+
+| Key | Default | Purpose | Use Case |
+| --- | --- | --- | --- |
+| `memory_root` | `docs/memory` | Path to durable memory folder | Change if your project uses `knowledge/` or `.project-memory/` instead |
+| `specs_root` | `specs` | Path to specs folder | Change if your project uses `features/` or `requirements/` |
+| `use_project_copilot_instructions` | `true` | Maintain `.github/copilot-instructions.md` | Set to `false` if you manage Copilot instructions separately |
+| `definition_of_done_includes_memory_review` | `true` | Require memory review before feature is done | Set to `false` if memory review is optional |
+| `feature_memory_filename` | `memory.md` | Filename for per-feature active notes | Change if you prefer `context.md` or `notes.md` |
+| `memory_synthesis_filename` | `memory-synthesis.md` | Filename for per-feature synthesis | Change if you prefer `constraints.md` or `synthesis.txt` |
+| `require_memory_synthesis_before_plan` | `true` | Gate planning on current synthesis | Set to `false` to allow planning without synthesis |
+| `require_memory_review_before_verify` | `true` | Gate verification on memory review | Set to `false` to allow verification without memory capture |
+
+Default config:
+
+```bash
+cp config-template.yml .specify/extensions/memory-md/config.yml
 
 ---
 
@@ -461,52 +572,23 @@ memory-md does not enforce architecture or security rules. It provides context.
 
 ---
 
-## Installation
+## IDE and Agent Compatibility
 
-### From Extension Registry
+Memory Hub is a **Spec Kit extension**, not a VS Code-only tool. It works with any IDE and AI agent that Spec Kit supports.
 
-```text
-specify extension add memory-md
-```
+This extension ships repository-side files that agents expect:
+- `docs/memory/` — durable project memory
+- `.github/copilot-instructions.md` — agent instructions template
 
-### From GitHub
+**Supported IDEs/Agents:**
+- VS Code + GitHub Copilot
+- Cursor IDE (any agent)
+- JetBrains IDEs (Spec Kit CLI)
+- Any CLI-compatible environment with a Spec Kit-compatible agent
 
-```text
-specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.7.7.zip
-```
+For the full compatibility matrix, see [Spec Kit's supported agents and IDEs](https://spec-kit.dev).
 
-### Local Development
-
-```bash
-specify extension add --dev /path/to/spec-kit-memory-hub
-```
-
-### Manual Install (Without Spec Kit CLI)
-
-```bash
-# Copy starter files into a project
-scripts/install-into-project.sh /path/to/hub /path/to/project
-
-# Sync copilot instructions only
-scripts/sync-from-hub.sh /path/to/hub /path/to/project
-```
-
-### Verification and CI
-
-```bash
-# Check a project's memory structure
-scripts/check-memory.sh /path/to/project
-
-# Smoke test the hub itself
-scripts/test-install.sh
-```
-
----
-
-## VS Code Copilot Agents
-
-This extension ships the repository-side files that Copilot agents expect (`docs/memory/`, `.github/copilot-instructions.md`). The VS Code memory tool and GitHub-hosted Copilot Memory are controlled by your editor and GitHub settings — this extension provides the repo conventions that make those agents useful on your codebase.
+**Note:** IDE-specific memory tools (VS Code memory sidebar, GitHub Copilot Memory) are controlled by your editor and GitHub settings. This extension provides the **repository conventions** that make those tools useful alongside your agent.
 
 ---
 
@@ -514,41 +596,64 @@ This extension ships the repository-side files that Copilot agents expect (`docs
 
 ### In Your Project (After Bootstrap)
 
+These files are created in your project by bootstrap:
+
 ```text
 your-project/
 ├── .github/
-│   └── copilot-instructions.md
+│   └── copilot-instructions.md          ← Enforces memory in workflow
+├── .specify/extensions/memory-md/
+│   └── config.yml                      ← Your customizations (optional)
 ├── docs/
 │   └── memory/
-│       ├── PROJECT_CONTEXT.md
-│       ├── ARCHITECTURE.md
-│       ├── DECISIONS.md
-│       ├── BUGS.md
-│       └── WORKLOG.md
+│       ├── PROJECT_CONTEXT.md             ← Product, domain, key constraints
+│       ├── ARCHITECTURE.md                ← System shape, boundaries
+│       ├── DECISIONS.md                   ← Architecture and tech choices
+│       ├── BUGS.md                        ← Recurring patterns to prevent
+│       └── WORKLOG.md                     ← Project milestone notes
 └── specs/
     └── <feature>/
         ├── spec.md
         ├── plan.md
         ├── tasks.md
-        ├── memory.md
-        └── memory-synthesis.md
+        ├── memory.md                      ← Feature-local notes
+        └── memory-synthesis.md            ← AI-facing constraints summary
 ```
 
-### The Extension Hub Itself
+### In the Memory Hub Repository (Not Deployed)
+
+These are the hub's infrastructure files:
 
 ```text
 spec-kit-memory-hub/
 ├── extension.yml                 ← Extension manifest
-├── config-template.yml           ← Default configuration
+├── config-template.yml           ← Default configuration template
 ├── commands/                     ← Spec Kit command definitions
-├── templates/                    ← Starter files for target projects
-│   ├── docs/memory/
-│   ├── specs/
-│   ├── prompts/
-│   └── .github/
-├── scripts/                      ← Install, sync, check, and test scripts
-└── docs/                         ← Extension documentation
+│   └── speckit.memory-md.*.md       ← 6 main commands
+└── templates/                    ← Starter files
+    ├── prompts/                      ← Instruction prompts (NOT deployed)
+    │   ├── bootstrap.memory.prompt.md
+    │   ├── plan-with-memory.prompt.md
+    │   ├── capture*.prompt.md
+    │   ├── audit.memory.prompt.md
+    │   ├── log-finding.prompt.md
+    │   └── specify.memory.prompt.md
+    ├── docs/memory/                  ← Template starter files
+    │   ├── PROJECT_CONTEXT.md
+    │   ├── ARCHITECTURE.md
+    │   ├── DECISIONS.md
+    │   ├── BUGS.md
+    │   └── WORKLOG.md
+    ├── specs/
+    │   └── 001-example-feature/      ← Example feature template
+    ├── .github/
+    │   └── copilot-instructions.md   ← Template instructions
+    └── docs/                         ← Extension documentation
 ```
+
+**Key distinction:**
+- **Deployed to projects**: Memory files, config, instructions
+- **Stays in hub**: Prompts, templates (as reference), documentation
 
 ---
 
