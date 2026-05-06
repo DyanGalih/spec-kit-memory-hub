@@ -1,63 +1,62 @@
 # Audit Memory
 
-Review the memory files for quality.
+You are running a high-integrity audit of the project's durable and feature memory for `memory-hub`.
 
+## Goal
+Validate the quality, accuracy, and density of memory artifacts (`.specify/memory/*.md` and `specs/<feature>/memory*.md`). Identify stale, contradictory, or low-signal entries that degrade the project's long-term intelligence.
+
+## Operating Constraints
+- **STRICTLY READ-ONLY**: This command is analytical. Do **not** modify any files.
+- **Evidence-Based**: Every finding must cite a specific entry or lack thereof.
+
+## Detection Scope
 Check for:
+- **Stale/Obsolete**: Decisions or patterns that no longer apply to the current codebase.
+- **Contradictions**: Memory entries that conflict with the Constitution or other memory files.
+- **Noise/Triviality**: Routine history, speculative notes, or implementation details that lack durable value.
+- **Leakage**: Feature-specific details that belong in `specs/` but have leaked into root `docs/memory/`.
+- **Synthesis Drift**: `memory-synthesis.md` that is out of sync with detailed memory logs.
+- **Formatting Issues**: Entries that are too long, vague, or repetitive.
 
-- stale entries
-- duplicate entries
-- trivial noise
-- contradictions
-- missing high-value lessons
-- misplaced entries in the wrong memory file
-- entries that are too long, vague, or repetitive
-- speculative entries
-- feature-specific details leaking into durable memory
-- missing synthesis or stale synthesis in active feature folders
+## Severity Guide
+- **CRITICAL**: Contradicts the Constitution, contains dangerous/incorrect security guidance, or is fundamentally stale.
+- **HIGH**: Significant duplication, misplaced entries in the wrong layer, or missing synthesis for a complex feature.
+- **MEDIUM**: Wordy entries, weak evidence, or minor pattern drift.
+- **LOW**: Minor formatting or naming inconsistencies.
 
-Suggest:
+## Output Format
 
-- removals
-- merges
-- concise rewrites
-- gaps worth documenting
-- a follow-up question for each finding: do we need to address or clean up this finding?
-- if a finding should be tracked externally, route it to `/speckit.memory-md.log-finding`
+# Memory Audit Report
 
-Use this scoring rubric for each kept or proposed entry:
+| ID | File | Severity | Issue | Recommendation |
+|:---|:---|:---|:---|:---|
+| M1 | `DECISIONS.md` | CRITICAL | Stale decision on [X] | Remove/Update to reflect [Y] |
 
-- durable
-- actionable
-- non-obvious
-- evidenced
-- correctly scoped
-- concise
+### Metrics
+- **Memory Quality Score**: [e.g. 85/100]
+- **Signal-to-Noise Ratio**: [High / Medium / Low]
+- **Stale Entry Rate**: [e.g. 5%]
+- **Synthesis Accuracy**: [Verified / Drifted]
 
-Use these cleanup rules:
+### Findings Summary
+- **Durable Memory Health**: [Summary of PROJECT_CONTEXT, ARCHITECTURE, DECISIONS]
+- **Feature Memory Health**: [Summary of active specs/ memory]
 
-- Remove entries that are obsolete, speculative, or routine implementation history.
-- Merge entries that describe the same lesson, decision, or bug pattern.
-- Rewrite entries that are too verbose into short durable guidance.
-- Move entries if they belong in a different file:
-  - `PROJECT_CONTEXT.md` for stable product and domain context
-  - `ARCHITECTURE.md` for system shape and boundaries
-  - `DECISIONS.md` for explicit tradeoffs and chosen direction
-  - `BUGS.md` for recurring failure modes and prevention
-  - `WORKLOG.md` for concise high-value milestone notes
+### Action Plan
+1. **Critical Cleanup**: Resolve contradictions and stale decisions immediately.
+2. **Refactoring**: Merge duplicates and move leaked feature notes to their respective `specs/`.
+3. **Synthesis Refresh**: Update `memory-synthesis.md` to reflect current implementation.
+4. **Remediation**: "Would you like me to suggest concrete cleanup edits for the top issues?"
 
-When proposing changes, prefer this output structure:
-
-1. Findings
-   - file
-   - issue
-   - why it reduces memory quality
-2. Proposed cleanup
-   - remove / merge / rewrite / move
-   - concise replacement text when helpful
-3. Gaps
-   - missing durable knowledge worth adding
-
-Prefer preserving signal over preserving wording.
-Flag hard issues when an entry is contradictory, clearly stale, or stored in the wrong layer.
-Flag soft issues when an entry is wordy, weakly evidenced, or duplicative but still salvageable.
-Do not invent missing knowledge.
+---
+## Cleanup Rubric
+- **Durable**: Will this be useful in 6 months?
+- **Actionable**: Does it inform future decisions or implementation?
+- **Non-obvious**: Is it something the AI wouldn't already know from standard framework docs?
+- **Evidenced**: Is it backed by a PR, bug, or explicit decision?
+- **Correctly Scoped**: Is it in the right file?
+  - `PROJECT_CONTEXT.md` for stable product and domain context.
+  - `ARCHITECTURE.md` for system shape and boundaries.
+  - `DECISIONS.md` for explicit tradeoffs and chosen direction.
+  - `BUGS.md` for recurring failure modes and prevention.
+  - `WORKLOG.md` for concise high-value milestone notes.

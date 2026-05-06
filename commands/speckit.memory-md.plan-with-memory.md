@@ -9,15 +9,18 @@ Then read in this order:
 1. constitution or project principles
 2. active feature spec
 3. `specs/<feature>/memory.md` if present
-4. durable memory:
-   - docs/memory/PROJECT_CONTEXT.md
-   - docs/memory/ARCHITECTURE.md
-   - docs/memory/DECISIONS.md
-   - docs/memory/BUGS.md
-   - docs/memory/WORKLOG.md when it contains durable lessons
+4. durable memory: `PROJECT_CONTEXT`, `ARCHITECTURE`, `DECISIONS`, `BUGS`, `WORKLOG`
 5. existing `specs/<feature>/memory-synthesis.md` if present
 
-### Retrieval Selection & Budget
+## Semantic Modeling
+
+Before planning, build internal representations:
+1. **Constraint Map**: Identify MUST/SHOULD rules from Constitution and Architecture memory.
+2. **Pattern Inventory**: Identify preferred implementation patterns from DECISIONS.md.
+3. **Anti-Pattern Guard**: Identify recurring bug patterns from BUGS.md that apply to this scope.
+4. **Deviation Log**: Identify any `accepted-deviations` that relax standard rules.
+
+## Retrieval Selection & Budget
 Do NOT dump the entire repository memory into the synthesis. Adhere to this retrieval budget:
 - Max 5 Active Architecture Decisions
 - Max 3 Accepted Deviations
