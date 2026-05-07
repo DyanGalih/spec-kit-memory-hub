@@ -1,31 +1,43 @@
 # Plan With Memory
 
-Before planning the feature, resolve configuration: 0. If `.specify/extensions/memory-md/config.yml` exists, read it for `memory_root`, `specs_root`, `feature_memory_filename`, `memory_synthesis_filename`, and `require_memory_synthesis_before_plan`.
-Otherwise use defaults: `memory_root: docs/memory`, `specs_root: specs`, `feature_memory_filename: memory.md`, `memory_synthesis_filename: memory-synthesis.md`, `require_memory_synthesis_before_plan: true`.
+Before planning the feature, resolve configuration. If `.specify/extensions/memory-md/config.yml` exists, read it for `memory_root`, `specs_root`, `feature_memory_filename`, `memory_synthesis_filename`, `require_memory_synthesis_before_plan`, and `retrieval`.
+Otherwise use defaults: `memory_root: docs/memory`, `specs_root: specs`, `feature_memory_filename: memory.md`, `memory_synthesis_filename: memory-synthesis.md`, `require_memory_synthesis_before_plan: true`, and the retrieval defaults below.
 If `require_memory_synthesis_before_plan` is `false`, skip the synthesis gate but still produce a synthesis when possible.
 
-Then read in this order:
+## Retrieval Order
 
-1. constitution or project principles
-2. active feature spec
-3. `specs/<feature>/memory.md` if present
-4. durable memory: `PROJECT_CONTEXT`, `ARCHITECTURE`, `DECISIONS`, `BUGS`, `WORKLOG`
-5. existing `specs/<feature>/memory-synthesis.md` if present
+1. Read config.
+2. Read constitution or project principles only if present and small.
+3. Read the active feature spec.
+4. Read `{specs_root}/<feature>/{feature_memory_filename}` if present.
+5. Read `{memory_root}/INDEX.md`.
+6. Select relevant index entries by feature scope, affected modules, named technologies, security/data boundaries, known bug patterns, and active decisions.
+7. Only then read the smallest necessary source sections from durable memory files.
+8. Create or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
+
+Do not read or paste entire durable memory files unless the index is missing, incomplete, or the user explicitly requests a full audit.
 
 ## Semantic Modeling
 
 Before planning, build internal representations:
-1. **Constraint Map**: Identify MUST/SHOULD rules from Constitution and Architecture memory.
-2. **Pattern Inventory**: Identify preferred implementation patterns from DECISIONS.md.
-3. **Anti-Pattern Guard**: Identify recurring bug patterns from BUGS.md that apply to this scope.
+1. **Constraint Map**: Identify MUST/SHOULD rules from small principles files and selected architecture entries.
+2. **Pattern Inventory**: Identify preferred implementation patterns from selected active decisions.
+3. **Anti-Pattern Guard**: Identify selected recurring bug patterns that apply to this scope.
 4. **Deviation Log**: Identify any `accepted-deviations` that relax standard rules.
 
 ## Retrieval Selection & Budget
-Do NOT dump the entire repository memory into the synthesis. Adhere to this retrieval budget:
-- Max 5 Active Architecture Decisions
-- Max 3 Accepted Deviations
-- Max 3 Relevant Security Constraints (from `specs/<feature>/security-constraints.md`)
-- Max 3 Historical Lessons/Bug Patterns
+Do not dump the entire repository memory into the synthesis. Use configured retrieval limits, defaulting to:
+- Max 20 index entries considered
+- Max 5 active decisions
+- Max 5 architecture constraints
+- Max 3 accepted deviations
+- Max 3 security constraints
+- Max 3 bug patterns
+- Max 2 worklog items
+- Max 900 synthesis words
+- Full durable memory read allowed: false
+
+If the budget is exceeded, summarize and prioritize the highest-impact entries instead of loading more memory.
 
 ### Phase-Aware Retrieval
 Adapt synthesis based on the Spec Kit phase:
@@ -40,7 +52,7 @@ Treat memory as stateful.
 - If an unresolved conflict exists, explicitly surface it in the "Conflict Warnings" section, preferring the current active standard.
 
 ### Required Synthesis Structure
-Create or refresh `specs/<feature>/memory-synthesis.md` matching exactly this structure:
+Create or refresh `{specs_root}/<feature>/{memory_synthesis_filename}` matching exactly this structure and keep it within `retrieval.max_synthesis_words`:
 
 ```markdown
 # Memory Synthesis
@@ -67,7 +79,7 @@ Create or refresh `specs/<feature>/memory-synthesis.md` matching exactly this st
 - [Explicit conflicts between old and new memory]
 
 ## Retrieval Notes
-- [Items retrieved counts, budget status]
+- [Index entries considered, source sections read, budget status]
 ```
 
 Conflict rules:
@@ -77,5 +89,5 @@ Conflict rules:
 
 Output:
 - a concise planning synthesis
-- Do not dump full memory files into the plan.
+- Include only selected summaries in the plan.
 - Do not continue to task breakdown or implementation with unresolved hard conflicts.

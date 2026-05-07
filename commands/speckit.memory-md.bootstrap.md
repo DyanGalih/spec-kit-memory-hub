@@ -12,6 +12,7 @@ Tasks:
    - `{specs_root}` (default: specs)
    - .github
 3. Create missing durable memory files from the extension templates:
+   - `{memory_root}/INDEX.md`
    - `{memory_root}/PROJECT_CONTEXT.md`
    - `{memory_root}/ARCHITECTURE.md`
    - `{memory_root}/DECISIONS.md`
@@ -29,6 +30,7 @@ Tasks:
    - constitution / principles = stable operating rules
    - durable project memory = reusable cross-feature knowledge
    - active feature memory = feature-local constraints, open questions, and carry-forward context
+   - memory index = compact routing map for selecting relevant durable entries
    - ephemeral run context = temporary prompt or terminal state that must not be committed
 8. List the first customization steps:
    - fill in project context and architecture

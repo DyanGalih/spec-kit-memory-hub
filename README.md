@@ -26,7 +26,9 @@ Without memory:
 - The AI generates a plan that contradicts an architecture decision made 3 months ago
 - You explain the same constraints in every prompt because the AI forgot
 
-**Memory Hub solves this** by storing durable project knowledge in plain Markdown files inside your repo. Before planning or implementing, the AI reads what the project has already learned. After delivery, only the lessons worth keeping are captured back.
+**Memory Hub solves this** by storing durable project knowledge in plain Markdown files inside your repo. Before planning, the AI reads a compact index, retrieves only relevant entries, and writes a focused synthesis. After delivery, only the lessons worth keeping are captured back with approval.
+
+For projects that need even less token usage, there is an optional Node.js + SQLite local optimizer roadmap in [docs/optimizer-roadmap.md](docs/optimizer-roadmap.md). It treats SQLite as a searchable cache, not a source of truth.
 
 ## Extension Interoperability
 
@@ -107,9 +109,9 @@ memory-md separates two different operations:
 
 ### Synthesis
 
-Synthesis prepares relevant memory for the current workflow.
+Synthesis prepares relevant memory for the current workflow using index-first retrieval.
 
-It is safe to use during governed workflows because it reads and summarizes context.
+It is safe to use during governed workflows because it reads `{memory_root}/INDEX.md`, retrieves selected source sections, and summarizes only the context needed for the active feature.
 
 Examples:
 
@@ -134,6 +136,8 @@ Instead, governed workflows may produce capture candidates, such as:
 * repeated failure patterns
 
 The user can then decide whether to run memory capture.
+
+Capture commands show proposed durable entries and index rows first. They write only after explicit approval.
 
 ---
 
@@ -194,7 +198,7 @@ Memory Hub is a **context and knowledge layer** that runs alongside Spec Kit wor
 | Milestone | Recommended Command | Phase Integration | Purpose |
 | --- | --- | --- | --- |
 | **Milestone: Foundation** | `bootstrap` | Once at project setup | Create the memory structure and initial project context. |
-| **Milestone: Synthesis** | `plan-with-memory` | After `/specify` | Read past decisions and synthesize them into active constraints. |
+| **Milestone: Synthesis** | `plan-with-memory` | After `/specify` | Read the memory index, retrieve selected entries, and synthesize active constraints. |
 | **Milestone: Strategy** | `plan-with-memory` | After `/tasks` | Ensure the technical plan and tasks respect known constraints. |
 | **Milestone: Capture** | `capture` | After implementation | Extract and store only the durable lessons for future features. |
 
@@ -255,8 +259,47 @@ Synthesis should avoid:
 - stale notes
 - full memory dumps
 
+## Optional Optimizer
+
+The markdown workflow is the default. A local Node.js + SQLite optimizer is an optional enhancement for larger repos or teams that want faster retrieval before the AI reads context.
+
+Core model:
+
+- Markdown, spec, and code files remain authoritative
+- SQLite is a generated searchable cache
+- `memory-synthesis.md` stays the small AI-readable context package
+- the LLM reads synthesis or search results first, not all files
+
+The optimizer is described in [docs/optimizer-roadmap.md](docs/optimizer-roadmap.md) and is intentionally phased:
+
+1. Cache durable memory only
+2. Cache development docs and Spec Kit artifacts
+3. Cache code symbols to reduce duplication
+
+The cache must always be rebuildable from repository sources.
+
 ### Why Memory Synthesis Exists
 The goal is not to load all memory. The goal is to provide the minimum high-value context needed for accurate reasoning. Memory synthesis acts as a focused lens, translating years of project history into exactly what matters for the current feature.
+
+## Token Usage Model
+
+Memory Hub is not designed to load all memory into every AI request.
+
+Normal workflow:
+1. Read feature spec.
+2. Read memory index.
+3. Retrieve only relevant entries.
+4. Produce compact `memory-synthesis.md`.
+5. Use `memory-synthesis.md` for planning/tasks/implementation.
+
+Expensive operations:
+- full audit
+- manual capture review
+- rebuilding the index
+
+These should be intentional, not automatic.
+
+Manual trigger is intentional. Capture is manual. Synthesis can be run before planning, tasks, or implementation. The extension is useful only when memory prevents repeated mistakes or improves future features.
 
 ## Relationship to Architecture Guard
 - **Memory Hub** provides contextual synthesis (the "What did we decide?").
@@ -334,10 +377,11 @@ memory-md does not:
    ```text
    /speckit.memory-md.bootstrap
    ```
-3. **Fill in** the two most important files:
+3. **Fill in** the two most important source files and the index:
    - `docs/memory/PROJECT_CONTEXT.md` — what this project is, key constraints
    - `docs/memory/ARCHITECTURE.md` — system shape, boundaries, integrations
-4. **Start** a feature with memory:
+   - `docs/memory/INDEX.md` — compact routing rows for relevant decisions, constraints, and bug patterns
+4. **Start** a feature with synthesis:
    ```text
    /speckit.memory-md.plan-with-memory
    ```
@@ -401,6 +445,7 @@ These files hold knowledge that helps **all future features**, not just the curr
 
 | File | Purpose | Example Content |
 | --- | --- | --- |
+| `INDEX.md` | Compact routing map for selecting relevant memory | "D3: API writes stay server-side -> DECISIONS.md#d3" |
 | `PROJECT_CONTEXT.md` | Product identity, domain language, key constraints | "Customer notes must stay inside the internal admin system" |
 | `ARCHITECTURE.md` | System shape, ownership boundaries, integrations | "Only the API service writes customer note records" |
 | `DECISIONS.md` | Cross-feature decisions with rationale and tradeoffs | "Chose Repository pattern because we need to swap DB later" |
@@ -426,8 +471,8 @@ These files help the **current feature only**:
 
 | Command | When To Use | What It Does |
 | --- | --- | --- |
-| `bootstrap` | Once, at project setup | Creates durable memory folder (`docs/memory/`), feature memory starter files, `.github/copilot-instructions.md`, and `.specify/extensions/memory-md/config.yml` |
-| `plan-with-memory` | Before planning each feature | Reads durable memory, synthesizes relevant constraints and decisions, surfaces conflicts and watchpoints for this feature |
+| `bootstrap` | Once, at project setup | Creates durable memory folder, `INDEX.md`, feature memory starter files, `.github/copilot-instructions.md`, and `.specify/extensions/memory-md/config.yml` |
+| `plan-with-memory` | Before planning each feature | Reads the memory index, retrieves selected source sections, synthesizes relevant constraints and decisions, surfaces conflicts and watchpoints for this feature |
 | `capture` | After meaningful work is done | Reviews what happened, extracts durable lessons from the full feature journey (Spec → Plan → Code → Tests) |
 | `capture-from-diff` | After implementation (fast mode) | Extracts lessons directly from code diffs when you skipped formal spec process (useful for bug fixes or rapid iteration) |
 | `audit` | When memory feels noisy or stale | Finds duplicates, stale entries, contradictions, misplaced content; suggests cleanup and rewrites |
@@ -450,19 +495,19 @@ All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 
 ### New Feature
 
-1. **`/specify`** — Write the initial feature spec. Read constitution + durable memory first.
+1. **`/specify`** — Write the initial feature spec. Use the memory index for any needed context; do not read the full memory folder by default.
 2. **`/speckit.memory-md.plan-with-memory`** — Synthesize relevant memory. Create `specs/<feature>/memory.md` and `memory-synthesis.md`. Block or resolve hard conflicts before continuing.
-3. **`/plan`** — Generate technical plan respecting the synthesis constraints.
-4. **`/tasks`** — Generate tasks. Rerun `plan-with-memory` if anything changed. Keep tasks aligned with synthesis watchpoints.
-5. **`/implement`** — Re-read `memory-synthesis.md`. Treat watchpoints as active constraints during coding.
-6. **After `/verify`** — Run `/speckit.memory-md.capture`. Update durable memory only if the lesson is evidenced and reusable.
+3. **`/plan`** — Generate technical plan using `specs/<feature>/memory-synthesis.md`.
+4. **`/tasks`** — Generate tasks using `memory-synthesis.md`. Rerun `plan-with-memory` if anything changed.
+5. **`/implement`** — Re-read only `memory-synthesis.md` during normal flow. Treat watchpoints as active constraints during coding.
+6. **After `/verify`** — Run `/speckit.memory-md.capture`. Approve durable memory only if the lesson is evidenced and reusable.
 
 ### Bug Fix
 
-1. Read `BUGS.md`, `DECISIONS.md`, and any active feature memory.
+1. Read `{memory_root}/INDEX.md` and any active feature memory.
 2. Refresh `memory-synthesis.md` if the fix belongs to active work.
 3. Fix and verify.
-4. If the root cause is reusable: add it to `BUGS.md` with evidence and prevention guidance.
+4. If the root cause is reusable: run capture and approve updates to `BUGS.md` plus `INDEX.md`.
 
 ### Memory Cleanup
 
@@ -496,7 +541,7 @@ When you run `/speckit.memory-md.bootstrap`, Memory Hub creates starter files in
 
 | Template Files | Created In Project | Purpose |
 | --- | --- | --- |
-| `PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, etc. | `docs/memory/` | Pre-populated memory file templates for you to customize with your project context |
+| `INDEX.md`, `PROJECT_CONTEXT.md`, `ARCHITECTURE.md`, etc. | `docs/memory/` | Pre-populated memory file templates for you to customize with your project context |
 | Feature starter template | `specs/<feature_name>/` | Includes example `memory.md`, `memory-synthesis.md`, spec, plan, and tasks starters |
 | `.github/copilot-instructions.md` | `.github/` | Pre-populated Copilot agent instructions requiring memory review before planning and implementation |
 | `config.yml` | `.specify/extensions/memory-md/` | Default configuration (can be customized to change memory folder path, feature scope, etc.) |
@@ -550,11 +595,57 @@ Then edit the YAML file:
 | `memory_synthesis_filename` | `memory-synthesis.md` | Filename for per-feature synthesis | Change if you prefer `constraints.md` or `synthesis.txt` |
 | `require_memory_synthesis_before_plan` | `true` | Gate planning on current synthesis | Set to `false` to allow planning without synthesis |
 | `require_memory_review_before_verify` | `true` | Gate verification on memory review | Set to `false` to allow verification without memory capture |
+| `retrieval.*` | See defaults | Budgets for index entries, selected memory, synthesis size, and full memory reads | Tune for larger repos or stricter token limits |
+| `optimizer.*` | See defaults | Optional SQLite cache for faster search and synthesis | Keep disabled for basic markdown-only usage |
+| `indexing.*` | See defaults | File globs for optional optimizer indexing | Tune what gets cached locally |
 
 Default config:
 
-```bash
-cp config-template.yml .specify/extensions/memory-md/config.yml
+```yaml
+memory_root: docs/memory
+specs_root: specs
+use_project_copilot_instructions: true
+definition_of_done_includes_memory_review: true
+feature_memory_filename: memory.md
+memory_synthesis_filename: memory-synthesis.md
+require_memory_synthesis_before_plan: true
+require_memory_review_before_verify: true
+retrieval:
+  max_index_entries: 20
+  max_decisions: 5
+  max_architecture_constraints: 5
+  max_accepted_deviations: 3
+  max_security_constraints: 3
+  max_bug_patterns: 3
+  max_worklog_items: 2
+  max_synthesis_words: 900
+  full_memory_read_allowed: false
+optimizer:
+  enabled: false
+  engine: sqlite
+  db_path: .spec-kit-memory/memory.sqlite
+  auto_index_on_memory_change: true
+  auto_index_on_doc_change: false
+  auto_index_on_code_change: false
+  auto_generate_synthesis: false
+indexing:
+  include:
+    memory:
+      - docs/memory/**/*.md
+    docs:
+      - docs/**/*.md
+      - specs/**/*.md
+      - README.md
+    code:
+      - src/**/*.{ts,tsx,js,jsx}
+  exclude:
+    - node_modules/**
+    - dist/**
+    - build/**
+    - coverage/**
+    - .git/**
+    - .spec-kit-memory/**
+```
 
 ---
 
@@ -606,6 +697,7 @@ your-project/
 │   └── config.yml                      ← Your customizations (optional)
 ├── docs/
 │   └── memory/
+│       ├── INDEX.md                       ← Compact routing map
 │       ├── PROJECT_CONTEXT.md             ← Product, domain, key constraints
 │       ├── ARCHITECTURE.md                ← System shape, boundaries
 │       ├── DECISIONS.md                   ← Architecture and tech choices
@@ -639,6 +731,7 @@ spec-kit-memory-hub/
     │   ├── log-finding.prompt.md
     │   └── specify.memory.prompt.md
     ├── docs/memory/                  ← Template starter files
+    │   ├── INDEX.md
     │   ├── PROJECT_CONTEXT.md
     │   ├── ARCHITECTURE.md
     │   ├── DECISIONS.md

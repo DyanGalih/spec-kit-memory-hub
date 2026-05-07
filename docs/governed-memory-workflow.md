@@ -6,6 +6,7 @@ The `memory-md` approach is optimized for spec-driven AI execution through layer
 
 Main principles:
 - **Layered Context**: Separation between durable project memory and active feature memory.
+- **Index-First Retrieval**: Normal workflows read a compact memory index before selected source sections.
 - **Required Synthesis**: Every feature must have a `memory-synthesis.md` that acts as a focused lens for the AI.
 - **Evidence-Based Capture**: Only reusable, evidenced lessons enter durable memory.
 - **Governed Orchestration**: Integration with Architecture Guard for coordinated planning and implementation.
@@ -28,11 +29,13 @@ Memory Hub acts as a cooperative citizen in the Spec Kit ecosystem. When used wi
 1. **Constitution / Principles**
    Store stable operating rules, product principles, and non-negotiable standards.
 2. **Durable Project Memory**
-   Store cross-feature constraints, architecture boundaries, active decisions, recurring bug patterns, and a lessons ledger (`docs/memory/`).
-3. **Active Feature Memory**
-   Store feature-local constraints, clarifications, open questions, and short-lived watch items in `specs/<feature>/memory.md`.
-4. **Memory Synthesis**
-   A compact, AI-facing summary of relevant durable and feature memory for the current task (`specs/<feature>/memory-synthesis.md`).
+   Store cross-feature constraints, architecture boundaries, active decisions, recurring bug patterns, and a lessons ledger (`{memory_root}`, default `docs/memory/`).
+3. **Memory Index**
+   Store compact routing metadata in `{memory_root}/INDEX.md`; this decides what durable source sections are worth reading.
+4. **Active Feature Memory**
+   Store feature-local constraints, clarifications, open questions, and short-lived watch items in `{specs_root}/<feature>/memory.md`.
+5. **Memory Synthesis**
+   A compact, AI-facing summary of selected durable and feature memory for the current task (`{specs_root}/<feature>/memory-synthesis.md`).
 
 ---
 
@@ -41,10 +44,10 @@ Memory Hub acts as a cooperative citizen in the Spec Kit ecosystem. When used wi
 Memory Hub separates two distinct operations to ensure safety and signal quality:
 
 ### Synthesis
-Synthesis prepares relevant memory for the current workflow. It is safe to use during governed workflows because it reads and summarizes context. It is triggered automatically by orchestrator commands like `governed-plan`.
+Synthesis prepares relevant memory for the current workflow. It is safe to use during governed workflows because it reads the index, retrieves selected source sections, and summarizes compact context. It is triggered automatically by orchestrator commands like `governed-plan`.
 
 ### Capture
-Capture persists new durable memory. It should be **intentional and human-approved**. Architecture Guard orchestration does not automatically capture memory without approval. Instead, governed workflows produce **Memory Capture Candidates**.
+Capture persists new durable memory and matching index rows. It should be **intentional and human-approved**. Architecture Guard orchestration does not automatically capture memory without approval. Instead, governed workflows produce **Memory Capture Candidates**.
 
 ---
 
@@ -60,7 +63,7 @@ Architecture Guard orchestrator commands automatically consume memory synthesis:
 The user can manually run memory commands:
 - **`bootstrap`**: Initialize the memory structure.
 - **`plan-with-memory`**: Manually refresh synthesis.
-- **`capture`**: Commit evidenced lessons to durable memory.
+- **`capture`**: Propose evidenced lessons and index rows for explicit approval.
 - **`audit`**: Clean up and de-duplicate memory.
 
 ---
@@ -105,7 +108,8 @@ Every new durable entry must be **evidenced** by:
 ## Migration Guidance
 
 For projects moving to v0.7:
-1. **Keep existing durable files** in `docs/memory/`.
-2. **Adopt the orchestrator**: Transition from manual `/plan` to `/speckit.architecture-guard.governed-plan`.
-3. **Review Capture Candidates**: Look for recommendations in the Architecture Guard governance summary instead of running `capture` blindly.
-4. **Preserve selective capture**: Continue to use the **Durable Lesson Test** before running `/speckit.memory-md.capture`.
+1. **Keep existing durable files** in `{memory_root}`.
+2. **Add `INDEX.md`**: Build a compact routing table for active decisions, architecture constraints, bug patterns, deviations, and security constraints.
+3. **Adopt the orchestrator**: Transition from manual `/plan` to `/speckit.architecture-guard.governed-plan`.
+4. **Review Capture Candidates**: Look for recommendations in the Architecture Guard governance summary instead of running `capture` blindly.
+5. **Preserve selective capture**: Continue to use the **Durable Lesson Test** before running `/speckit.memory-md.capture`.

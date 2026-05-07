@@ -5,7 +5,7 @@
 #   ./scripts/check-memory.sh <project_root>
 #
 # Checks:
-#   1. Durable memory files exist in docs/memory/
+#   1. Durable memory files and INDEX.md exist in docs/memory/
 #   2. Active feature folders in specs/ have memory.md and memory-synthesis.md
 #   3. memory-synthesis.md has all required sections
 #
@@ -38,6 +38,7 @@ echo ""
 echo "Checking durable memory files..."
 
 REQUIRED_MEMORY_FILES=(
+  "docs/memory/INDEX.md"
   "docs/memory/PROJECT_CONTEXT.md"
   "docs/memory/ARCHITECTURE.md"
   "docs/memory/DECISIONS.md"

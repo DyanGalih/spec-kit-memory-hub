@@ -1,13 +1,16 @@
 Before planning:
 
 Read:
-- constitution or principles
+- config, including retrieval budgets
+- constitution or principles only if present and small
 - feature spec
-- `specs/<feature>/memory.md`
-- durable memory files
-- existing `specs/<feature>/memory-synthesis.md` when present
+- `{specs_root}/<feature>/{feature_memory_filename}` when present
+- `{memory_root}/INDEX.md`
+- existing `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 
-Produce or refresh `memory-synthesis.md` using only:
+Select relevant index entries first, then read only the smallest necessary source sections. Do not read or paste entire durable memory files unless the index is missing, incomplete, or the user explicitly requests a full audit.
+
+Produce or refresh `{specs_root}/<feature>/{memory_synthesis_filename}` using only:
 - current constraints
 - reused decisions
 - relevant bug patterns
@@ -23,6 +26,8 @@ Format rules:
 - use `- [none]` for empty sections
 - use stable item IDs such as `[C1]`, `[D1]`, `[B1]`, `[A1]`, `[Q1]`, `[W1]`, `[V1]`
 - keep conflict counts aligned with the listed conflicts
+- keep the synthesis within `retrieval.max_synthesis_words` defaulting to 900 words
+- if retrieval budgets are exceeded, summarize and prioritize instead of reading more memory
 
 Block progress on unresolved hard conflicts.
 Warn on soft conflicts.

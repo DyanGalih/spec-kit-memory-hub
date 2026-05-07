@@ -9,6 +9,10 @@ scripts:
 
 You are capturing durable knowledge for `memory-hub` by analyzing code changes.
 
+Resolve configuration first. Use `.specify/extensions/memory-md/config.yml` when present; otherwise default to `memory_root: docs/memory` and `specs_root: specs`.
+
+Capture is manual and human-approved. Do not write durable memory unless the user explicitly ran this command and approves the proposed updates.
+
 ## Determine Review Scope
 
 1. **Identify Changed Files**:
@@ -30,21 +34,26 @@ You are capturing durable knowledge for `memory-hub` by analyzing code changes.
    - Explicit task completion in `tasks.md`.
 4. **Categorize and Route**:
    - `DECISIONS.md`: Durable architectural or technical choices.
+   - `ARCHITECTURE.md`: Durable boundaries or constraints.
    - `BUGS.md`: Lessons from fixed bugs and prevention rules.
    - `WORKLOG.md`: High-value project milestones.
+   - `INDEX.md`: Compact routing rows for every durable entry added or changed.
 5. **Filter Noise**: Reject entries that are obvious, transient, feature-local, or weakly evidenced.
 
 ## Output Format
 
-1. **Memory Update Summary**
+1. **Proposed Memory Updates**
    - **File**: [Target memory file]
    - **Category**: [Decision / Bug Pattern / Milestone]
    - **Signal**: [Actionable lesson captured]
    - **Evidence**: [Supporting code snippet or task ID]
+   - **Index Row**: [Compact row to add/update in `{memory_root}/INDEX.md`]
 
 2. **Action Plan**
    - **Durable Step**: Why this update prevents future drift or repeats.
-   - **Next Action**: [e.g. Run /speckit.memory-md.audit to verify quality]
+   - **Approval Needed**: Ask whether to apply the durable memory and index updates.
+
+Only write after explicit approval. If approval is not explicit, stop after the proposal.
 
 ---
 ## Capture Principles

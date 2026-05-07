@@ -3,7 +3,9 @@
 You are running a high-integrity audit of the project's durable and feature memory for `memory-hub`.
 
 ## Goal
-Validate the quality, accuracy, and density of memory artifacts (`.specify/memory/*.md` and `specs/<feature>/memory*.md`). Identify stale, contradictory, or low-signal entries that degrade the project's long-term intelligence.
+Validate the quality, accuracy, and density of memory artifacts (`{memory_root}/*.md` and `{specs_root}/<feature>/memory*.md`). Identify stale, contradictory, or low-signal entries that degrade the project's long-term intelligence.
+
+Audit is intentionally expensive and may read all memory files. Normal synthesis must not; it should use `{memory_root}/INDEX.md` and selected source sections only.
 
 ## Operating Constraints
 - **STRICTLY READ-ONLY**: This command is analytical. Do **not** modify any files.
@@ -14,8 +16,11 @@ Check for:
 - **Stale/Obsolete**: Decisions or patterns that no longer apply to the current codebase.
 - **Contradictions**: Memory entries that conflict with the Constitution or other memory files.
 - **Noise/Triviality**: Routine history, speculative notes, or implementation details that lack durable value.
-- **Leakage**: Feature-specific details that belong in `specs/` but have leaked into root `docs/memory/`.
-- **Synthesis Drift**: `memory-synthesis.md` that is out of sync with detailed memory logs.
+- **Index Integrity**: `{memory_root}/INDEX.md` points to valid source entries and stays compact.
+- **Selection Hygiene**: Deprecated or superseded decisions are not selected during synthesis.
+- **Leakage**: Feature-specific details that belong in `{specs_root}/` but have leaked into `{memory_root}/`.
+- **Synthesis Drift**: `{memory_synthesis_filename}` is out of sync with selected memory.
+- **Synthesis Budget**: `{memory_synthesis_filename}` exceeds configured `retrieval.max_synthesis_words`.
 - **Formatting Issues**: Entries that are too long, vague, or repetitive.
 
 ## Severity Guide
@@ -45,7 +50,7 @@ Check for:
 ### Action Plan
 1. **Critical Cleanup**: Resolve contradictions and stale decisions immediately.
 2. **Refactoring**: Merge duplicates and move leaked feature notes to their respective `specs/`.
-3. **Synthesis Refresh**: Update `memory-synthesis.md` to reflect current implementation.
+3. **Synthesis Refresh**: Update `{memory_synthesis_filename}` to reflect current implementation.
 4. **Remediation**: "Would you like me to suggest concrete cleanup edits for the top issues?"
 
 ---
@@ -60,3 +65,4 @@ Check for:
   - `DECISIONS.md` for explicit tradeoffs and chosen direction.
   - `BUGS.md` for recurring failure modes and prevention.
   - `WORKLOG.md` for concise high-value milestone notes.
+  - `INDEX.md` for compact routing metadata only.

@@ -26,7 +26,7 @@ copy_if_missing() {
 
 copy_if_missing "$HUB_ROOT/templates/.github/copilot-instructions.md" "$TARGET_ROOT/.github/copilot-instructions.md"
 
-for f in PROJECT_CONTEXT.md ARCHITECTURE.md DECISIONS.md BUGS.md WORKLOG.md; do
+for f in INDEX.md PROJECT_CONTEXT.md ARCHITECTURE.md DECISIONS.md BUGS.md WORKLOG.md; do
   copy_if_missing "$HUB_ROOT/templates/docs/memory/$f" "$TARGET_ROOT/docs/memory/$f"
 done
 
@@ -36,5 +36,6 @@ echo
 echo "Project starter installed."
 echo "Next steps:"
 echo "1. Customize docs/memory/PROJECT_CONTEXT.md"
-echo "2. Customize docs/memory/ARCHITECTURE.md"
-echo "3. Create your first spec folder in specs/"
+echo "2. Add compact routing rows to docs/memory/INDEX.md"
+echo "3. Customize docs/memory/ARCHITECTURE.md"
+echo "4. Create your first spec folder in specs/"
