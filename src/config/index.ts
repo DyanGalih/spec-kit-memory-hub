@@ -38,7 +38,18 @@ const DEFAULT_CONFIG: MemoryHubConfig = {
   },
   indexing: {
     include: {
-      memory: ["docs/memory/INDEX.md", "docs/memory/PROJECT_CONTEXT.md", "docs/memory/ARCHITECTURE.md", "docs/memory/DECISIONS.md", "docs/memory/BUGS.md", "docs/memory/WORKLOG.md"],
+      memory: [
+        "docs/memory/INDEX.md",
+        "docs/memory/PROJECT_CONTEXT.md",
+        "docs/memory/ARCHITECTURE.md",
+        "docs/memory/DECISIONS.md",
+        "docs/memory/BUGS.md",
+        "docs/memory/WORKLOG.md",
+        ".specify/memory/constitution.md",
+        ".specify/memory/architecture_constitution.md",
+        ".specify/memory/DECISIONS.md",
+        ".specify/memory/BUGS.md"
+      ],
       // Phase 2/3 patterns (docs/code) are placeholders and currently ignored by the Phase 1 optimizer.
       docs: ["docs/**/*.md", "specs/**/*.md", "README.md"],
       code: ["src/**/*.{ts,tsx,js,jsx}"],

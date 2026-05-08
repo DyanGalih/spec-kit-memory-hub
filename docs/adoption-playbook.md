@@ -1,7 +1,7 @@
 # Adoption Playbook
 
 ## Phase 1
-Install the extension and bootstrap one repo.
+Install the extension and initialize one repo.
 
 ## Phase 2
 Use the workflow for:

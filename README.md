@@ -409,9 +409,9 @@ memory-md does not:
 ## Quick Start
 
 1. **Install** the extension (see [Installation](#installation) section below for all methods)
-2. **Bootstrap** the memory structure:
+2. **Initialize** the memory structure:
    ```text
-   /speckit.memory-md.bootstrap
+   /speckit.memory-md.init
    ```
 3. **Fill in** the two most important source files and the index:
    - `docs/memory/PROJECT_CONTEXT.md` — what this project is, key constraints
@@ -478,18 +478,29 @@ scripts/test-cli.sh
 
 ## Memory Structure
 
+### Governance Layer (`.specify/memory/`)
+
+These files define the **Project Law**—stable rules and standards that govern all work:
+
+| File | Purpose |
+| --- | --- |
+| `constitution.md` | Core product principles and stable operating rules |
+| `architecture_constitution.md` | Authoritative technical and architecture standards |
+| `DECISIONS.md` | High-level governance decisions |
+| `BUGS.md` | Systemic or high-risk failure patterns requiring oversight |
+
 ### Durable Memory (`docs/memory/`)
 
-These files hold knowledge that helps **all future features**, not just the current one:
+These files hold the **Project History**—knowledge that helps **all future features**:
 
 | File | Purpose | Example Content |
 | --- | --- | --- |
 | `INDEX.md` | Compact routing map for selecting relevant memory | "D3: API writes stay server-side -> DECISIONS.md#d3" |
 | `PROJECT_CONTEXT.md` | Product identity, domain language, key constraints | "Customer notes must stay inside the internal admin system" |
 | `ARCHITECTURE.md` | System shape, ownership boundaries, integrations | "Only the API service writes customer note records" |
-| `DECISIONS.md` | Cross-feature decisions with rationale and tradeoffs | "Chose Repository pattern because we need to swap DB later" |
-| `BUGS.md` | Recurring failure patterns, root causes, prevention | "Always filter by permission before returning search results" |
-| `WORKLOG.md` | Small durable lessons that don't fit elsewhere | "The CSV export endpoint needs 2x the normal timeout" |
+| `DECISIONS.md` | Technical decisions with rationale and tradeoffs | "Chose Repository pattern because we need to swap DB later" |
+| `BUGS.md` | Recurring implementation patterns and mitigations | "Always filter by permission before returning search results" |
+| `WORKLOG.md` | Sequential ledger of durable lessons | "The CSV export endpoint needs 2x the normal timeout" |
 
 ### Feature Memory (`specs/<feature>/`)
 
@@ -497,11 +508,12 @@ These files help the **current feature only**:
 
 | File | Purpose |
 | --- | --- |
-| `memory.md` | Active notes, open questions, relevant durable memory for this feature |
+| `memory.md` | Active notes, open questions, and watchpoints for this feature |
 | `memory-synthesis.md` | Compact AI-facing summary: constraints, reused decisions, conflicts, watchpoints |
 
 **Rule of thumb:**
-- If it helps future unrelated features → `docs/memory/`
+- If it governs how we work (principles/standards) → `.specify/memory/`
+- If it helps future unrelated features (history/implementation) → `docs/memory/`
 - If it only matters during this feature → `specs/<feature>/`
 
 ---
@@ -510,7 +522,7 @@ These files help the **current feature only**:
 
 | Command | When To Use | What It Does |
 | --- | --- | --- |
-| `bootstrap` | Once, at project setup | Creates durable memory folder, `INDEX.md`, feature memory starter files, `.github/copilot-instructions.md`, and `.specify/extensions/memory-md/config.yml` |
+| `init` | Once, at project setup | Creates durable memory folder, `INDEX.md`, feature memory starter files, `.github/copilot-instructions.md`, and `.specify/extensions/memory-md/config.yml` |
 | `plan-with-memory` | Before planning each feature | Reads the memory index, retrieves selected source sections, synthesizes relevant constraints and decisions, surfaces conflicts and watchpoints for this feature |
 | `capture` | After meaningful work is done | Reviews what happened, extracts durable lessons from the full feature journey (Spec → Plan → Code → Tests) |
 | `capture-from-diff` | After implementation (fast mode) | Extracts lessons directly from code diffs when you skipped formal spec process (useful for bug fixes or rapid iteration) |
@@ -528,7 +540,7 @@ All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 
 **Before you start any features**, initialize the memory system:
 
-1. Run `/speckit.memory-md.bootstrap` to create the memory folder structure and starter templates.
+1. Run `/speckit.memory-md.init` to create the memory folder structure and starter templates.
 2. Fill in `docs/memory/PROJECT_CONTEXT.md` — product identity, domain language, key constraints.
 3. Fill in `docs/memory/ARCHITECTURE.md` — system shape, module boundaries, integrations, and key technologies.
 4. Optional: Fill in `docs/memory/DECISIONS.md` and `docs/memory/BUGS.md` if you have existing lessons.
@@ -581,12 +593,12 @@ To upgrade your global extension to the latest version:
 
 If your project was using an older version of `memory-hub` (especially versions prior to v0.8.0 that lacked `INDEX.md` or the SQLite Optimizer):
 
-1. **Re-run Bootstrap**: You **should** run `/speckit.memory-md.bootstrap` again. The bootstrap command is completely safe—it **will not** overwrite your existing memory files. It will only inject missing files (like a missing `INDEX.md` or `config.yml`).
+1. **Re-run Init**: You **should** run `/speckit.memory-md.init` again. The init command is completely safe—it **will not** overwrite your existing memory files. It will only inject missing files (like a missing `INDEX.md` or `config.yml`).
 2. **Re-index Memory**: If an `INDEX.md` was just generated for the first time, you will need to manually review your existing `docs/memory/*.md` files and populate the new `INDEX.md` with pointers to your existing decisions.
 3. **Build the Optimizer**: If you want to use the local SQLite optimizer, it requires a Node.js binary. Because `specify extension update` does not run `npm install` for you, you must navigate to the extension directory and build it:
    ```bash
    cd .specify/extensions/memory-md
-   npm install
+   npm install && npm run build
    ```
 
 ---
@@ -595,7 +607,7 @@ If your project was using an older version of `memory-hub` (especially versions 
 
 ### What Are Templates?
 
-When you run `/speckit.memory-md.bootstrap`, Memory Hub creates starter files in your project from the hub's `templates/` directory:
+When you run `/speckit.memory-md.init`, Memory Hub creates starter files in your project from the hub's `templates/` directory:
 
 | Template Files | Created In Project | Purpose |
 | --- | --- | --- |
@@ -867,7 +879,7 @@ If that fails, or if you are enabling it manually on an existing setup:
 2. Navigate to the extension directory and build the Node.js binary:
    ```bash
    cd .specify/extensions/memory-md
-   npm install
+   npm install && npm run build
    ```
 3. That's it! The LLM prompts will automatically switch to using the `npx speckit-memory` caching workflows.
 

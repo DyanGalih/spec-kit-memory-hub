@@ -37,6 +37,10 @@ indexing:
       - docs/memory/DECISIONS.md
       - docs/memory/BUGS.md
       - docs/memory/WORKLOG.md
+      - .specify/memory/constitution.md
+      - .specify/memory/architecture_constitution.md
+      - .specify/memory/DECISIONS.md
+      - .specify/memory/BUGS.md
     docs:
       - docs/**/*.md
       - specs/**/*.md

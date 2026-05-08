@@ -24,9 +24,9 @@ hooks:
 
 provides:
   commands:
-    - name: "speckit.memory-md.bootstrap"
-      file: commands/speckit.memory-md.bootstrap.md
-      description: "Bootstrap layered memory, synthesis, and spec starter files in a target repo."
+    - name: "speckit.memory-md.init"
+      file: commands/speckit.memory-md.init.md
+      description: "Initialize layered memory, synthesis, and spec starter files in a target repo."
     - name: "speckit.memory-md.plan-with-memory"
       file: commands/speckit.memory-md.plan-with-memory.md
       description: "Use index-first retrieval to synthesize constraints and gate planning on conflicts."

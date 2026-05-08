@@ -1,4 +1,6 @@
-# Bug Patterns
+# Recurring Bug Patterns (`docs/memory/`)
+
+This file stores durable implementation bug patterns and their mitigations. For systemic, high-risk, or governance-level patterns, see `.specify/memory/BUGS.md`.
 
 ## Template
 ### YYYY-MM-DD - Bug / Failure Pattern

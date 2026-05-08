@@ -9,10 +9,12 @@
     "speckit-memory": "dist/bin/speckit-memory.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "npx -y -p typescript@latest tsc -p tsconfig.json",
+    "postbuild": "chmod +x dist/bin/speckit-memory.js",
+    "prebuild": "rm -rf node_modules/typescript && npm install typescript@latest",
     "clean": "rm -rf dist",
-    "prepare": "npm run build",
-    "start": "node dist/bin/speckit-memory.js"
+    "start": "node dist/bin/speckit-memory.js",
+    "test-root": "./scripts/test-root-resolution.sh"
   },
   "engines": {
     "node": ">=18"
@@ -25,10 +27,10 @@
     "fast-glob": "^3.3.2",
     "gray-matter": "^4.0.3",
     "markdown-it": "^14.1.0",
+    "typescript": "^6.0.3",
     "yaml": "^2.6.1"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
-    "typescript": "^5.8.2"
+    "@types/node": "^22.13.10"
   }
 }

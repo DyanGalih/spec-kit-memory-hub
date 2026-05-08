@@ -26,10 +26,10 @@ Memory Hub acts as a cooperative citizen in the Spec Kit ecosystem. When used wi
 
 ## Memory Model
 
-1. **Constitution / Principles**
-   Store stable operating rules, product principles, and non-negotiable standards.
-2. **Durable Project Memory**
-   Store cross-feature constraints, architecture boundaries, active decisions, recurring bug patterns, and a lessons ledger (`{memory_root}`, default `docs/memory/`).
+1. **Governance Layer (`.specify/memory/`)**
+   Store stable operating rules, project constitution, architecture standards, and governance-level decisions. This is the authoritative "Project Law".
+2. **Durable Project Memory (`docs/memory/`)**
+   Store technical constraints, architecture boundaries, technical decisions, recurring implementation bug patterns, and a sequential lessons ledger. This is the authoritative "Project History".
 3. **Memory Index**
    Store compact routing metadata in `{memory_root}/INDEX.md`; this decides what durable source sections are worth reading.
 4. **Active Feature Memory**
@@ -61,7 +61,7 @@ Architecture Guard orchestrator commands automatically consume memory synthesis:
 
 ### Direct Usage
 The user can manually run memory commands:
-- **`bootstrap`**: Initialize the memory structure.
+- **`init`**: Initialize the memory structure.
 - **`plan-with-memory`**: Manually refresh synthesis.
 - **`capture`**: Propose evidenced lessons and index rows for explicit approval.
 - **`audit`**: Clean up and de-duplicate memory.
@@ -107,9 +107,9 @@ Every new durable entry must be **evidenced** by:
 
 ## Migration Guidance
 
-For projects moving to v0.7:
-1. **Keep existing durable files** in `{memory_root}`.
-2. **Add `INDEX.md`**: Build a compact routing table for active decisions, architecture constraints, bug patterns, deviations, and security constraints.
-3. **Adopt the orchestrator**: Transition from manual `/plan` to `/speckit.architecture-guard.governed-plan`.
-4. **Review Capture Candidates**: Look for recommendations in the Architecture Guard governance summary instead of running `capture` blindly.
-5. **Preserve selective capture**: Continue to use the **Durable Lesson Test** before running `/speckit.memory-md.capture`.
+For projects moving to v0.8:
+1. **Re-run Init**: Run `/speckit.memory-md.init` to ensure the latest `config.yml` and `INDEX.md` structure are in place. This is safe and will not overwrite your existing memory content.
+2. **Review `INDEX.md`**: Ensure your routing table correctly points to active decisions, architecture constraints, and bug patterns.
+3. **Build the Optimizer**: If using the local SQLite optimizer, run `cd .specify/extensions/memory-md && npm install && npm run build`.
+4. **Adopt the Orchestrator**: Transition from manual `/plan` to `/speckit.architecture-guard.governed-plan`.
+5. **Preserve Selective Capture**: Continue to use the **Durable Lesson Test** before running `/speckit.memory-md.capture`.

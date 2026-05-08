@@ -67,7 +67,7 @@ assert_file_exists "$HUB_ROOT/bin/speckit-memory.ts" "CLI entrypoint exists"
 assert_file_exists "$HUB_ROOT/scripts/test-cli.sh" "CLI smoke test exists"
 
 EXPECTED_COMMANDS=(
-  "speckit.memory-md.bootstrap.md"
+  "speckit.memory-md.init.md"
   "speckit.memory-md.plan-with-memory.md"
   "speckit.memory-md.capture.md"
   "speckit.memory-md.capture-from-diff.md"

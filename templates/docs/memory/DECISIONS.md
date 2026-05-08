@@ -1,4 +1,6 @@
-# Decisions
+# Technical Decisions (`docs/memory/`)
+
+This file stores durable technical and implementation decisions. For governance-level decisions or project standards, see `.specify/memory/DECISIONS.md`.
 
 ## Entry Lifecycle
 

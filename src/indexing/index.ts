@@ -16,6 +16,8 @@ const PHASE1_MEMORY_FILES = new Set([
   "DECISIONS.md",
   "BUGS.md",
   "WORKLOG.md",
+  "constitution.md",
+  "architecture_constitution.md",
 ]);
 
 export interface IndexMemoryOptions {
@@ -32,19 +34,16 @@ export interface IndexMemoryResult {
 }
 
 export async function discoverPhase1MemoryFiles(projectRoot: string, config: MemoryHubConfig): Promise<string[]> {
-  const { memoryRoot } = resolveProjectPaths(projectRoot, config);
   const patterns = config.indexing.include.memory.length > 0 ? config.indexing.include.memory : ["docs/memory/**/*.md"];
   const files = await fg(patterns, {
     cwd: projectRoot,
-    absolute: true,
+    absolute: false,
     dot: true,
     onlyFiles: true,
     ignore: config.indexing.exclude,
   });
 
-  return files
-    .filter((filePath) => path.dirname(filePath) === path.resolve(memoryRoot))
-    .filter((filePath) => PHASE1_MEMORY_FILES.has(path.basename(filePath)));
+  return files.filter((filePath) => PHASE1_MEMORY_FILES.has(path.basename(filePath)));
 }
 
 export async function indexPhase1MemoryFiles(
@@ -67,18 +66,19 @@ export async function indexPhase1MemoryFiles(
 
   const seenPaths = new Set<string>();
 
-  for (const filePath of allowedFiles) {
-    seenPaths.add(filePath);
-    const raw = await readTextFile(filePath);
+  for (const relPath of allowedFiles) {
+    seenPaths.add(relPath);
+    const fullPath = path.resolve(projectRoot, relPath);
+    const raw = await readTextFile(fullPath);
     const hash = sha256(raw);
-    const existing = stateMap.get(filePath);
+    const existing = stateMap.get(relPath);
     if (options.refreshOnly && existing?.hash === hash) {
       result.skippedFiles += 1;
       continue;
     }
 
-    const chunks = parseMarkdownFile(filePath, raw).map((chunk) => chunkToEntry(projectRoot, filePath, chunk, now));
-    upsertIndexedFile(db, filePath, hash, now, chunks);
+    const chunks = parseMarkdownFile(relPath, raw).map((chunk) => chunkToEntry(projectRoot, relPath, chunk, now));
+    upsertIndexedFile(db, relPath, hash, now, chunks);
     result.indexedFiles += 1;
     result.indexedEntries += chunks.length;
   }
@@ -99,10 +99,13 @@ export async function indexPhase1MemoryFiles(
   return result;
 }
 
-export function chunkToEntry(projectRoot: string, filePath: string, chunk: ParsedChunk, now: string): MemoryEntryRecord {
-  const relPath = path.relative(projectRoot, filePath);
+export function chunkToEntry(projectRoot: string, relPath: string, chunk: ParsedChunk, now: string): MemoryEntryRecord {
   const id = shortId([relPath, chunk.section_heading, chunk.line_start, chunk.line_end, chunk.hash].join("|"));
-  const tags = chunk.tags.join(",");
+  const tagsList = [...chunk.tags];
+  if (relPath.startsWith(".specify/memory/")) {
+    tagsList.push("governance");
+  }
+  const tags = tagsList.join(",");
 
   return {
     id,

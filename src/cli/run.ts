@@ -10,6 +10,7 @@ import { searchMemoryEntries } from "../retrieval";
 import { generateMemorySynthesis, writeMemorySynthesis } from "../synthesis";
 import { estimateTokens, freeTokenizer } from "../utils/tokens";
 import { pathExists, readTextFile, removePath } from "../utils/fs";
+import { findProjectRoot } from "../utils/root";
 
 interface CliOptions {
   projectRoot: string;
@@ -168,7 +169,10 @@ async function runTokenReport(projectRoot: string, featurePath: string): Promise
 
     const memoryFiles = await discoverPhase1MemoryFiles(projectRoot, config);
     const baselineSources = await Promise.all(
-      memoryFiles.map(async (filePath) => ({ path: filePath, content: await readTextFile(filePath) })),
+      memoryFiles.map(async (relPath) => ({
+        path: relPath,
+        content: await readTextFile(path.resolve(projectRoot, relPath)),
+      })),
     );
     const baselineTokens = baselineSources.reduce((sum, file) => sum + estimateTokens(file.content), 0);
 
@@ -186,7 +190,7 @@ async function runTokenReport(projectRoot: string, featurePath: string): Promise
 
     const avoidedFiles = baselineSources
       .map((file) => ({
-        file: path.relative(projectRoot, file.path),
+        file: file.path,
         tokens: estimateTokens(file.content),
       }))
       .filter((file) => !selectedResults.some((entry) => file.file === entry.source_path))
@@ -217,7 +221,7 @@ export async function runCli(argv = process.argv): Promise<void> {
   program
     .name("speckit-memory")
     .description("Local SQLite optimizer for Spec Kit Memory Hub")
-    .option("--project-root <path>", "project root to operate on", process.cwd())
+    .option("--project-root <path>", "project root to operate on", findProjectRoot())
     .helpOption("-h, --help", "display help for command");
 
   program

@@ -2,7 +2,7 @@ Before writing or revising the feature spec:
 
 Read:
 - config from `.specify/extensions/memory-md/config.yml` when present; otherwise use `memory_root: docs/memory` and `specs_root: specs`
-- constitution or project principles only if present and small
+- Governance Layer (`.specify/memory/`) constitution, standards, or principles first
 - `{memory_root}/INDEX.md` when present
 - existing `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 - any nearby feature memory from related unfinished work when clearly relevant
@@ -24,6 +24,5 @@ Then:
 - separate durable project memory from transient feature context
 
 Do not load all durable memory files during `/specify`.
-Do not load all durable memory files during `/specify` when the optimizer is enabled.
 Include only selected summaries in the spec.
 Do not store transient feature notes in durable memory.

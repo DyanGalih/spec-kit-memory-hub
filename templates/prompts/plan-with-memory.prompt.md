@@ -2,7 +2,7 @@ Before planning:
 
 Read:
 - config, including retrieval budgets
-- constitution or principles only if present and small
+- Governance Layer (`.specify/memory/`) constitution, standards, or principles first
 - feature spec
 - `{specs_root}/<feature>/{feature_memory_filename}` when present
 - `{memory_root}/INDEX.md`

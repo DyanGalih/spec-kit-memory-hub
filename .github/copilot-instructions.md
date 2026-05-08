@@ -4,22 +4,26 @@ This repository is built to work with VS Code Copilot agents memory.
 
 For any non-trivial task, memory is part of the workflow, not optional documentation.
 
-## Memory Layers
+## Memory Layers (Source of Truth)
 
-- Constitution / principles:
-  Read the current constitution or project principles first.
-  Store only stable operating principles there. Never store feature-specific notes there.
-- Durable project memory:
-  `docs/memory/PROJECT_CONTEXT.md`
-  `docs/memory/ARCHITECTURE.md`
-  `docs/memory/DECISIONS.md`
-  `docs/memory/BUGS.md`
-  `docs/memory/WORKLOG.md`
-- Active feature memory:
-  `specs/<feature>/memory.md`
-  `specs/<feature>/memory-synthesis.md`
-- Ephemeral run context:
-  Use the current prompt, diff, terminal output, and temporary notes only. Do not commit them to durable memory.
+- **Governance Layer (`.specify/memory/`)**:
+  Stable operating rules, project constitution, architecture standards, and governance-level decisions.
+  *   `.specify/memory/constitution.md` (project-level principles)
+  *   `.specify/memory/architecture_constitution.md` (authoritative tech standards)
+  *   `.specify/memory/DECISIONS.md` (governance decisions)
+  *   `.specify/memory/BUGS.md` (systemic or high-risk patterns)
+- **Durable Project Memory (`docs/memory/`)**:
+  The historical record of technical choices, architecture boundaries, and recurring bug patterns.
+  *   `docs/memory/INDEX.md` (the compact routing map for this layer)
+  *   `docs/memory/PROJECT_CONTEXT.md` (system purpose and high-level shape)
+  *   `docs/memory/ARCHITECTURE.md` (detailed boundaries and integrations)
+  *   `docs/memory/DECISIONS.md` (technical and implementation decisions)
+  *   `docs/memory/BUGS.md` (recurring bugs and mitigation patterns)
+  *   `docs/memory/WORKLOG.md` (sequential ledger of durable changes)
+- **Active Feature Memory (`specs/<feature>/memory.md`)**:
+  Feature-local constraints, open questions, and watchpoints for the current feature.
+- **Ephemeral Run Context**:
+  The current prompt, diff, terminal output, and temporary notes. Do not commit these to durable memory.
 
 ## Required Workflow
 
