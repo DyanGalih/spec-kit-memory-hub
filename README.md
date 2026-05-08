@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.8.1-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.8.2-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -442,7 +442,7 @@ specify extension add memory-md
 
 ```text
 specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.8.1.zip
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.8.2.zip
 ```
 
 ### Local Development
@@ -570,6 +570,15 @@ After running audit:
 1. If a finding is actionable and should become a task: run `/speckit.memory-md.log-finding`.
 2. This converts the finding into a tracker-ready issue (GitHub, GitLab, Jira, etc.).
 3. Reduces back-and-forth between memory review and task tracking.
+
+### Upgrading from a Previous Version
+
+When a new version of `memory-hub` is released, you do **not** need to run `/bootstrap` again. Running `/bootstrap` a second time will not overwrite your existing memory files, but it's unnecessary.
+
+To upgrade:
+1. Run `specify extension update memory-md` in your terminal.
+2. The new prompt files and templates will be downloaded to `.specify/extensions/memory-md/`.
+3. Your existing project memory (`docs/memory/` and `specs/<feature>/`) will remain entirely untouched.
 
 ---
 
@@ -816,6 +825,34 @@ spec-kit-memory-hub/
 **Key distinction:**
 - **Deployed to projects**: Memory files, config, instructions
 - **Stays in hub**: Prompts, templates (as reference), documentation
+
+---
+
+## Optional: Local SQLite Optimizer
+
+For massive projects where reading multiple markdown files consumes too many tokens, Memory Hub includes a **local SQLite cache optimizer**.
+
+When enabled, the CLI (`npx speckit-memory`) parses all markdown memory files, chunks them by section, calculates token costs, and stores them in a local `.specify/extensions/memory-md/cache.db`.
+
+### How it is Wired to the LLM Commands
+
+You do **not** need to run `npx speckit-memory` manually. The LLM commands (like `/speckit.memory-md.plan-with-memory`) are explicitly programmed to detect if the optimizer is enabled. 
+
+When the LLM runs a command, it follows this internal logic:
+1. It reads `.specify/extensions/memory-md/config.yml`.
+2. If `optimizer.enabled: true`, the LLM executes the command line hook (`{SCRIPT}` or direct `npx speckit-memory refresh-memory`).
+3. The Node.js binary updates the SQLite cache in the background.
+4. The LLM runs `npx speckit-memory synthesize` to generate a highly compressed `memory-synthesis.md`.
+5. The LLM reads only the final compressed synthesis file, saving thousands of context tokens.
+
+### Enabling the Optimizer
+1. Run `npm install` inside the extension directory to build the `speckit-memory` Node.js binary.
+2. Edit `.specify/extensions/memory-md/config.yml` in your project and set:
+   ```yaml
+   optimizer:
+     enabled: true
+   ```
+3. That's it! The LLM prompts will automatically switch to using the `npx speckit-memory` caching workflows.
 
 ---
 

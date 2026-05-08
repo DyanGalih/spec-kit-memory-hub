@@ -1,6 +1,6 @@
 {
   "name": "speckit-memory",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "private": true,
   "description": "Optional local memory optimizer for Spec Kit Memory Hub.",
   "type": "commonjs",
