@@ -14,8 +14,8 @@ Tasks:
 2. Ask whether the project wants the optional SQLite optimizer enabled.
    Explain the minimum requirements first: Node.js 18+, npm, local filesystem access, and the ability to install the `better-sqlite3` native dependency if a prebuilt binary is not available.
    If the user says no, keep the markdown-first workflow only.
-   If the user says yes, set `optimizer.enabled: true` in `.specify/extensions/memory-md/config.yml`, then automatically prepare the local optimizer once by installing or verifying the required Node dependencies if the environment supports it.
-   If prerequisites are missing, explain exactly what is missing and continue with markdown-first mode.
+   If the user says yes, set `optimizer.enabled: true` in `.specify/extensions/memory-md/config.yml`, and then automatically prepare the local optimizer by running `npm install` inside the `.specify/extensions/memory-md` directory using the terminal.
+   If the `npm install` fails (e.g. due to missing prerequisites), explain exactly what is missing, provide them the manual commands (`cd .specify/extensions/memory-md && npm install`), and then continue with markdown-first mode.
 3. Ensure these folders exist:
    - `{memory_root}` (default: docs/memory)
    - `{specs_root}` (default: specs)

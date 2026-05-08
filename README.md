@@ -573,12 +573,21 @@ After running audit:
 
 ### Upgrading from a Previous Version
 
-When a new version of `memory-hub` is released, you do **not** need to run `/bootstrap` again. Running `/bootstrap` a second time will not overwrite your existing memory files, but it's unnecessary.
-
-To upgrade:
+To upgrade your global extension to the latest version:
 1. Run `specify extension update memory-md` in your terminal.
 2. The new prompt files and templates will be downloaded to `.specify/extensions/memory-md/`.
-3. Your existing project memory (`docs/memory/` and `specs/<feature>/`) will remain entirely untouched.
+
+**Migrating an Existing Project:**
+
+If your project was using an older version of `memory-hub` (especially versions prior to v0.8.0 that lacked `INDEX.md` or the SQLite Optimizer):
+
+1. **Re-run Bootstrap**: You **should** run `/speckit.memory-md.bootstrap` again. The bootstrap command is completely safe—it **will not** overwrite your existing memory files. It will only inject missing files (like a missing `INDEX.md` or `config.yml`).
+2. **Re-index Memory**: If an `INDEX.md` was just generated for the first time, you will need to manually review your existing `docs/memory/*.md` files and populate the new `INDEX.md` with pointers to your existing decisions.
+3. **Build the Optimizer**: If you want to use the local SQLite optimizer, it requires a Node.js binary. Because `specify extension update` does not run `npm install` for you, you must navigate to the extension directory and build it:
+   ```bash
+   cd .specify/extensions/memory-md
+   npm install
+   ```
 
 ---
 
@@ -846,11 +855,19 @@ When the LLM runs a command, it follows this internal logic:
 5. The LLM reads only the final compressed synthesis file, saving thousands of context tokens.
 
 ### Enabling the Optimizer
-1. Run `npm install` inside the extension directory to build the `speckit-memory` Node.js binary.
-2. Edit `.specify/extensions/memory-md/config.yml` in your project and set:
+
+If you run `/speckit.memory-md.bootstrap`, the AI will ask if you want to enable the optimizer and will attempt to run `npm install` automatically for you. 
+
+If that fails, or if you are enabling it manually on an existing setup:
+1. Edit `.specify/extensions/memory-md/config.yml` in your project and set:
    ```yaml
    optimizer:
      enabled: true
+   ```
+2. Navigate to the extension directory and build the Node.js binary:
+   ```bash
+   cd .specify/extensions/memory-md
+   npm install
    ```
 3. That's it! The LLM prompts will automatically switch to using the `npx speckit-memory` caching workflows.
 
