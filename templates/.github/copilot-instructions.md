@@ -32,10 +32,12 @@ Before `/specify`:
 - Read `docs/memory/INDEX.md` first, then only selected source sections when needed.
 - Do not load all durable memory files during `/specify`.
 - Produce or refresh a compact `memory-synthesis.md` section for constraints, reused decisions, bug patterns, boundaries, conflicts, assumptions, and watchpoints.
+- If the optional SQLite optimizer is enabled, refresh the cache first and prefer `memory-synthesis.md` before opening raw memory files.
 
 Before `/plan` and `/tasks`:
 - Read the active spec plus `memory.md` and `memory-synthesis.md`.
 - Normal downstream flow should consume `memory-synthesis.md`, not the whole memory folder.
+- If the optional SQLite optimizer is enabled, use it to refresh the cache and regenerate synthesis before planning.
 - Do not proceed if there is an unresolved hard conflict with project memory or architecture boundaries.
 
 Before `/implement`:
@@ -52,5 +54,6 @@ Treat docs/memory as the repository memory layer.
 Keep entries concise, durable, and reviewable in Git.
 Do not assume hidden state outside the repository.
 Keep `memory-synthesis.md` under the configured retrieval word budget.
+A failed optimizer run must fall back to markdown-first retrieval rather than blocking work.
 
 A task is not fully complete until memory has been reviewed.

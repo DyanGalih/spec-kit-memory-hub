@@ -11,6 +11,17 @@ SQLite is a rebuildable cache for discovery and retrieval.
 `memory-synthesis.md` remains the compact AI-facing package used during normal planning and implementation.
 The LLM should read synthesis or search results first, not all files.
 
+## Memory Hub Command Flow
+
+When the optimizer is enabled, the normal Memory Hub flow is:
+
+1. Refresh the SQLite cache.
+2. Generate or refresh `memory-synthesis.md`.
+3. Read `memory-synthesis.md` first.
+4. Open additional source files only when needed.
+
+When the optimizer is disabled or unavailable, Memory Hub falls back to markdown-first, index-first retrieval without hard dependence on SQLite.
+
 ## Phase 1: Cache Durable Memory
 
 Scope:
@@ -44,6 +55,8 @@ npx speckit-memory search-memory "query"
 npx speckit-memory synthesize --feature specs/<feature>
 npx speckit-memory audit-memory
 npx speckit-memory refresh-memory
+npx speckit-memory rebuild-memory
+npx speckit-memory token-report --feature specs/<feature>
 ```
 
 Rules:
@@ -168,10 +181,39 @@ npx speckit-memory doctor
 ```
 
 Audit is read-only. Refresh is incremental. Rebuild is a full cache regeneration. Doctor validates environment and configuration.
+`token-report` uses estimated token counts; it helps compare flows, not bill exact provider usage.
+
+### Refresh vs Flush vs Rebuild
+
+- `refresh-memory`: update changed rows and remove deleted rows without dropping valid cache data.
+- `flush-memory`: clear the SQLite cache only, with no automatic reindex.
+- `rebuild-memory`: flush the cache and reindex all markdown memory files from scratch.
 
 ## Configuration
 
 Use `.spec-kit-memory/` for the SQLite cache and add it to `.gitignore`.
+
+## Architecture Guard Integration
+
+Recommended flow:
+
+```text
+governed-plan
+↓
+refresh-memory
+↓
+generate memory-synthesis.md
+↓
+Architecture Guard reads synthesis
+↓
+findings generated
+↓
+user approves capture
+↓
+refresh-memory
+```
+
+Architecture Guard can reduce the manual review burden, but durable memory capture still requires approval.
 
 ## Is this like Claude-Mem?
 

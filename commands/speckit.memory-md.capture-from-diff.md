@@ -54,6 +54,7 @@ Capture is manual and human-approved. Do not write durable memory unless the use
    - **Approval Needed**: Ask whether to apply the durable memory and index updates.
 
 Only write after explicit approval. If approval is not explicit, stop after the proposal.
+After approved durable writes, refresh the local cache with `npx speckit-memory refresh-memory` when the optimizer is enabled and available.
 
 ---
 ## Capture Principles

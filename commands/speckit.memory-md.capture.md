@@ -1,3 +1,7 @@
+---
+description: "Propose human-approved durable lessons and matching index updates from completed work."
+---
+
 # Capture
 
 Reflect on completed work and update durable memory only if needed.
@@ -37,7 +41,7 @@ Rules:
 - Prefer `DECISIONS.md` for still-active cross-feature choices and tradeoffs.
 - Prefer `ARCHITECTURE.md` for durable boundaries or constraints.
 - Prefer `BUGS.md` for repeatable failure modes and prevention guidance.
-- Use `WORKLOG.md` only for short, durable lessons that do not fit the other two files.
+- Use `WORKLOG.md` for concise, high-value project milestones and durable lessons that do not belong in decisions, architecture, or bugs.
 - When adding durable memory to `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`, also add or update one compact routing row in `INDEX.md`.
 - Keep `INDEX.md` short. It points to source entries; it does not duplicate full lessons.
 - Refuse routine implementation detail, feature narrative, or speculative lessons.
@@ -46,3 +50,4 @@ Approval flow:
 1. Show proposed durable memory entries and matching `INDEX.md` rows first.
 2. Ask for approval before writing.
 3. If approval is not explicit, stop after the proposal.
+4. After approved durable writes, refresh the local cache with `npx speckit-memory refresh-memory` when the optimizer is enabled and available.

@@ -1,4 +1,4 @@
-# Governed Memory Workflow (v0.7)
+# Governed Memory Workflow (v0.8)
 
 ## Architectural Critique
 

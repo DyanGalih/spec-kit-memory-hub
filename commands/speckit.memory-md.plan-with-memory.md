@@ -1,8 +1,23 @@
+---
+description: "Use index-first retrieval to synthesize constraints and gate planning on conflicts."
+---
+
 # Plan With Memory
 
-Before planning the feature, resolve configuration. If `.specify/extensions/memory-md/config.yml` exists, read it for `memory_root`, `specs_root`, `feature_memory_filename`, `memory_synthesis_filename`, `require_memory_synthesis_before_plan`, and `retrieval`.
+Before planning the feature, resolve configuration. If `.specify/extensions/memory-md/config.yml` exists, read it for `memory_root`, `specs_root`, `feature_memory_filename`, `memory_synthesis_filename`, `require_memory_synthesis_before_plan`, `optimizer`, and `retrieval`.
 Otherwise use defaults: `memory_root: docs/memory`, `specs_root: specs`, `feature_memory_filename: memory.md`, `memory_synthesis_filename: memory-synthesis.md`, `require_memory_synthesis_before_plan: true`, and the retrieval defaults below.
 If `require_memory_synthesis_before_plan` is `false`, skip the synthesis gate but still produce a synthesis when possible.
+
+## Optimizer-Aware Flow
+
+When `optimizer.enabled` is `true` and the CLI is available:
+
+1. Refresh the cache with `npx speckit-memory refresh-memory`.
+2. Generate or refresh `npx speckit-memory synthesize --feature {specs_root}/<feature>`.
+3. Read `{specs_root}/<feature>/{memory_synthesis_filename}` first.
+4. Open additional durable memory files only if synthesis is insufficient or the user explicitly requests a deeper audit.
+
+When `optimizer.enabled` is `false`, missing, or unavailable, keep using markdown-only, index-first retrieval.
 
 ## Retrieval Order
 
@@ -16,6 +31,7 @@ If `require_memory_synthesis_before_plan` is `false`, skip the synthesis gate bu
 8. Create or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
 
 Do not read or paste entire durable memory files unless the index is missing, incomplete, or the user explicitly requests a full audit.
+Do not load all durable memory files during normal planning when the optimizer is enabled.
 
 ## Semantic Modeling
 

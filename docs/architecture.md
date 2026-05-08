@@ -85,3 +85,7 @@ The optimizer can be introduced in phases:
 3. Cache code symbols to reduce duplication.
 
 This keeps the core workflow lightweight while leaving room for projects that outgrow pure markdown retrieval.
+
+When `optimizer.enabled` is true, Memory Hub commands should refresh the cache, regenerate `memory-synthesis.md`, and read synthesis first. When it is false or unavailable, the repo still works in markdown-only, index-first mode.
+
+The optimizer is intentionally one-shot per command. It is not a background daemon, and failed optimizer runs must fall back to markdown-first retrieval rather than blocking work.

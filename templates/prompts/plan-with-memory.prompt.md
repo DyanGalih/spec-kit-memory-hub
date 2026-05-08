@@ -8,9 +8,17 @@ Read:
 - `{memory_root}/INDEX.md`
 - existing `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 
+When `optimizer.enabled` is `true` and the CLI is available:
+1. Refresh the cache if needed.
+2. Generate or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
+3. Read `{specs_root}/<feature>/{memory_synthesis_filename}` first.
+4. Open additional durable memory files only when synthesis is insufficient or audit mode is requested.
+
 Select relevant index entries first, then read only the smallest necessary source sections. Do not read or paste entire durable memory files unless the index is missing, incomplete, or the user explicitly requests a full audit.
+Do not load all durable memory files during normal planning when the optimizer is enabled.
 
 Produce or refresh `{specs_root}/<feature>/{memory_synthesis_filename}` using only:
+- relevant project context
 - current constraints
 - reused decisions
 - relevant bug patterns

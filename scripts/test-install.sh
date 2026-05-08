@@ -56,9 +56,15 @@ echo "Test: Hub repo structure is valid"
 
 assert_file_exists "$HUB_ROOT/extension.yml" "extension.yml exists at root"
 assert_file_exists "$HUB_ROOT/config-template.yml" "config-template.yml exists at root"
+assert_file_exists "$HUB_ROOT/package.json" "package.json exists at root"
+assert_file_exists "$HUB_ROOT/tsconfig.json" "tsconfig.json exists at root"
+assert_dir_exists "$HUB_ROOT/bin" "bin/ directory exists"
+assert_dir_exists "$HUB_ROOT/src" "src/ directory exists"
 assert_dir_exists "$HUB_ROOT/commands" "commands/ directory exists"
 assert_dir_exists "$HUB_ROOT/templates" "templates/ directory exists"
 assert_dir_exists "$HUB_ROOT/scripts" "scripts/ directory exists"
+assert_file_exists "$HUB_ROOT/bin/speckit-memory.ts" "CLI entrypoint exists"
+assert_file_exists "$HUB_ROOT/scripts/test-cli.sh" "CLI smoke test exists"
 
 EXPECTED_COMMANDS=(
   "speckit.memory-md.bootstrap.md"
@@ -67,6 +73,7 @@ EXPECTED_COMMANDS=(
   "speckit.memory-md.capture-from-diff.md"
   "speckit.memory-md.audit.md"
   "speckit.memory-md.log-finding.md"
+  "speckit.memory-md.token-report.md"
 )
 
 for cmd in "${EXPECTED_COMMANDS[@]}"; do

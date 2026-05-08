@@ -8,6 +8,9 @@ require_memory_synthesis_before_plan: true
 require_memory_review_before_verify: true
 retrieval:
   max_index_entries: 20
+  max_memory_results: 10
+  max_doc_results: 10
+  max_code_results: 10
   max_decisions: 5
   max_architecture_constraints: 5
   max_accepted_deviations: 3
@@ -16,18 +19,24 @@ retrieval:
   max_worklog_items: 2
   max_synthesis_words: 900
   full_memory_read_allowed: false
+  full_scan_allowed: false
 optimizer:
   enabled: false
   engine: sqlite
   db_path: .spec-kit-memory/memory.sqlite
   auto_index_on_memory_change: true
+  auto_generate_synthesis: false
   auto_index_on_doc_change: false
   auto_index_on_code_change: false
-  auto_generate_synthesis: false
 indexing:
   include:
     memory:
-      - docs/memory/**/*.md
+      - docs/memory/INDEX.md
+      - docs/memory/PROJECT_CONTEXT.md
+      - docs/memory/ARCHITECTURE.md
+      - docs/memory/DECISIONS.md
+      - docs/memory/BUGS.md
+      - docs/memory/WORKLOG.md
     docs:
       - docs/**/*.md
       - specs/**/*.md

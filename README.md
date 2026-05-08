@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.8.0-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.8.1-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -278,6 +278,34 @@ The optimizer is described in [docs/optimizer-roadmap.md](docs/optimizer-roadmap
 
 The cache must always be rebuildable from repository sources.
 
+To enable the optimizer in a project, update `.specify/extensions/memory-md/config.yml` and set `optimizer.enabled: true` after bootstrap. Bootstrap should ask whether you want that opt-in path and explain the minimum requirements first.
+When the user approves, bootstrap can prepare the optimizer automatically by verifying or installing the required Node dependencies once, then continue in one-shot CLI mode.
+
+Minimum requirements for the optional optimizer:
+
+- Node.js 18+
+- npm
+- local filesystem access to the repo
+- ability to install the `better-sqlite3` native dependency if a prebuilt binary is unavailable
+
+If you skip the optimizer, Memory Hub continues in markdown-first mode with no SQLite dependency.
+
+Phase 1 commands:
+
+```text
+npx speckit-memory index-memory
+npx speckit-memory search-memory "query"
+npx speckit-memory synthesize --feature specs/<feature>
+npx speckit-memory refresh-memory
+npx speckit-memory rebuild-memory
+npx speckit-memory audit-memory
+npx speckit-memory token-report --feature specs/<feature>
+```
+
+For local development inside this repository, run `npm install` and `npm run build`, then execute `node dist/bin/speckit-memory.js ...` against a project root.
+
+When the optimizer is enabled, the Memory Hub command flow should refresh the cache, generate `memory-synthesis.md`, and then consume that synthesis first. When it is disabled or unavailable, the markdown-first index and synthesis prompts still work on their own.
+
 ### Why Memory Synthesis Exists
 The goal is not to load all memory. The goal is to provide the minimum high-value context needed for accurate reasoning. Memory synthesis acts as a focused lens, translating years of project history into exactly what matters for the current feature.
 
@@ -300,6 +328,14 @@ Expensive operations:
 These should be intentional, not automatic.
 
 Manual trigger is intentional. Capture is manual. Synthesis can be run before planning, tasks, or implementation. The extension is useful only when memory prevents repeated mistakes or improves future features.
+`token-report` uses estimated token counts; it is a planning aid, not provider billing telemetry.
+
+If you want a command-palette mapping for a future VS Code wrapper, these are the intended labels:
+
+- `Spec Kit Memory: Refresh Cache`
+- `Spec Kit Memory: Generate Synthesis`
+- `Spec Kit Memory: Audit Cache`
+- `Spec Kit Memory: Token Report`
 
 ## Relationship to Architecture Guard
 - **Memory Hub** provides contextual synthesis (the "What did we decide?").
@@ -406,7 +442,7 @@ specify extension add memory-md
 
 ```text
 specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.8.0.zip
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.8.1.zip
 ```
 
 ### Local Development
@@ -433,6 +469,9 @@ scripts/check-memory.sh /path/to/project
 
 # Smoke test the hub itself
 scripts/test-install.sh
+
+# Smoke test the optimizer CLI
+scripts/test-cli.sh
 ```
 
 ---
@@ -477,6 +516,7 @@ These files help the **current feature only**:
 | `capture-from-diff` | After implementation (fast mode) | Extracts lessons directly from code diffs when you skipped formal spec process (useful for bug fixes or rapid iteration) |
 | `audit` | When memory feels noisy or stale | Finds duplicates, stale entries, contradictions, misplaced content; suggests cleanup and rewrites |
 | `log-finding` | When audit finds something actionable | Converts a high-signal audit finding into a tracked task for GitHub, GitLab, Jira, or other issue tracker |
+| `token-report` | When evaluating optimizer ROI | Compares estimated token usage between full memory reads and optimized synthesis |
 
 All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 
@@ -595,7 +635,10 @@ Then edit the YAML file:
 | `memory_synthesis_filename` | `memory-synthesis.md` | Filename for per-feature synthesis | Change if you prefer `constraints.md` or `synthesis.txt` |
 | `require_memory_synthesis_before_plan` | `true` | Gate planning on current synthesis | Set to `false` to allow planning without synthesis |
 | `require_memory_review_before_verify` | `true` | Gate verification on memory review | Set to `false` to allow verification without memory capture |
-| `retrieval.*` | See defaults | Budgets for index entries, selected memory, synthesis size, and full memory reads | Tune for larger repos or stricter token limits |
+| `retrieval.max_index_entries` | `20` | Max index rows considered by memory planning workflows | Keeps index-first retrieval compact |
+| `retrieval.max_memory_results` | `10` | Max durable memory results considered for search and synthesis | Raise only if the cache is very broad |
+| `retrieval.max_synthesis_words` | `900` | Maximum size for generated `memory-synthesis.md` | Lower for stricter token budgets |
+| `retrieval.full_scan_allowed` | `false` | Whether expensive full memory scans are allowed | Keep `false` for normal lightweight use |
 | `optimizer.*` | See defaults | Optional SQLite cache for faster search and synthesis | Keep disabled for basic markdown-only usage |
 | `indexing.*` | See defaults | File globs for optional optimizer indexing | Tune what gets cached locally |
 
@@ -718,10 +761,34 @@ These are the hub's infrastructure files:
 
 ```text
 spec-kit-memory-hub/
+├── package.json                 ← Node package for the optimizer CLI
+├── package-lock.json            ← Locked dependency graph
+├── tsconfig.json                ← TypeScript build config
+├── bin/
+│   └── speckit-memory.ts        ← CLI entrypoint source
+├── src/
+│   ├── cli/
+│   ├── db/
+│   ├── indexing/
+│   ├── retrieval/
+│   ├── synthesis/
+│   ├── audit/
+│   ├── config/
+│   ├── utils/
+│   └── types/
 ├── extension.yml                 ← Extension manifest
 ├── config-template.yml           ← Default configuration template
 ├── commands/                     ← Spec Kit command definitions
-│   └── speckit.memory-md.*.md       ← 6 main commands
+│   └── speckit.memory-md.*.md       ← 7 main commands
+├── scripts/
+│   ├── bash/
+│   │   └── detect-changed-files.sh
+│   ├── powershell/
+│   │   └── detect-changed-files.ps1
+│   ├── install-into-project.sh
+│   ├── check-memory.sh
+│   ├── test-install.sh
+│   └── test-cli.sh
 └── templates/                    ← Starter files
     ├── prompts/                      ← Instruction prompts (NOT deployed)
     │   ├── bootstrap.memory.prompt.md
@@ -741,6 +808,8 @@ spec-kit-memory-hub/
     │   └── 001-example-feature/      ← Example feature template
     ├── .github/
     │   └── copilot-instructions.md   ← Template instructions
+    ├── scripts/
+    │   └── test-cli.sh               ← CLI smoke test for the optimizer
     └── docs/                         ← Extension documentation
 ```
 

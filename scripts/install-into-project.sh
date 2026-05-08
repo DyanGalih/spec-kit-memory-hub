@@ -25,9 +25,15 @@ copy_if_missing() {
 }
 
 copy_if_missing "$HUB_ROOT/templates/.github/copilot-instructions.md" "$TARGET_ROOT/.github/copilot-instructions.md"
+copy_if_missing "$HUB_ROOT/config-template.yml" "$TARGET_ROOT/config-template.yml"
 
 for f in INDEX.md PROJECT_CONTEXT.md ARCHITECTURE.md DECISIONS.md BUGS.md WORKLOG.md; do
   copy_if_missing "$HUB_ROOT/templates/docs/memory/$f" "$TARGET_ROOT/docs/memory/$f"
+done
+
+mkdir -p "$TARGET_ROOT/specs/001-example-feature"
+for f in spec.md plan.md tasks.md memory.md memory-synthesis.md; do
+  copy_if_missing "$HUB_ROOT/templates/specs/001-example-feature/$f" "$TARGET_ROOT/specs/001-example-feature/$f"
 done
 
 copy_if_missing "$HUB_ROOT/templates/specs/README.md" "$TARGET_ROOT/specs/README.md"

@@ -113,14 +113,14 @@ if [ -d "$SPECS_ROOT" ]; then
     fi
 
     REQUIRED_SECTIONS=(
-      "Current Constraints"
-      "Reused Decisions"
-      "Relevant Bug Patterns"
-      "Architecture Boundaries"
-      "Feature-to-Memory Conflicts"
-      "Assumptions Requiring Confirmation"
-      "Implementation Watchpoints"
-      "Verification Watchpoints"
+      "Current Scope"
+      "Relevant Decisions"
+      "Active Architecture Constraints"
+      "Accepted Deviations"
+      "Relevant Security Constraints"
+      "Related Historical Lessons"
+      "Conflict Warnings"
+      "Retrieval Notes"
     )
 
     for section in "${REQUIRED_SECTIONS[@]}"; do

@@ -1,3 +1,7 @@
+---
+description: "Turn a high-signal audit finding into a tracker-ready follow-up for GitHub, GitLab, Jira, or another issue system."
+---
+
 # Log Finding
 
 Turn a high-signal audit finding into a tracker-ready follow-up.
@@ -30,3 +34,5 @@ If no write integration exists, produce a tracker-ready draft that can be pasted
 
 Do not rewrite memory here.
 Do not create noisy or speculative follow-up items.
+
+If the finding is approved as durable memory after tracking, refresh the local cache with `npx speckit-memory refresh-memory` when the optimizer is enabled and available.
