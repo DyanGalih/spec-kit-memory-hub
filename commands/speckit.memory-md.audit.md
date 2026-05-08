@@ -11,7 +11,7 @@ You are running a high-integrity audit of the project's durable and feature memo
 ## Goal
 Validate the quality, accuracy, and density of memory artifacts (`{memory_root}/*.md` and `{specs_root}/<feature>/memory*.md`). Identify stale, contradictory, or low-signal entries that degrade the project's long-term intelligence.
 
-Audit is intentionally expensive and may read all memory files. Normal synthesis must not; it should use `{memory_root}/INDEX.md` and selected source sections only.
+Audit is intentionally expensive and may read all memory files. Normal synthesis must not; it should use `{memory_root}/INDEX.md` and selected source sections only. **IMPORTANT**: You MUST read these files explicitly using your file-reading tools (absolute or relative paths). Do not rely solely on workspace search or semantic indexers, as these files are often in `.gitignore`.
 When the optimizer is enabled and available, run `npx speckit-memory audit-memory` to validate the SQLite cache, then fall back to markdown-only audit checks if the cache is unavailable.
 
 ## Operating Constraints

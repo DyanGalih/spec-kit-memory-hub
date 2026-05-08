@@ -21,6 +21,8 @@ When `optimizer.enabled` is `false`, missing, or unavailable, keep using markdow
 
 ## Retrieval Order
 
+**IMPORTANT**: You MUST read the following files explicitly using your file-reading tools (absolute or relative paths). Do not rely solely on workspace search or semantic indexers, as these files are often in `.gitignore`:
+
 1. Read config.
 2. Read constitution or project principles only if present and small.
 3. Read the active feature spec.
