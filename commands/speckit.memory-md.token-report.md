@@ -15,7 +15,7 @@ Use this when:
 When the optimizer is enabled and the CLI is available, run:
 
 ```bash
-npx speckit-memory token-report --feature specs/<feature>
+cd .specify/extensions/memory-md && npx speckit-memory token-report --feature specs/<feature>
 ```
 
 Report:

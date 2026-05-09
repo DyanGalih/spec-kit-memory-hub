@@ -8,14 +8,13 @@ Before planning the feature, resolve configuration. If `.specify/extensions/memo
 Otherwise use defaults: `memory_root: docs/memory`, `specs_root: specs`, `feature_memory_filename: memory.md`, `memory_synthesis_filename: memory-synthesis.md`, `require_memory_synthesis_before_plan: true`, and the retrieval defaults below.
 If `require_memory_synthesis_before_plan` is `false`, skip the synthesis gate but still produce a synthesis when possible.
 
-## Optimizer-Aware Flow
+### Optimizer-Aware Flow
 
-When `optimizer.enabled` is `true` and the CLI is available:
+When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the CLI is available:
 
-1. Refresh the cache with `npx speckit-memory refresh-memory`.
-2. Generate or refresh `npx speckit-memory synthesize --feature {specs_root}/<feature>`.
-3. Read `{specs_root}/<feature>/{memory_synthesis_filename}` first.
-4. Open additional durable memory files only if synthesis is insufficient or the user explicitly requests a deeper audit.
+1. **Prepare Context**: Execute `/speckit.memory-md.prepare-context --feature specs/<feature>`.
+2. **Read Synthesis**: Read `specs/<feature>/memory-synthesis.md` to identify constraints and decisions.
+3. Open additional durable memory files only if synthesis is insufficient or the user explicitly requests a deeper audit.
 
 When `optimizer.enabled` is `false`, missing, or unavailable, keep using markdown-only, index-first retrieval.
 
@@ -109,3 +108,4 @@ Output:
 - a concise planning synthesis
 - Include only selected summaries in the plan.
 - Do not continue to task breakdown or implementation with unresolved hard conflicts.
+- **Durable Memory Preservation (Mandatory Check)**: If the planning process identified new architectural patterns, critical decisions, or repeatable lessons (e.g. from conflict resolution), you **MUST** execute `/speckit.memory-md.capture` after providing the synthesis. Use the formal capture flow to propose entries and wait for user approval.

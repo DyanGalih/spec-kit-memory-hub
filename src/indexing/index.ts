@@ -120,6 +120,7 @@ export function chunkToEntry(projectRoot: string, relPath: string, chunk: Parsed
     line_end: chunk.line_end,
     updated_at: now,
     created_at: now,
+    status: "active", // Default status
   };
 }
 

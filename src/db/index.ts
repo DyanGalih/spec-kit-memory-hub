@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS memory_entries (
   content_summary TEXT,
   snippet TEXT,
   tags TEXT,
+  status TEXT,
   hash TEXT NOT NULL,
   line_start INTEGER,
   line_end INTEGER,
@@ -24,7 +25,8 @@ CREATE VIRTUAL TABLE IF NOT EXISTS memory_fts USING fts5(
   section_heading,
   content_summary,
   snippet,
-  tags
+  tags,
+  status
 );
 
 CREATE TABLE IF NOT EXISTS indexing_state (
@@ -75,16 +77,16 @@ export function upsertIndexedFile(
   const deleteFtsById = db.prepare(`DELETE FROM memory_fts WHERE id = ?`);
   const insertEntry = db.prepare(`
     INSERT INTO memory_entries (
-      id, source_path, source_type, section_heading, content_summary, snippet, tags, hash,
+      id, source_path, source_type, section_heading, content_summary, snippet, tags, status, hash,
       line_start, line_end, updated_at, created_at
     ) VALUES (
-      @id, @source_path, @source_type, @section_heading, @content_summary, @snippet, @tags, @hash,
+      @id, @source_path, @source_type, @section_heading, @content_summary, @snippet, @tags, @status, @hash,
       @line_start, @line_end, @updated_at, @created_at
     )
   `);
   const insertFts = db.prepare(`
-    INSERT INTO memory_fts (id, section_heading, content_summary, snippet, tags)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO memory_fts (id, section_heading, content_summary, snippet, tags, status)
+    VALUES (?, ?, ?, ?, ?, ?)
   `);
   const upsertState = db.prepare(`
     INSERT INTO indexing_state (source_path, hash, indexed_at)
@@ -100,7 +102,7 @@ export function upsertIndexedFile(
     deleteBySource.run(sourcePath);
     for (const entry of entries) {
       insertEntry.run(entry);
-      insertFts.run(entry.id, entry.section_heading, entry.content_summary, entry.snippet, entry.tags);
+      insertFts.run(entry.id, entry.section_heading, entry.content_summary, entry.snippet, entry.tags, entry.status);
     }
     upsertState.run(sourcePath, hash, indexedAt);
   });

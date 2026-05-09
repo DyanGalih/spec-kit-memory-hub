@@ -8,6 +8,7 @@ import { auditMemoryCache } from "../audit";
 import { discoverPhase1MemoryFiles, indexPhase1MemoryFiles } from "../indexing";
 import { searchMemoryEntries } from "../retrieval";
 import { generateMemorySynthesis, writeMemorySynthesis } from "../synthesis";
+import { registerMemoryEntry } from "../indexing/registration";
 import { estimateTokens, freeTokenizer } from "../utils/tokens";
 import { pathExists, readTextFile, removePath } from "../utils/fs";
 import { findProjectRoot } from "../utils/root";
@@ -94,12 +95,12 @@ async function runSearchMemory(projectRoot: string, query: string): Promise<void
   }
 }
 
-async function runSynthesize(projectRoot: string, featurePath: string): Promise<void> {
+async function runSynthesize(projectRoot: string, featurePath: string, query?: string): Promise<void> {
   console.log("Generating memory synthesis...");
   const { config, db } = createContext(projectRoot);
   try {
     await ensureIndexedMemory(projectRoot, db, config);
-    const synthesis = await writeMemorySynthesis(db, projectRoot, featurePath, config);
+    const synthesis = await writeMemorySynthesis(db, projectRoot, featurePath, config, query);
     console.log(`Wrote ${path.relative(projectRoot, synthesis.outputPath)} (${synthesis.words} words, ${synthesis.sourceItems.length} source items)`);
   } finally {
     closeDatabase(db);
@@ -216,6 +217,21 @@ async function runTokenReport(projectRoot: string, featurePath: string): Promise
   }
 }
 
+async function runRegisterMemory(
+  projectRoot: string,
+  options: { id: string; title: string; tags: string; file: string; status: string }
+): Promise<void> {
+  console.log(`Registering memory entry: ${options.id} | ${options.title}`);
+  const { config, db } = createContext(projectRoot);
+  try {
+    await registerMemoryEntry(projectRoot, db, config, options);
+    console.log("Successfully registered and synchronized memory index.");
+  } finally {
+    closeDatabase(db);
+    freeTokenizer();
+  }
+}
+
 export async function runCli(argv = process.argv): Promise<void> {
   const program = new Command();
   program
@@ -243,10 +259,11 @@ export async function runCli(argv = process.argv): Promise<void> {
   program
     .command("synthesize")
     .requiredOption("--feature <path>", "feature directory, for example specs/001-auth")
+    .option("--query <text>", "optional search query to override automatic feature query")
     .description("Generate memory-synthesis.md for a feature")
-    .action(async (options: { feature: string }) => {
+    .action(async (options: { feature: string; query?: string }) => {
       const cliOptions = program.opts<CliOptions>();
-      await runSynthesize(cliOptions.projectRoot, options.feature);
+      await runSynthesize(cliOptions.projectRoot, options.feature, options.query);
     });
 
   program
@@ -296,6 +313,19 @@ export async function runCli(argv = process.argv): Promise<void> {
     .action(() => {
       console.error(chalk.yellow("doctor is planned but not yet implemented. Verify: Node.js >= 18, npm available, better-sqlite3 installed."));
       process.exitCode = 1;
+    });
+
+  program
+    .command("register-memory")
+    .description("Register a new memory entry and sync with INDEX.md")
+    .requiredOption("--id <id>", "stable ID (e.g., A3, B1)")
+    .requiredOption("--title <text>", "short descriptive title")
+    .requiredOption("--tags <csv>", "comma-separated keywords")
+    .requiredOption("--file <relpath>", "relative path to detail file (e.g., ARCHITECTURE.md)")
+    .option("--status <type>", "active, deprecated, or superseded", "active")
+    .action(async (cmdOptions) => {
+      const options = program.opts<CliOptions>();
+      await runRegisterMemory(options.projectRoot, cmdOptions);
     });
 
   // Phase 2/3 commands (index-docs, search-docs, index-code, search-code, etc.) are

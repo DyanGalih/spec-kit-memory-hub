@@ -57,6 +57,7 @@ export interface MemoryEntryRecord {
   content_summary: string | null;
   snippet: string | null;
   tags: string | null;
+  status: string | null;
   hash: string;
   line_start: number | null;
   line_end: number | null;

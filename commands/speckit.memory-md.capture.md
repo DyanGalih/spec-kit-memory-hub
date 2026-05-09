@@ -17,6 +17,19 @@ Inputs to review:
 - review findings (Architecture Guard, Security Review, etc.), if any
 - incident or bug-fix context, if any
 
+### Durable Memory Context (Duplicate Prevention)
+
+Before proposing new entries, check the existing memory to avoid duplicates.
+
+#### Optimizer-Aware Flow
+When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true`:
+1. **Refresh Cache**: Execute `cd .specify/extensions/memory-md && npx speckit-memory refresh-memory` (or `npx . refresh-memory` if in the extension repo).
+2. **Targeted Search**: Execute `cd .specify/extensions/memory-md && npx speckit-memory search-memory "architecture constraints boundaries decisions <topic>"` for the candidate lesson topics.
+3. **Read Results**: Review the search results or the index to ensure the candidate lesson is not already captured.
+
+#### Markdown-Only Flow
+When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and the relevant source sections to check for existing entries.
+
 For each candidate lesson, require all of these:
 - reusable
 - non-obvious
@@ -42,12 +55,14 @@ Rules:
 - Prefer `ARCHITECTURE.md` for durable boundaries or constraints.
 - Prefer `BUGS.md` for repeatable failure modes and prevention guidance.
 - Use `WORKLOG.md` for concise, high-value project milestones and durable lessons that do not belong in decisions, architecture, or bugs.
-- When adding durable memory to `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`, also add or update one compact routing row in `INDEX.md`.
-- Keep `INDEX.md` short. It points to source entries; it does not duplicate full lessons.
+- When adding durable memory to `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`, you MUST register the update in `INDEX.md`.
+- **Optimizer-Aware Registration (Preferred)**: When the optimizer is available, execute `cd .specify/extensions/memory-md && npx speckit-memory register-memory --id <ID> --title "<Title>" --tags "<Tags>" --file "<SourceFile.md>" --status "active"`. This automatically syncs the cache and maintains the `INDEX.md` format.
+- **Index Format**: Every entry in `INDEX.md` must follow the compact list format: `- ID | Title | Tags | [File](./File.md) | Status`.
+- Keep `INDEX.md` short (20-50 rows target). It points to source entries; it does not duplicate full lessons.
 - Refuse routine implementation detail, feature narrative, or speculative lessons.
 
 Approval flow:
-1. Show proposed durable memory entries and matching `INDEX.md` rows first.
+1. Show proposed durable memory entries and the matching `register-memory` command first.
 2. Ask for approval before writing.
 3. If approval is not explicit, stop after the proposal.
-4. After approved durable writes, refresh the local cache with `npx speckit-memory refresh-memory` when the optimizer is enabled and available.
+4. After approved durable writes, the `register-memory` command handles index synchronization and cache refresh.

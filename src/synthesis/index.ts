@@ -107,6 +107,7 @@ export async function generateMemorySynthesis(
   projectRoot: string,
   featurePath: string,
   config: MemoryHubConfig = loadConfig(projectRoot),
+  customQuery?: string,
 ): Promise<SynthesisDocument> {
   const { specsRoot } = resolveProjectPaths(projectRoot, config);
   const featureRoot = path.resolve(projectRoot, featurePath);
@@ -116,7 +117,7 @@ export async function generateMemorySynthesis(
   const synthesisPath = path.join(featureRoot, config.memory_synthesis_filename);
   const featureSpec = (await pathExists(featureSpecPath)) ? await readTextFile(featureSpecPath) : "";
   const featureMemory = (await pathExists(featureMemoryPath)) ? await readTextFile(featureMemoryPath) : "";
-  const query = [featureName, featureSpec, featureMemory].join("\n");
+  const query = customQuery || [featureName, featureSpec, featureMemory].join("\n");
   let results = searchMemoryEntries(db, query, config, config.retrieval.max_memory_results);
   if (results.length === 0) {
     results = searchMemoryEntries(db, "", config, config.retrieval.max_memory_results);
@@ -211,8 +212,9 @@ export async function writeMemorySynthesis(
   projectRoot: string,
   featurePath: string,
   config: MemoryHubConfig = loadConfig(projectRoot),
+  customQuery?: string,
 ): Promise<SynthesisDocument> {
-  const synthesis = await generateMemorySynthesis(db, projectRoot, featurePath, config);
+  const synthesis = await generateMemorySynthesis(db, projectRoot, featurePath, config, customQuery);
   await writeTextFile(synthesis.outputPath, synthesis.content);
   return synthesis;
 }

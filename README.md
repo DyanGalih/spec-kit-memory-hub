@@ -119,24 +119,8 @@ Examples:
 memory-synthesis.md
 ```
 
-### Capture
-
-Capture persists new durable memory.
-
-It should be intentional and human-approved.
-
-Architecture Guard orchestration should not automatically capture memory without approval.
-
-Instead, governed workflows may produce capture candidates, such as:
-
-* accepted architecture decisions
-* approved deviations
-* security constraints
-* migration lessons
-* repeated failure patterns
-
-The user can then decide whether to run memory capture.
-
+Capture persists new durable memory. It should be **intentional and human-approved**.
+While Architecture Guard orchestration does not automatically mutate project memory without approval, it now includes a **Mandatory Self-Learning Check** as the penultimate step in every implementation and review flow. This ensures the agent evaluates the execution for architectural lessons and is forced to propose any high-signal findings via `/speckit.memory-md.capture` before finalizing the governance summary.
 Capture commands show proposed durable entries and index rows first. They write only after explicit approval.
 
 ---
@@ -200,7 +184,7 @@ Memory Hub is a **context and knowledge layer** that runs alongside Spec Kit wor
 | **Milestone: Foundation** | `bootstrap` | Once at project setup | Create the memory structure and initial project context. |
 | **Milestone: Synthesis** | `plan-with-memory` | After `/specify` | Read the memory index, retrieve selected entries, and synthesize active constraints. |
 | **Milestone: Strategy** | `plan-with-memory` | After `/tasks` | Ensure the technical plan and tasks respect known constraints. |
-| **Milestone: Capture** | `capture` | After implementation | Extract and store only the durable lessons for future features. |
+| **Milestone: Self-Learning** | `capture` | **Mandatory Step** after `/verify` | Extract and store only the durable lessons for future features (Approval Gated). |
 
 ---
 
@@ -293,13 +277,14 @@ If you skip the optimizer, Memory Hub continues in markdown-first mode with no S
 Phase 1 commands:
 
 ```text
-npx speckit-memory index-memory
-npx speckit-memory search-memory "query"
-npx speckit-memory synthesize --feature specs/<feature>
-npx speckit-memory refresh-memory
-npx speckit-memory rebuild-memory
-npx speckit-memory audit-memory
-npx speckit-memory token-report --feature specs/<feature>
+# If using the installed extension (standard):
+npx .specify/extensions/memory-md speckit-memory index-memory
+npx .specify/extensions/memory-md speckit-memory search-memory "query"
+npx .specify/extensions/memory-md speckit-memory synthesize --feature specs/<feature>
+npx .specify/extensions/memory-md speckit-memory refresh-memory
+npx .specify/extensions/memory-md speckit-memory rebuild-memory
+npx .specify/extensions/memory-md speckit-memory audit-memory
+npx .specify/extensions/memory-md speckit-memory token-report --feature specs/<feature>
 ```
 
 For local development inside this repository, run `npm install` and `npm run build`, then execute `node dist/bin/speckit-memory.js ...` against a project root.

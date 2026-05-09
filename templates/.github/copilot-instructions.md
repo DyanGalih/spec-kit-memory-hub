@@ -48,10 +48,11 @@ Before `/implement`:
 - Treat implementation and verification watchpoints as requirements, not suggestions.
 
 After `/implement` and after `/verify`:
-- Review the diff, task completion, tests, and findings.
-- Propose durable memory and `INDEX.md` updates first.
-- Update durable memory only after explicit approval and only when the lesson is durable, evidenced, reusable, and non-obvious.
-- Refuse changelog-style or speculative memory updates.
+- Review the full implementation journey: spec, plan, tasks, diff, and review findings.
+- **Mandatory Self-Learning Check**: Evaluate if any systemic architectural lessons, reusable security patterns, or technical decisions were established.
+- **Formal Capture Step**: You **MUST** execute `/speckit.memory-md.capture` to propose durable memory and `INDEX.md` updates.
+- **Approval Gated**: Update durable memory only after explicit user approval.
+- Refuse changelog-style, routine implementation detail, or speculative memory updates.
 
 Treat docs/memory as the repository memory layer.
 Keep entries concise, durable, and reviewable in Git.
@@ -59,4 +60,4 @@ Do not assume hidden state outside the repository.
 Keep `memory-synthesis.md` under the configured retrieval word budget.
 A failed optimizer run must fall back to markdown-first retrieval rather than blocking work.
 
-A task is not fully complete until memory has been reviewed.
+A task is not fully complete until memory has been reviewed and systemic lessons are captured.
