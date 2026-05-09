@@ -12,11 +12,14 @@ TARGET_ROOT="$2"
 mkdir -p "$TARGET_ROOT/docs/memory"
 mkdir -p "$TARGET_ROOT/specs"
 mkdir -p "$TARGET_ROOT/.github"
+mkdir -p "$TARGET_ROOT/.specify/memory"
 
 copy_if_missing() {
   SRC="$1"
   DST="$2"
   if [ ! -e "$DST" ]; then
+    # Create parent dir if missing
+    mkdir -p "$(dirname "$DST")"
     cp "$SRC" "$DST"
     echo "[added] $DST"
   else
@@ -25,6 +28,14 @@ copy_if_missing() {
 }
 
 copy_if_missing "$HUB_ROOT/templates/.github/copilot-instructions.md" "$TARGET_ROOT/.github/copilot-instructions.md"
+copy_if_missing "$HUB_ROOT/templates/.specify/memory/workflow.md" "$TARGET_ROOT/.specify/memory/workflow.md"
+
+# Optional agent context files
+for f in AGENTS.md CLAUDE.md GEMINI.md WINDSURF.md; do
+  if [ -f "$HUB_ROOT/templates/$f" ]; then
+    copy_if_missing "$HUB_ROOT/templates/$f" "$TARGET_ROOT/$f"
+  fi
+done
 copy_if_missing "$HUB_ROOT/config-template.yml" "$TARGET_ROOT/config-template.yml"
 
 for f in INDEX.md PROJECT_CONTEXT.md ARCHITECTURE.md DECISIONS.md BUGS.md WORKLOG.md; do

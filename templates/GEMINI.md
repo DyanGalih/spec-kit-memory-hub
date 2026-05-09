@@ -1,6 +1,6 @@
-# Copilot Instructions
+# Gemini Instructions
 
-This repository is built to work with VS Code Copilot agents and Spec Kit Memory Hub.
+This repository is built to work with Spec Kit Memory Hub and Gemini CLI.
 
 ## Mandatory Workflow
 1. **Core Governance**: You MUST follow the memory-first workflow defined in [.specify/memory/workflow.md](file://.specify/memory/workflow.md).

@@ -44,7 +44,35 @@ export function openDatabase(dbPath: string): MemoryDatabase {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
   db.exec(SCHEMA);
+  runMigrations(db);
   return db;
+}
+
+function runMigrations(db: DatabaseType): void {
+  // Check for missing 'status' column in memory_entries
+  const tableInfo = db.prepare("PRAGMA table_info(memory_entries)").all() as any[];
+  const hasStatus = tableInfo.some((col) => col.name === "status");
+
+  if (!hasStatus) {
+    db.exec("ALTER TABLE memory_entries ADD COLUMN status TEXT");
+    // Drop and recreate FTS to include the new column
+    db.exec("DROP TABLE IF EXISTS memory_fts");
+    db.exec(`
+      CREATE VIRTUAL TABLE IF NOT EXISTS memory_fts USING fts5(
+        id,
+        section_heading,
+        content_summary,
+        snippet,
+        tags,
+        status
+      );
+    `);
+    // Re-populate FTS from existing entries
+    db.exec(`
+      INSERT INTO memory_fts (id, section_heading, content_summary, snippet, tags, status)
+      SELECT id, section_heading, content_summary, snippet, tags, status FROM memory_entries
+    `);
+  }
 }
 
 export function closeDatabase(db: MemoryDatabase): void {

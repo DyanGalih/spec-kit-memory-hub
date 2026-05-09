@@ -94,7 +94,9 @@ export function searchMemoryEntries(
 
 function buildFtsQuery(query: string): string {
   const terms = queryTerms(query);
-  return terms.length > 0 ? terms.map((term) => `"${term.replace(/"/g, "")}"`).join(" ") : query.trim();
+  // Use OR to find documents with ANY of the terms, then rely on scoring
+  // and bm25 ranking to surface the most relevant (highest term overlap).
+  return terms.length > 0 ? terms.map((term) => `"${term.replace(/"/g, "")}"`).join(" OR ") : query.trim();
 }
 
 export function entryToSynthesisItem(entry: SearchResult, label: string): SynthesisSectionItem {

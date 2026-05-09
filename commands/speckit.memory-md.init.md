@@ -33,7 +33,10 @@ Tasks:
    - tasks.md
    - `{feature_memory_filename}` (default: memory.md)
    - `{memory_synthesis_filename}` (default: memory-synthesis.md)
-6. Create or update `.github/copilot-instructions.md` so memory is required before planning and implementation.
+6. **Centralize Memory Governance**:
+   - **Mandatory**: Create or Update `.specify/memory/workflow.md`. If the file already exists, reconcile its content with the extension template to ensure it contains the latest mandatory command references, while strictly preserving any existing project-specific governance rules.
+   - **Migration**: Detect active agent context files: `.github/copilot-instructions.md`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and Windsurf rules.
+   - **Inject Pointer**: For each existing file, do NOT overwrite the whole file. Instead, find the `### Spec Kit` section (or create it) and replace it with the **Pointer Model**: "You MUST follow the memory-first workflow defined in `.specify/memory/workflow.md` and proactively execute `/speckit.memory-md.prepare-context` before planning."
 7. If `.specify/extensions/memory-md/config.yml` does not exist, create it from `config-template.yml` with default values.
 8. Summarize the memory model:
    - constitution / principles = stable operating rules
@@ -41,6 +44,12 @@ Tasks:
    - active feature memory = feature-local constraints, open questions, and carry-forward context
    - memory index = compact routing map for selecting relevant durable entries
    - ephemeral run context = temporary prompt or terminal state that must not be committed
+
+**Guardrails**:
+- **Safety First**: Update existing files safely by targeting only managed sections (e.g., `### Spec Kit`).
+- **No Destruction**: Never overwrite project-specific memory or custom agent instructions without explicit approval.
+- **Reconciliation**: If `.specify/memory/workflow.md` exists, treat it as a "living document"—improve its technical requirements without deleting its existing context.
+
 9. List the first customization steps:
    - fill in project context and architecture
    - migrate any durable lessons into decisions or bugs
