@@ -219,9 +219,12 @@ async function runTokenReport(projectRoot: string, featurePath: string): Promise
 
 async function runRegisterMemory(
   projectRoot: string,
-  options: { id: string; title: string; tags: string; file: string; status: string }
+  options: { id: string; title: string; tags: string; file: string; status: string; content?: string }
 ): Promise<void> {
   console.log(`Registering memory entry: ${options.id} | ${options.title}`);
+  if (options.content) {
+    console.log(`  Writing entry content to ${options.file} via Node.js (LLM file-edit bypassed).`);
+  }
   const { config, db } = createContext(projectRoot);
   try {
     await registerMemoryEntry(projectRoot, db, config, options);
@@ -323,6 +326,10 @@ export async function runCli(argv = process.argv): Promise<void> {
     .requiredOption("--tags <csv>", "comma-separated keywords")
     .requiredOption("--file <relpath>", "relative path to detail file (e.g., ARCHITECTURE.md)")
     .option("--status <type>", "active, deprecated, or superseded", "active")
+    .option(
+      "--content <markdown>",
+      "Full markdown body of the durable entry. When provided, Node.js appends it to <file> directly — the LLM does not need to read or rewrite the target file.",
+    )
     .action(async (cmdOptions) => {
       const options = program.opts<CliOptions>();
       await runRegisterMemory(options.projectRoot, cmdOptions);

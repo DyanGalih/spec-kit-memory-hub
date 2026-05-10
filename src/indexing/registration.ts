@@ -13,6 +13,74 @@ export interface RegisterMemoryOptions {
   tags: string;
   file: string;
   status: string;
+  content?: string;
+}
+
+/**
+ * Appends a formatted durable memory entry to the target markdown file (e.g. DECISIONS.md).
+ * Finds the right section heading and inserts the content block just before the next heading
+ * or at the end of file. This keeps the LLM's role to content generation only; Node.js
+ * handles all file writes.
+ */
+async function appendEntryToSourceFile(
+  filePath: string,
+  options: RegisterMemoryOptions,
+): Promise<void> {
+  const sectionHeadingMap: Record<string, string> = {
+    ARCHITECTURE: "## Architecture",
+    DECISIONS: "## Decisions",
+    BUGS: "## Bugs",
+    WORKLOG: "## Worklog",
+  };
+
+  const stem = path.basename(filePath, path.extname(filePath)).toUpperCase();
+  const sectionHeading = sectionHeadingMap[stem] ?? null;
+
+  const newBlock = [
+    `### ${options.id} — ${options.title}`,
+    `**Tags**: ${options.tags}  **Status**: ${options.status}`,
+    ``,
+    options.content!.trim(),
+    ``,
+  ].join("\n");
+
+  let rawContent = (await pathExists(filePath)) ? await readTextFile(filePath) : "";
+
+  if (!rawContent) {
+    // Bootstrap minimal file structure when the file doesn't exist yet
+    const heading = sectionHeadingMap[stem] ?? `# ${stem}`;
+    rawContent = `# ${stem}\n\n${heading}\n\n`;
+  }
+
+  const lines = rawContent.split("\n");
+
+  if (sectionHeading) {
+    const sectionIdx = lines.findIndex((l) => l.trim().startsWith(sectionHeading));
+    if (sectionIdx !== -1) {
+      // Find the end of the section (start of next heading or EOF)
+      let insertAt = sectionIdx + 1;
+      while (
+        insertAt < lines.length &&
+        !lines[insertAt].trim().startsWith("## ") &&
+        !lines[insertAt].trim().startsWith("# ")
+      ) {
+        insertAt++;
+      }
+      // Back up over trailing blank lines to keep spacing clean
+      while (insertAt > sectionIdx + 1 && !lines[insertAt - 1].trim()) {
+        insertAt--;
+      }
+      lines.splice(insertAt, 0, "", newBlock);
+    } else {
+      // Section heading not found — append section + entry at EOF
+      lines.push("", sectionHeading, "", newBlock);
+    }
+  } else {
+    // Unknown file — just append at the end
+    lines.push("", newBlock);
+  }
+
+  await fs.writeFile(filePath, lines.join("\n"), "utf8");
 }
 
 export async function registerMemoryEntry(
@@ -24,12 +92,21 @@ export async function registerMemoryEntry(
   const { memoryRoot } = resolveProjectPaths(projectRoot, config);
   const indexMdPath = path.join(memoryRoot, "INDEX.md");
 
-  // 1. Sync from INDEX.md to DB first to ensure we are up to date
+  // 1. Optionally write the durable entry content to the target file first,
+  //    so the LLM never has to read and rewrite large markdown files itself.
+  if (options.content) {
+    const targetFilePath = path.isAbsolute(options.file)
+      ? options.file
+      : path.join(memoryRoot, options.file);
+    await appendEntryToSourceFile(targetFilePath, options);
+  }
+
+  // 2. Sync from INDEX.md to DB to ensure we are up to date
   await indexPhase1MemoryFiles(projectRoot, db, config, { refreshOnly: true });
 
   const now = new Date().toISOString();
   
-  // 2. Prepare the new record
+  // 3. Prepare the new index record
   const record: MemoryEntryRecord = {
     id: options.id,
     source_path: path.relative(projectRoot, indexMdPath),
@@ -46,7 +123,7 @@ export async function registerMemoryEntry(
     created_at: now,
   };
 
-  // 3. Update INDEX.md
+  // 4. Update INDEX.md
   if (await pathExists(indexMdPath)) {
     let content = await readTextFile(indexMdPath);
     const lines = content.split("\n");
@@ -89,7 +166,7 @@ export async function registerMemoryEntry(
     content = lines.join("\n");
     await fs.writeFile(indexMdPath, content, "utf8");
     
-    // 4. Final sync to DB so the DB has the correct line numbers and hashes
+    // 5. Final sync to DB so the DB has the correct line numbers and hashes
     await indexPhase1MemoryFiles(projectRoot, db, config, { refreshOnly: false });
   } else {
     // Create INDEX.md if it doesn't exist
