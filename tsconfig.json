@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "declaration": true,
     "sourceMap": true,
-    "types": ["node"]
+    "types": ["node", "better-sqlite3"]
   },
   "include": ["bin/**/*.ts", "src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["dist", "node_modules"]
