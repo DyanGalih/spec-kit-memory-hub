@@ -63,7 +63,13 @@ Rules:
     --id <ID> --title "<Title>" --tags "<Tags>" --file "<SourceFile.md>" --status "active" \
     --content "<Full markdown body of the durable entry>"
   ```
-  This single command: (1) appends the entry to `<SourceFile.md>`, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
+  For `WORKLOG.md` only, add `--prepend` to insert at the top (newest-first order):
+  ```
+  cd .specify/extensions/memory-md && npx speckit-memory register-memory \
+    --id <ID> --title "<Title>" --tags "<Tags>" --file "WORKLOG.md" --status "active" \
+    --content "<Full markdown body>" --prepend
+  ```
+  This single command: (1) writes the entry to `<SourceFile.md>`, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
 - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually, then update `INDEX.md` following the compact list format: `- ID | Title | Tags | [File](./File.md) | Status`.
 - Keep `INDEX.md` short (20-50 rows target). It points to source entries; it does not duplicate full lessons.
 - Refuse routine implementation detail, feature narrative, or speculative lessons.

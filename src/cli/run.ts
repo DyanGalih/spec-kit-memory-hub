@@ -219,11 +219,12 @@ async function runTokenReport(projectRoot: string, featurePath: string): Promise
 
 async function runRegisterMemory(
   projectRoot: string,
-  options: { id: string; title: string; tags: string; file: string; status: string; content?: string }
+  options: { id: string; title: string; tags: string; file: string; status: string; content?: string; prepend?: boolean }
 ): Promise<void> {
   console.log(`Registering memory entry: ${options.id} | ${options.title}`);
   if (options.content) {
-    console.log(`  Writing entry content to ${options.file} via Node.js (LLM file-edit bypassed).`);
+    const mode = options.prepend ? "prepend (newest-first)" : "append (chronological)";
+    console.log(`  Writing entry content to ${options.file} via Node.js [${mode}] (LLM file-edit bypassed).`);
   }
   const { config, db } = createContext(projectRoot);
   try {
@@ -329,6 +330,10 @@ export async function runCli(argv = process.argv): Promise<void> {
     .option(
       "--content <markdown>",
       "Full markdown body of the durable entry. When provided, Node.js appends it to <file> directly — the LLM does not need to read or rewrite the target file.",
+    )
+    .option(
+      "--prepend",
+      "Insert entry before the first existing ### entry instead of appending at EOF. Use for WORKLOG (newest-first convention).",
     )
     .action(async (cmdOptions) => {
       const options = program.opts<CliOptions>();
