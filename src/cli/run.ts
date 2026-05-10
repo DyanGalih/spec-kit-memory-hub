@@ -307,16 +307,14 @@ export async function runCli(argv = process.argv): Promise<void> {
     .command("flush-memory")
     .description("[planned] Clear the SQLite cache without reindexing")
     .action(() => {
-      console.error(chalk.yellow("flush-memory is planned but not yet implemented. Use rebuild-memory to clear and reindex."));
-      process.exitCode = 1;
+      console.log("flush-memory is planned but not yet implemented. Use rebuild-memory to clear and reindex.");
     });
 
   program
     .command("doctor")
     .description("[planned] Validate environment, config, and optimizer prerequisites")
     .action(() => {
-      console.error(chalk.yellow("doctor is planned but not yet implemented. Verify: Node.js >= 18, npm available, better-sqlite3 installed."));
-      process.exitCode = 1;
+      console.log("doctor is planned but not yet implemented. Verify: Node.js >= 18, npm available, better-sqlite3 installed.");
     });
 
   program
@@ -329,7 +327,8 @@ export async function runCli(argv = process.argv): Promise<void> {
     .option("--status <type>", "active, deprecated, or superseded", "active")
     .option(
       "--content <markdown>",
-      "Full markdown body of the durable entry. When provided, Node.js appends it to <file> directly — the LLM does not need to read or rewrite the target file.",
+      "Complete formatted markdown entry body, including the '### YYYY-MM-DD - Title' heading. " +
+      "Node.js appends it to <file> directly behind a '---' separator — the LLM does not need to read or rewrite the target file.",
     )
     .option(
       "--prepend",

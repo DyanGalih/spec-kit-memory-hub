@@ -61,16 +61,44 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
    - **Category**: [Decision / Bug Pattern / Milestone]
    - Use `WORKLOG.md` for concise, high-value project milestones and durable lessons that do not belong in decisions, architecture, or bugs.
    - When adding durable memory to `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`, you MUST register the update in `INDEX.md`.
-   - **Optimizer-Aware Registration (Preferred)**: When the optimizer is available, execute the single command below. **Do NOT read or rewrite the target durable file yourself** — the `--content` flag delegates the file write entirely to Node.js:
+   - **Optimizer-Aware Registration (Preferred)**: When the optimizer is available, use the single command below. **Do NOT read or rewrite the target durable file yourself** — the `--content` flag delegates the file write entirely to Node.js:
      ```
      cd .specify/extensions/memory-md && npx speckit-memory register-memory \
-       --id <ID> --title "<Title>" --tags "<Tags>" --file "<SourceFile.md>" --status "active" \
-       --content "<Full markdown body of the durable entry>"
+       --id <ID> --title "<Short title>" --tags "<tag1,tag2>" \
+       --file "<SourceFile.md>" --status "active" \
+       --content "### YYYY-MM-DD - <Title>
+
+**Status**
+Active
+
+**Why this is durable**
+<reason>
+
+**Decision / Finding**
+<body>
+
+**Tradeoffs / Prevention**
+- Gained: ...
+- Reconsider: ..."
      ```
-     This single command: (1) appends the entry to `<SourceFile.md>`, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
-   - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually, then update `INDEX.md` following the compact list format: `- ID | Title | Tags | [File](./File.md) | Status`.
+     For `WORKLOG.md` only, add `--prepend` to insert at the top (newest-first order).
+     This single command: (1) writes the entry to `<SourceFile.md>` behind a `---` separator, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
+   - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually following the `### YYYY-MM-DD - Title` format, then update `INDEX.md` with the compact row.
    - Keep `INDEX.md` short (20-50 rows target). It points to source entries; it does not duplicate full lessons.
    - Refuse routine implementation detail, feature narrative, or speculative lessons.
+
+   #### ID Convention
+
+   The `--id` value uses a letter prefix + sequential number:
+
+   | Prefix | File | INDEX.md section |
+   |--------|------|------------------|
+   | `A` | `ARCHITECTURE.md` | `## Architecture` |
+   | `B` | `BUGS.md` | `## Bugs` |
+   | `D` | `DECISIONS.md` | `## Decisions` |
+   | `W` | `WORKLOG.md` | `## Workflow` |
+
+   To pick the next number: count existing entries with that prefix in `INDEX.md` and add 1.
 
    Approval flow:
    1. Show proposed durable memory entries and the matching `register-memory --content` command first.

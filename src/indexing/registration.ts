@@ -1,10 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import { MemoryDatabase, upsertIndexedFile } from "../db";
-import { MemoryHubConfig, MemoryEntryRecord } from "../types";
+import { MemoryDatabase } from "../db";
+import { MemoryHubConfig } from "../types";
 import { resolveProjectPaths } from "../config";
 import { readTextFile, pathExists } from "../utils/fs";
-import { sha256 } from "../utils/hash";
 import { indexPhase1MemoryFiles } from "./index";
 
 export interface RegisterMemoryOptions {
@@ -18,77 +17,82 @@ export interface RegisterMemoryOptions {
 }
 
 /**
- * Appends (or prepends) a formatted durable memory entry to the target markdown file.
+ * Appends (or prepends) a durable memory entry to the target markdown file.
  *
- * Design rationale: Each memory file (DECISIONS.md, ARCHITECTURE.md, BUGS.md, WORKLOG.md)
- * has a free-form structure with a header block, a template section, and then raw `###` entries.
- * There is no uniform `## CategoryName` section heading to target. The safest and most
- * compatible strategy is therefore:
- *   - Default: append the entry at end-of-file (chronological order, matches DECISIONS/BUGS/ARCH)
- *   - When `prepend: true`: insert just before the first existing `###` entry, after the header
- *     block (matches WORKLOG newest-first convention)
+ * Design rationale:
+ * Each memory file (DECISIONS.md, ARCHITECTURE.md, BUGS.md, WORKLOG.md) uses a
+ * free-form structure: a header block, a template section, then raw `###` entries
+ * separated by `---`. There is no uniform `## CategoryName` section to target.
  *
- * The LLM's role is content generation only. Node.js handles all file I/O.
+ * The `--content` value MUST be the complete, properly-formatted entry body including
+ * the correct `### YYYY-MM-DD - Title` heading. Node.js only prepends the `---`
+ * separator and handles file I/O — it does not generate any heading itself.
+ *
+ * Strategy:
+ *   - Default: append at end-of-file (chronological: DECISIONS / ARCHITECTURE / BUGS)
+ *   - When `prepend: true`: insert before the first existing `###` entry (WORKLOG newest-first)
  */
 async function appendEntryToSourceFile(
   filePath: string,
   options: RegisterMemoryOptions,
 ): Promise<void> {
-  const newBlock = [
-    `---`,
-    ``,
-    `### ${options.id} — ${options.title}`,
-    ``,
-    `**Tags**: ${options.tags}  **Status**: ${options.status}`,
-    ``,
-    options.content!.trim(),
-    ``,
-  ].join("\n");
+  // Node.js only adds the `---` separator; --content owns the `### heading` and full body.
+  const newBlock = `---\n\n${options.content!.trim()}\n`;
 
   let rawContent = (await pathExists(filePath)) ? await readTextFile(filePath) : "";
 
   if (!rawContent) {
-    // Bootstrap a minimal file when the target doesn't exist yet
+    // Bootstrap a minimal file when the target doesn't exist yet.
     const stem = path.basename(filePath, path.extname(filePath));
     rawContent = `# ${stem}\n\n`;
   }
 
-  // Ensure content ends with a newline before appending
   const base = rawContent.trimEnd();
 
   let result: string;
   if (options.prepend) {
-    // WORKLOG-style: insert just before the first existing `###` entry so the newest
-    // entry appears at the top of the entries list, after the template/header block.
+    // WORKLOG-style: insert just before the first existing `###` entry so newest is at top.
     const lines = base.split("\n");
     const firstEntryIdx = lines.findIndex((l) => /^###\s/.test(l));
     if (firstEntryIdx !== -1) {
-      lines.splice(firstEntryIdx, 0, newBlock, "");
+      // Splice in the new block (it already ends with \n; join handles spacing).
+      lines.splice(firstEntryIdx, 0, newBlock);
       result = lines.join("\n") + "\n";
     } else {
-      // No existing entries yet — fall through to append
-      result = `${base}\n\n${newBlock}\n`;
+      // No existing entries yet — append.
+      result = `${base}\n\n${newBlock}`;
     }
   } else {
-    // Default: append at end of file (DECISIONS / ARCHITECTURE / BUGS)
-    result = `${base}\n\n${newBlock}\n`;
+    // Default: append at end-of-file (DECISIONS / ARCHITECTURE / BUGS).
+    result = `${base}\n\n${newBlock}`;
   }
 
   await fs.writeFile(filePath, result, "utf8");
 }
 
+/**
+ * Maps the leading letter of an ID to the matching ## section in INDEX.md.
+ * Must match the sections defined in templates/docs/memory/INDEX.md exactly.
+ */
+const INDEX_CATEGORY_MAP: Record<string, string> = {
+  A: "## Architecture",
+  B: "## Bugs",
+  D: "## Decisions",
+  W: "## Workflow",
+};
 
 export async function registerMemoryEntry(
   projectRoot: string,
   db: MemoryDatabase,
   config: MemoryHubConfig,
-  options: RegisterMemoryOptions
+  options: RegisterMemoryOptions,
 ): Promise<void> {
   const { memoryRoot } = resolveProjectPaths(projectRoot, config);
   const indexMdPath = path.join(memoryRoot, "INDEX.md");
 
-  // 1. Optionally write the durable entry content to the target file first,
-  //    so the LLM never has to read and rewrite large markdown files itself.
+  // 1. Write the durable entry content to the target file when --content is provided.
+  //    This is the core token-saving optimization: the LLM never reads or rewrites
+  //    large durable files — Node.js does it directly.
   if (options.content) {
     const targetFilePath = path.isAbsolute(options.file)
       ? options.file
@@ -96,77 +100,58 @@ export async function registerMemoryEntry(
     await appendEntryToSourceFile(targetFilePath, options);
   }
 
-  // 2. Sync from INDEX.md to DB to ensure we are up to date
-  await indexPhase1MemoryFiles(projectRoot, db, config, { refreshOnly: true });
+  // 2. Ensure INDEX.md exists before appending to it (no recursive retry needed).
+  if (!(await pathExists(indexMdPath))) {
+    const initialContent = [
+      "# Memory Index",
+      "",
+      "This is a compact routing map for durable project memory (`docs/memory/`). Keep it short.",
+      "",
+      "## Architecture",
+      "",
+      "## Bugs",
+      "",
+      "## Decisions",
+      "",
+      "## Workflow",
+      "",
+    ].join("\n");
+    await fs.writeFile(indexMdPath, initialContent, "utf8");
+  }
 
-  const now = new Date().toISOString();
-  
-  // 3. Prepare the new index record
-  const record: MemoryEntryRecord = {
-    id: options.id,
-    source_path: path.relative(projectRoot, indexMdPath),
-    source_type: "memory",
-    section_heading: null, // We'll infer category from ID or just leave null for index rows
-    content_summary: options.title,
-    snippet: null,
-    tags: options.tags,
-    status: options.status,
-    hash: sha256([options.id, options.title, options.tags, options.file, options.status].join("|")),
-    line_start: null, // Will be determined after writing
-    line_end: null,
-    updated_at: now,
-    created_at: now,
-  };
+  // 3. Append the compact routing row to INDEX.md.
+  let content = await readTextFile(indexMdPath);
+  const lines = content.split("\n");
 
-  // 4. Update INDEX.md
-  if (await pathExists(indexMdPath)) {
-    let content = await readTextFile(indexMdPath);
-    const lines = content.split("\n");
-    
-    // Determine category from ID prefix
-    const prefix = options.id.charAt(0).toUpperCase();
-    let categoryHeader = "";
-    if (prefix === 'A') categoryHeader = "## Architecture";
-    else if (prefix === 'B') categoryHeader = "## Bugs";
-    else if (prefix === 'D') categoryHeader = "## Decisions";
-    else if (prefix === 'W') categoryHeader = "## Workflow";
+  const prefix = options.id.charAt(0).toUpperCase();
+  const categoryHeader = INDEX_CATEGORY_MAP[prefix] ?? null;
+  const newRow = `- ${options.id} | ${options.title} | ${options.tags} | [${path.basename(options.file)}](${options.file}) | ${options.status}`;
 
-    const newRow = `- ${options.id} | ${options.title} | ${options.tags} | [${path.basename(options.file)}](${options.file}) | ${options.status}`;
-    
-    let targetIndex = -1;
-    if (categoryHeader) {
-      targetIndex = lines.findIndex(l => l.trim().startsWith(categoryHeader));
-    }
-
-    if (targetIndex !== -1) {
-      // Find the end of the section (next header or end of file)
-      let insertAt = targetIndex + 1;
-      while (insertAt < lines.length && !lines[insertAt].trim().startsWith("##") && !lines[insertAt].trim().startsWith("# ")) {
+  if (categoryHeader) {
+    const sectionIdx = lines.findIndex((l) => l.trim() === categoryHeader);
+    if (sectionIdx !== -1) {
+      // Find the end of this section (next ## heading or EOF).
+      let insertAt = sectionIdx + 1;
+      while (insertAt < lines.length && !lines[insertAt].trim().startsWith("##")) {
         insertAt++;
       }
-      // Back up to skip trailing empty lines
-      while (insertAt > targetIndex + 1 && !lines[insertAt - 1].trim()) {
+      // Back up over trailing blank lines to keep spacing tight.
+      while (insertAt > sectionIdx + 1 && !lines[insertAt - 1].trim()) {
         insertAt--;
       }
       lines.splice(insertAt, 0, newRow);
     } else {
-      // Append at the end if category not found
-      if (categoryHeader) {
-        lines.push("", categoryHeader, newRow);
-      } else {
-        lines.push(newRow);
-      }
+      // Section missing in this INDEX.md — create it at EOF.
+      lines.push("", categoryHeader, newRow);
     }
-
-    content = lines.join("\n");
-    await fs.writeFile(indexMdPath, content, "utf8");
-    
-    // 5. Final sync to DB so the DB has the correct line numbers and hashes
-    await indexPhase1MemoryFiles(projectRoot, db, config, { refreshOnly: false });
   } else {
-    // Create INDEX.md if it doesn't exist
-    const initialContent = `# Memory Index\n\n## Architecture\n\n## Bugs\n\n## Decisions\n\n`;
-    await fs.writeFile(indexMdPath, initialContent, "utf8");
-    return registerMemoryEntry(projectRoot, db, config, options); // Retry with file existing
+    // Unknown ID prefix — append row at EOF without a section heading.
+    lines.push(newRow);
   }
+
+  content = lines.join("\n");
+  await fs.writeFile(indexMdPath, content, "utf8");
+
+  // 4. One final cache sync so SQLite reflects both the source file and INDEX.md writes.
+  await indexPhase1MemoryFiles(projectRoot, db, config, { refreshOnly: false });
 }
