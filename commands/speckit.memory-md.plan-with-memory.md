@@ -104,6 +104,9 @@ Conflict rules:
 - Soft conflict: warn when memory suggests a preferred approach but the spec can still proceed with a justified alternative.
 - Ask for clarification when the spec cannot satisfy memory without changing scope, requirements, or an existing durable decision.
 
+### Orchestration Note
+This command (and its optimizer-aware `prepare-context` equivalent) is **automatically executed** by `spec-kit-architecture-guard` as part of its `governed-*` workflows. Manual execution is optional and typically only necessary for manual context refreshes outside of a formal governed turn.
+
 Output:
 - a concise planning synthesis
 - Include only selected summaries in the plan.

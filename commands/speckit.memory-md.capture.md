@@ -97,6 +97,9 @@ The `--id` value uses a letter prefix + sequential number:
 
 To pick the next number: count existing entries with that prefix in `INDEX.md` and add 1. Example: if `D3` is the last decision entry, use `D4`.
 
+#### Orchestration Note
+This command is **proactively triggered** by `spec-kit-architecture-guard` as the final step of its `governed-*` workflows when new lessons are identified. Manual execution is supported but optional since it is managed by the governance layer.
+
 Approval flow:
 1. Show proposed durable memory entries and the matching `register-memory --content` command first.
 2. Ask for approval before writing.

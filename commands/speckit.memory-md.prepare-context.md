@@ -28,6 +28,10 @@ When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` an
 When the optimizer is disabled, fall back to manual index retrieval:
 1. Run `/speckit.memory-md.plan-with-memory` to manually refresh synthesis and review the index.
 
+## Orchestration Note
+
+This command is **automatically executed** by `spec-kit-architecture-guard` as part of its `governed-*` workflows. Manual execution is optional and typically only necessary if you need to refresh context or synthesis results outside of a formal governed turn.
+
 ## Goal
 
 Ensure the agent has the latest "Why" and "How" from durable memory before proposing any changes or review findings.
