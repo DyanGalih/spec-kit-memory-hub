@@ -1,10 +1,10 @@
 ---
-description: "Centralized context preparation: refresh cache, search memory, and refresh synthesis."
+description: "Centralized context preparation: check cache health, refresh caches, search memory, and generate synthesis."
 ---
 
 # Prepare Context
 
-Use this command to prepare the technical and historical context for the current task.
+Use this command to prepare the technical and historical context for the current task. It handles first-time setup, incremental refresh, and post-upgrade scenarios automatically — no manual `npx` commands needed.
 
 ## Usage
 
@@ -18,25 +18,36 @@ Run this command by providing the feature directory and an optional search query
 
 When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the CLI is available:
 
+### Step 0 — Doctor Check (always run first)
+
+```bash
+cd .specify/extensions/memory-md && npx speckit-memory doctor
+```
+
+Read the output and record:
+- **Phase 1 memory entries** (`Indexed memory entries: N`)
+- **Phase 2 doc entries** (`Indexed doc entries: N`)
+
+Use these counts to decide whether Phase 1 and Phase 2 need a full index or just a refresh in the steps below.
+
+> If the CLI is unavailable (command not found), skip to **Markdown-Only Flow**.
+
 ### Phase 1 — Durable Memory (always run)
 
-1. **Refresh Memory Cache**: Execute `cd .specify/extensions/memory-md && npx speckit-memory refresh-memory`.
+1. **Refresh or Index Memory Cache**:
+   - If doctor showed `Indexed memory entries: 0` (cold cache / first run / post-upgrade): `npx speckit-memory index-memory`
+   - Otherwise (cache exists): `npx speckit-memory refresh-memory`
 2. **Search Memory (Optional)**: If a custom query is provided, execute `npx speckit-memory search-memory "$QUERY"`.
 3. **Memory Synthesis**: Execute `npx speckit-memory synthesize --feature $FEATURE ${QUERY ? '--query "$QUERY"' : ''}`.
 4. **Read Results**: Read `specs/<feature>/memory-synthesis.md`.
 
-### Phase 2 — Development Docs (run when doc cache is populated)
+### Phase 2 — Development Docs (always run)
 
-Check whether the Phase 2 doc cache has been populated: `npx speckit-memory audit-docs` should show `Indexed doc entries: N` where N > 0.
-
-If the doc cache is populated:
-5. **Refresh Doc Cache**: Execute `npx speckit-memory refresh-docs` (skips unchanged files).
+5. **Refresh or Index Doc Cache**:
+   - If doctor showed `Indexed doc entries: 0` (cold cache / first run / upgrading from pre-0.9.0): `npx speckit-memory index-docs`
+   - Otherwise (cache exists): `npx speckit-memory refresh-docs`
 6. **Doc Synthesis**: Execute `npx speckit-memory synthesize-docs --feature $FEATURE`.
 7. **Read Results**: Read `specs/<feature>/doc-synthesis.md` in place of opening individual spec, plan, tasks, and constitution files.
-
-If the doc cache is empty (first use or not yet indexed):
-5. Run `npx speckit-memory index-docs` to build the cache, then execute steps 6–7.
-   Alternatively, skip Phase 2 and read `specs/<feature>/spec.md`, `plan.md`, `tasks.md` directly for this turn.
 
 **Token Banner**: Show the baseline / cached / saved token summary after the synthesis step so the savings stay visible during normal runs.
 
