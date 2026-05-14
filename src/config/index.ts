@@ -8,6 +8,7 @@ const DEFAULT_CONFIG: MemoryHubConfig = {
   specs_root: "specs",
   feature_memory_filename: "memory.md",
   memory_synthesis_filename: "memory-synthesis.md",
+  show_token_banner: true,
   require_memory_synthesis_before_plan: true,
   require_memory_review_before_verify: true,
   use_project_copilot_instructions: true,

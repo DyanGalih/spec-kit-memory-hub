@@ -15,6 +15,7 @@ When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` an
 1. **Prepare Context**: Execute `/speckit.memory-md.prepare-context --feature specs/<feature>`.
 2. **Read Synthesis**: Read `specs/<feature>/memory-synthesis.md` to identify constraints and decisions.
 3. Open additional durable memory files only if synthesis is insufficient or the user explicitly requests a deeper audit.
+4. Print the baseline / cached / saved token comparison so the savings are visible during the normal planning flow.
 
 When `optimizer.enabled` is `false`, missing, or unavailable, keep using markdown-only, index-first retrieval.
 

@@ -38,6 +38,7 @@ export interface MemoryHubConfig {
   specs_root: string;
   feature_memory_filename: string;
   memory_synthesis_filename: string;
+  show_token_banner: boolean;
   require_memory_synthesis_before_plan: boolean;
   require_memory_review_before_verify: boolean;
   use_project_copilot_instructions: boolean;
@@ -47,7 +48,7 @@ export interface MemoryHubConfig {
   indexing: IndexingConfig;
 }
 
-export type MemorySourceType = "memory";
+export type MemorySourceType = "memory" | "doc";
 
 export interface MemoryEntryRecord {
   id: string;

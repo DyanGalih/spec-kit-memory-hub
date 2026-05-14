@@ -82,6 +82,7 @@ Active
   This single command: (1) writes the entry to `<SourceFile.md>` behind a `---` separator, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
 - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually following the `### YYYY-MM-DD - Title` format used in the template, then update `INDEX.md`.
 - Keep `INDEX.md` short (20-50 rows target). It points to source entries; it does not duplicate full lessons.
+- **INDEX.md size guard**: Before writing, count the existing `|`-prefixed table rows in `INDEX.md`. If the count already exceeds 50, do not proceed silently — warn the user and recommend running `/speckit.memory-md.audit` first to identify stale or duplicate entries before adding more. Only add the new entry after the user acknowledges the bloat warning.
 - Refuse routine implementation detail, feature narrative, or speculative lessons.
 
 #### ID Convention

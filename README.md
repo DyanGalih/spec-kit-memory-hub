@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.8.5-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.9.0-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -39,6 +39,8 @@ This extension acts as a cooperative citizen in the Spec Kit ecosystem by sharin
 2. **`/speckit.architecture-guard.governed-plan`** -> Orchestrates memory synthesis, technical planning, and security/architecture validation.
 3. **`/speckit.architecture-guard.governed-tasks`** -> Orchestrates task generation with memory, security, and architecture refactor awareness.
 4. **`/speckit.architecture-guard.governed-implement`** -> Orchestrates implementation with memory context and post-implementation governance review.
+
+The governed orchestrator is the preferred place to enforce the memory-first habit. It should read `memory-synthesis.md` first, fall back to targeted file reads only when needed, and keep the default Spec Kit commands intact.
 
 By using explicit markdown files, extensions remain decoupled, and all constraints and decisions are fully reviewable in Git.
 
@@ -77,6 +79,8 @@ specs/<feature>/memory-synthesis.md
 ```
 
 as context.
+
+For the full orchestration wording, see [docs/governed-memory-workflow.md](docs/governed-memory-workflow.md).
 
 ---
 
@@ -274,18 +278,38 @@ Minimum requirements for the optional optimizer:
 
 If you skip the optimizer, Memory Hub continues in markdown-first mode with no SQLite dependency.
 
-Phase 1 commands:
+Phase 1 commands — durable memory (`docs/memory/`):
 
 ```text
 # If using the installed extension (standard):
-npx .specify/extensions/memory-md speckit-memory index-memory
-npx .specify/extensions/memory-md speckit-memory search-memory "query"
-npx .specify/extensions/memory-md speckit-memory synthesize --feature specs/<feature>
-npx .specify/extensions/memory-md speckit-memory refresh-memory
-npx .specify/extensions/memory-md speckit-memory rebuild-memory
-npx .specify/extensions/memory-md speckit-memory audit-memory
-npx .specify/extensions/memory-md speckit-memory token-report --feature specs/<feature>
+npx speckit-memory index-memory          # full index of durable memory files
+npx speckit-memory refresh-memory        # incremental reindex (skips unchanged files)
+npx speckit-memory search-memory "query" # search indexed durable memory
+npx speckit-memory synthesize --feature specs/<feature>   # write memory-synthesis.md
+npx speckit-memory rebuild-memory        # delete cache and reindex from scratch
+npx speckit-memory audit-memory          # validate SQLite cache integrity
+npx speckit-memory token-report --feature specs/<feature> # compare token savings
+npx speckit-memory register-memory --id A3 --title "..." --tags "..." --file ARCHITECTURE.md
+npx speckit-memory doctor                # health check: runtime, config, memory files, cache
 ```
+
+Phase 2 commands — development docs (`specs/`, `docs/`, constitutions, READMEs):
+
+```text
+npx speckit-memory index-docs            # full index of all development docs
+npx speckit-memory refresh-docs          # incremental reindex (skips unchanged files)
+npx speckit-memory search-docs "query"   # search indexed docs
+npx speckit-memory search-docs "query" --feature 001-auth   # filter by feature
+npx speckit-memory search-docs "query" --type constitution  # filter by artifact type
+                                         # artifact types: spec, plan, tasks, constitution,
+                                         #   architecture, security, readme, doc
+npx speckit-memory synthesize-docs --feature specs/<feature>  # write doc-synthesis.md
+npx speckit-memory audit-docs            # stale/missing check for doc cache
+```
+
+Phase 2 builds the doc cache so the AI can read a single compact `doc-synthesis.md` per feature instead of opening every spec, plan, tasks, and constitution file individually. Run `index-docs` once, then `refresh-docs` at the start of each session.
+
+The AI slash command `/speckit.memory-md.index-docs` covers all Phase 2 CLI commands with guided usage.
 
 For local development inside this repository, run `npm install` and `npm run build`, then execute `node dist/bin/speckit-memory.js ...` against a project root.
 
@@ -313,7 +337,7 @@ Expensive operations:
 These should be intentional, not automatic.
 
 Manual trigger is intentional. Capture is manual. Synthesis can be run before planning, tasks, or implementation. The extension is useful only when memory prevents repeated mistakes or improves future features.
-`token-report` uses estimated token counts; it is a planning aid, not provider billing telemetry.
+`token-report` uses estimated token counts. That makes the savings real as a reduction in context read size, but it is still not provider billing telemetry.
 
 If you want a command-palette mapping for a future VS Code wrapper, these are the intended labels:
 
@@ -427,7 +451,7 @@ specify extension add memory-md
 
 ```text
 specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.8.5.zip
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.9.0.zip
 ```
 
 ### Local Development
@@ -514,6 +538,7 @@ These files help the **current feature only**:
 | `audit` | When memory feels noisy or stale | Finds duplicates, stale entries, contradictions, misplaced content; suggests cleanup and rewrites |
 | `log-finding` | When audit finds something actionable | Converts a high-signal audit finding into a tracked task for GitHub, GitLab, Jira, or other issue tracker |
 | `token-report` | When evaluating optimizer ROI | Compares estimated token usage between full memory reads and optimized synthesis |
+| `index-docs` | Once to build the doc cache, then at session start | Indexes specs, plans, tasks, constitutions, and READMEs into SQLite. Covers CLI commands: `index-docs`, `refresh-docs`, `search-docs`, `synthesize-docs`, `audit-docs`. Writes `doc-synthesis.md` per feature for low-token doc retrieval. |
 
 All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 
@@ -615,6 +640,9 @@ Prompts are the **instruction templates** that define how each Memory Hub comman
 | `capture-from-diff.memory.prompt.md` | `/speckit.memory-md.capture-from-diff` | Instructs capture to extract lessons from code diffs |
 | `audit.memory.prompt.md` | `/speckit.memory-md.audit` | Instructs audit to find duplicates, stale entries, contradictions |
 | `log-finding.prompt.md` | `/speckit.memory-md.log-finding` | Instructs log-finding to convert audit findings into tasks |
+| `governed-plan.architecture-guard.prompt.md` | `/speckit.architecture-guard.governed-plan` | Instructs planning to use memory-first synthesis and gated token reporting |
+| `governed-tasks.architecture-guard.prompt.md` | `/speckit.architecture-guard.governed-tasks` | Instructs task generation to reuse synthesis and stay cache-first |
+| `governed-implement.architecture-guard.prompt.md` | `/speckit.architecture-guard.governed-implement` | Instructs implementation to reuse synthesis and run post-implementation review |
 | `specify.memory.prompt.md` | `/specify` (Spec Kit core command) | Instructs spec writing to incorporate memory context |
 
 **These prompts are not customized per-project.** They are shared infrastructure that ensure consistent behavior across all projects using Memory Hub.
@@ -648,6 +676,7 @@ Then edit the YAML file:
 | `definition_of_done_includes_memory_review` | `true` | Require memory review before feature is done | Set to `false` if memory review is optional |
 | `feature_memory_filename` | `memory.md` | Filename for per-feature active notes | Change if you prefer `context.md` or `notes.md` |
 | `memory_synthesis_filename` | `memory-synthesis.md` | Filename for per-feature synthesis | Change if you prefer `constraints.md` or `synthesis.txt` |
+| `show_token_banner` | `true` | Show the baseline / cached / saved token banner during cache-backed runs | Set to `false` if you want quieter command output |
 | `require_memory_synthesis_before_plan` | `true` | Gate planning on current synthesis | Set to `false` to allow planning without synthesis |
 | `require_memory_review_before_verify` | `true` | Gate verification on memory review | Set to `false` to allow verification without memory capture |
 | `retrieval.max_index_entries` | `20` | Max index rows considered by memory planning workflows | Keeps index-first retrieval compact |
@@ -666,6 +695,7 @@ use_project_copilot_instructions: true
 definition_of_done_includes_memory_review: true
 feature_memory_filename: memory.md
 memory_synthesis_filename: memory-synthesis.md
+show_token_banner: true
 require_memory_synthesis_before_plan: true
 require_memory_review_before_verify: true
 retrieval:

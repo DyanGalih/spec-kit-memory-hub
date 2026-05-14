@@ -3,7 +3,7 @@ schema_version: "1.0"
 extension:
   id: "memory-md"
   name: "Spec Kit Memory MD"
-  version: "0.8.5"
+  version: "0.9.0"
   description: "Spec Kit extension for repository-native Markdown memory that captures durable decisions, bugs, and project context."
   author: "DyanGalih"
   repository: "https://github.com/DyanGalih/spec-kit-memory-hub"
@@ -45,6 +45,12 @@ provides:
     - name: "speckit.memory-md.token-report"
       file: commands/speckit.memory-md.token-report.md
       description: "Compare estimated token usage between full memory reads and optimized synthesis."
+    - name: "speckit.memory-md.prepare-context"
+      file: commands/speckit.memory-md.prepare-context.md
+      description: "Centralized context preparation: refresh cache, search memory, and refresh synthesis for a feature. Automatically executed by Architecture Guard governed workflows."
+    - name: "speckit.memory-md.index-docs"
+      file: commands/speckit.memory-md.index-docs.md
+      description: "Index development docs (specs, plans, tasks, constitutions) into SQLite for low-token retrieval. Covers Phase 2 CLI commands: index-docs, refresh-docs, search-docs, synthesize-docs, audit-docs."
 
 tags:
   - "memory"

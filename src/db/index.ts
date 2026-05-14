@@ -164,8 +164,8 @@ export function searchFts(db: MemoryDatabase, query: string, limit = 50): Array<
   const normalizedQuery = query.trim();
   const rows = normalizedQuery
     ? db
-        .prepare(
-          `
+      .prepare(
+        `
           SELECT e.*, bm25(memory_fts) AS fts_rank
           FROM memory_fts
           JOIN memory_entries e ON e.id = memory_fts.id
@@ -173,18 +173,18 @@ export function searchFts(db: MemoryDatabase, query: string, limit = 50): Array<
           ORDER BY fts_rank ASC
           LIMIT ?
         `,
-        )
-        .all(normalizedQuery, limit) as Array<SearchResult>
+      )
+      .all(normalizedQuery, limit) as Array<SearchResult>
     : db
-        .prepare(
-          `
+      .prepare(
+        `
           SELECT e.*, NULL AS fts_rank
           FROM memory_entries e
           ORDER BY datetime(updated_at) DESC
           LIMIT ?
         `,
-        )
-        .all(limit) as Array<SearchResult>;
+      )
+      .all(limit) as Array<SearchResult>;
 
   return rows;
 }
@@ -192,4 +192,46 @@ export function searchFts(db: MemoryDatabase, query: string, limit = 50): Array<
 export function countEntries(db: MemoryDatabase): number {
   const row = db.prepare(`SELECT COUNT(*) AS count FROM memory_entries`).get() as { count: number };
   return row.count;
+}
+
+export function countEntriesBySourceType(db: MemoryDatabase, sourceType: string): number {
+  const row = db
+    .prepare(`SELECT COUNT(*) AS count FROM memory_entries WHERE source_type = ?`)
+    .get(sourceType) as { count: number };
+  return row.count;
+}
+
+export function searchFtsFiltered(
+  db: MemoryDatabase,
+  query: string,
+  sourceType: string,
+  limit = 50,
+): Array<SearchResult> {
+  const normalizedQuery = query.trim();
+  const rows = normalizedQuery
+    ? (db
+      .prepare(
+        `
+          SELECT e.*, bm25(memory_fts) AS fts_rank
+          FROM memory_fts
+          JOIN memory_entries e ON e.id = memory_fts.id
+          WHERE memory_fts MATCH ? AND e.source_type = ?
+          ORDER BY fts_rank ASC
+          LIMIT ?
+        `,
+      )
+      .all(normalizedQuery, sourceType, limit) as Array<SearchResult>)
+    : (db
+      .prepare(
+        `
+          SELECT e.*, NULL AS fts_rank
+          FROM memory_entries e
+          WHERE e.source_type = ?
+          ORDER BY datetime(updated_at) DESC
+          LIMIT ?
+        `,
+      )
+      .all(sourceType, limit) as Array<SearchResult>);
+
+  return rows;
 }

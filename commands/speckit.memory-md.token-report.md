@@ -24,6 +24,8 @@ Report:
 - optimized index-and-synthesis flow
 - estimated token reduction
 
+When the optimizer is enabled, the same baseline/cached/saved summary is also printed automatically by memory-aware `search-memory` and `synthesize` runs so the comparison stays visible during normal use.
+
 Token counts are estimates using `@dqbd/tiktoken` with the **`cl100k_base` encoding (GPT-4 calibrated)**.
 Actual provider billing tokens may differ. For Claude or Gemini, estimates may be 15–30% off.
 

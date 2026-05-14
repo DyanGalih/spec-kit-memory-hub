@@ -68,6 +68,47 @@ The user can manually run memory commands:
 - **`capture`**: Propose evidenced lessons and index rows for explicit approval.
 - **`audit`**: Clean up and de-duplicate memory.
 
+### Orchestration Prompt Text
+Use this wording for the Architecture Guard orchestration layer when you want memory-first behavior without changing the default Spec Kit commands directly.
+
+These prompt templates correspond to:
+- `templates/prompts/governed-plan.architecture-guard.prompt.md`
+- `templates/prompts/governed-tasks.architecture-guard.prompt.md`
+- `templates/prompts/governed-implement.architecture-guard.prompt.md`
+
+#### `/speckit.architecture-guard.governed-plan`
+```text
+Before planning, refresh or read cached memory context first.
+Read `memory-synthesis.md` before any broader file scan.
+Validate the plan against memory, architecture, and security constraints.
+Surface hard conflicts immediately and stop for clarification.
+If `show_token_banner` is enabled, print the baseline / cached / saved token summary.
+```
+
+#### `/speckit.architecture-guard.governed-tasks`
+```text
+Before generating tasks, reuse the current synthesis instead of reopening the full memory set.
+Convert the approved plan into tasks that preserve existing constraints and decisions.
+Check for task-level conflicts, migration gaps, and review watchpoints.
+Keep task generation compact and feature-scoped.
+If `show_token_banner` is enabled, print the token summary after cached context is used.
+```
+
+#### `/speckit.architecture-guard.governed-implement`
+```text
+Before implementation, load the synthesis and active watchpoints.
+Prefer cache-backed context instead of raw markdown scans.
+Implement the agreed tasks while preserving architecture boundaries.
+Run the post-implementation governance review.
+If the review finds durable lessons, propose capture and wait for approval.
+If `show_token_banner` is enabled, print the token summary after synthesis is refreshed.
+```
+
+#### Behavioral Rule
+- Memory-first is a workflow rule, not just a suggestion.
+- The orchestrator should prefer cached synthesis and targeted retrieval, then fall back to direct file reads only when needed.
+- The default Spec Kit commands can remain intact as long as the orchestrator consistently wraps them.
+
 ---
 
 ## Conflict Detection Rules

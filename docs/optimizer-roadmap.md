@@ -181,7 +181,7 @@ npx speckit-memory doctor
 ```
 
 Audit is read-only. Refresh is incremental. Rebuild is a full cache regeneration. Doctor validates environment and configuration.
-`token-report` uses estimated token counts; it helps compare flows, not bill exact provider usage.
+`token-report` uses estimated token counts; it helps compare flows, not bill exact provider usage. The reduction is still meaningful because it reflects less context that the model needs to read.
 
 ### Refresh vs Flush vs Rebuild
 
