@@ -79,6 +79,25 @@ Profile the repository's technologies to subscribe to cross-project shared lesso
 | **`/speckit.memory-md.share-lesson`** | When local lesson is validated | Elevates an approved local lesson globally and anonymizes paths via SHA-256. |
 | **`/speckit.memory-md.sync-shared`** | When beginning a new feature | Syncs matching tech-stack lessons from other projects into `docs/memory/SHARED_LESSONS.md`. |
 | **`/speckit.memory-md.audit`** | When memory gets noisy | Finds contradictions, stale items, or duplicates, proposing cleanups. |
+---
+
+## 🔌 Native Model Context Protocol (MCP) Server
+
+Memory Hub includes a native, fully-compliant **Model Context Protocol (MCP) Server**. This allows modern LLM clients (such as Claude Desktop, VS Code Cline, Roo-Cline, Cursor, etc.) to query, synthesize, share, and sync memory directly via JSON-RPC, without needing to execute terminal CLI subprocesses.
+
+### Key MCP Tools Exposed to Your Agent:
+*   **`speckit_memory_search`**: Fast SQLite-cached semantic search across local project memories.
+*   **`speckit_memory_synthesize`**: Directly generates a 900-word compressed `memory-synthesis.md` context file.
+*   **`speckit_memory_share_lesson`**: Elevates and publishes an approved local lesson into the global local database.
+*   **`speckit_memory_sync_shared`**: Pulls matching technology stack lessons into `docs/memory/SHARED_LESSONS.md` with interactive review banners.
+*   **`speckit_memory_init_project`**: Profiles active project languages/frameworks to configure sync channels.
+
+To start the server, configure your client to run the `mcp-start` command:
+```bash
+npx -y speckit-memory mcp-start
+```
+
+*For complete configurations for Claude Desktop, Cline, and other IDE client settings, see the **[SQLite & MCP Architecture Guide](docs/sqlite-mcp-architecture.md)**.*
 
 ---
 
