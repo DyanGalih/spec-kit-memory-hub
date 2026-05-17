@@ -32,9 +32,21 @@ Traditional systems either read the entire codebase (wasting thousands of tokens
 ## 🚀 Quick Start in 3 Steps
 
 ### 1. Install the Extension
-Add the extension to Spec Kit CLI:
+Add the extension to Spec Kit CLI (either from the official registry, a release artifact URL, or a local directory):
+
+**From the Registry (Recommended):**
 ```bash
 specify extension add memory-md
+```
+
+**From a Release Artifact (ZIP):**
+```bash
+specify extension add memory-md --from https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.9.2.zip
+```
+
+**From a Local Developer Artifact:**
+```bash
+specify extension add memory-md --dev /path/to/spec-kit-memory-hub
 ```
 
 ### 2. Bootstrap Your Project
