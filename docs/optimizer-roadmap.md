@@ -114,9 +114,66 @@ npx speckit-memory audit-docs
 npx speckit-memory refresh-docs
 ```
 
+### Future MCP Enhancements (Nice to Have)
+
+To achieve 100% shell-less native execution for Phase 2 contexts, future versions may implement Phase 2 MCP tools that run directly in the server:
+- `speckit_memory_search_docs(query, feature?)` — searches indexed development docs
+- `speckit_memory_synthesize_docs(feature)` — generates a feature's doc-synthesis.md in-memory
+
+Until implemented, the CLI tools listed above remain the reliable fallback and are automatically called by the agent when needed.
+
 Source files remain authoritative.
 
-## Phase 3: Cache Code Symbols
+## Phase 3: Model Context Protocol (MCP) Server & Cross-Project Memory Sharing
+
+Scope:
+- Model Context Protocol (MCP) Server integration (currently stdio transport)
+- Global/machine-wide shared SQLite store (`~/.spec-kit/shared-memory.sqlite`)
+- Stack-specific memory isolation and tagging (language, framework)
+- Interactive onboarding stack interrogation
+
+Purpose:
+- Fast Phase 1 read/write protocol operations directly via AI tools, reducing shell/CLI overhead (`npx`) where MCP tools are available.
+- Cross-project memory sharing, allowing developer lessons and best practices to seamlessly propagate across all repositories of the same stack (e.g. sharing Laravel or NestJS controller patterns).
+- Automatic tech stack discovery and seed prompts during project initialization.
+
+Behavior:
+1. **Interactive Interrogation**: During initialization/update, the command workflow detects indicator files (e.g., `composer.json`, `package.json`, `go.mod`) and asks the developer to confirm their programming language and framework profile.
+2. **Global Syncing**: On update, the local cache queries the central database for matching channel tags (e.g., `php`, `laravel`) and offers to seed verified lessons into the local durable memory.
+3. **Elevating Durable Capture**: Human-approved local memory captures can be "shared" to the global machine store to immediately benefit other codebases.
+
+Commands & MCP Tools:
+- `speckit-memory mcp-start`: Start the MCP server service.
+- `speckit_memory_search(query)`: Direct MCP tool — search local SQLite cache (auto-indexes if cold).
+- `speckit_memory_synthesize(feature, query?)`: Direct MCP tool — generate `memory-synthesis.md` for a feature.
+- `speckit_memory_share_lesson(id, title, content, language, framework?, tags?)`: Direct MCP tool — promote a local lesson to global `~/.spec-kit/shared-memory.sqlite`.
+- `speckit_memory_sync_shared(projectRoot?)`: Direct MCP tool — fetch matching external lessons from global cache into `docs/memory/SHARED_LESSONS.md`.
+- `speckit_memory_init_project(language, framework?, projectRoot?)`: Direct MCP tool — profile project tech stack and configure sync channels.
+
+Current limitation:
+- There is no standalone CLI subcommand yet for `init-project`, `share-lesson`, or `sync-shared`.
+- Phase 2 doc synthesis still relies on the local CLI until MCP doc tools are implemented.
+
+## Phase 3.5: Enterprise Scale, Concurrency & Semantic Layer
+
+Scope:
+- SQLite WAL (Write-Ahead Log) concurrency and retry lock-waiting pool.
+- Local Hybrid Search (FTS5 Keyword + Local Semantic Vector Embeddings using a lightweight vector database like LanceDB).
+- Precise Tokenizer Telemetry (integrating `@dqbd/tiktoken` to compute exact context sizes instead of rough character counts).
+- Native CLI integration for MCP tools (`share-lesson` and `sync-shared` direct shell wrappers).
+- Team-wide Shared Cloud Sync (optional private organization-wide endpoints for multi-machine synchronization).
+
+Purpose:
+- Resolve operational gaps such as DB write locks when multiple developer sessions or background git hooks run in parallel.
+- Allow conceptual queries (e.g. "problems with payment hooks") to surface relevant lessons, even if they don't share identical text keywords.
+- Support physical cross-device collaboration, making lessons synced across physical developer workstations without needing manual DB migrations.
+
+Behavior:
+1. **Concurrency Pool**: The database connection wrapper implements a retry back-off queue for SQLite locks, permitting parallel read/write commands safely.
+2. **Hybrid Search**: FTS5 scores and local semantic embeddings are merged via reciprocal rank fusion (RRF) to provide the highest-signal memory context.
+3. **Enterprise Endpoints**: When `optimizer.sync_endpoint` is configured, `speckit_memory_share_lesson` pushes encrypted payloads to a private organizational server, allowing global lessons to propagate instantly across the entire enterprise.
+
+## Phase 4: Cache Code Symbols
 
 Scope:
 

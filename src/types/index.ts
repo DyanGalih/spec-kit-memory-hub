@@ -33,6 +33,15 @@ export interface IndexingConfig {
   exclude: string[];
 }
 
+export interface ProjectProfileConfig {
+  language: string;
+  framework?: string;
+  shared_memory?: {
+    enabled: boolean;
+    sync_channels: string[];
+  };
+}
+
 export interface MemoryHubConfig {
   memory_root: string;
   specs_root: string;
@@ -46,6 +55,7 @@ export interface MemoryHubConfig {
   retrieval: RetrievalConfig;
   optimizer: OptimizerConfig;
   indexing: IndexingConfig;
+  project_profile?: ProjectProfileConfig;
 }
 
 export type MemorySourceType = "memory" | "doc";

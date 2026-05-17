@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { sha256 } from "../utils/hash";
 import { loadConfig, resolveProjectPaths } from "../config";
 import { loadAllEntries, MemoryDatabase, loadIndexingState } from "../db";
 import { pathExists, readTextFile } from "../utils/fs";
@@ -130,7 +131,6 @@ async function collectSynthesisFiles(specsRoot: string): Promise<Array<{ path: s
 }
 
 async function hashFile(targetPath: string): Promise<string> {
-  const { sha256 } = await import("../utils/hash");
   const content = await readTextFile(targetPath);
   return sha256(content);
 }

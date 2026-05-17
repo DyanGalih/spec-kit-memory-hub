@@ -29,8 +29,37 @@ Produce or refresh `{specs_root}/<feature>/{memory_synthesis_filename}` using on
 - implementation watchpoints
 - verification watchpoints
 
+Required synthesis structure (match this exactly):
+
+```markdown
+# Memory Synthesis
+
+## Current Scope
+[Brief description of feature scope and affected modules]
+
+## Relevant Decisions
+- [D1] [Decision] (Reason Included: [X], Status: [Y], Source: [Z])
+
+## Active Architecture Constraints
+- [A1] [Constraint] (Reason Included: [X], Source: [Z])
+
+## Accepted Deviations
+- [Deviation] (Reason Included: [X], Status: Accepted-Deviation)
+
+## Relevant Security Constraints
+- [C1] [Constraint] (Reason Included: [X], Source: security-constraints.md)
+
+## Related Historical Lessons
+- [B1] [Lesson] (Reason Included: [X])
+
+## Conflict Warnings
+- [Explicit conflicts between old and new memory]
+
+## Retrieval Notes
+- [Index entries considered, source sections read, budget status]
+```
+
 Format rules:
-- keep the metadata keys in this order: `feature`, `status`, `hard_conflicts`, `soft_conflicts`, `assumptions_to_confirm`
 - keep every required section, even when empty
 - use `- [none]` for empty sections
 - use stable item IDs such as `[C1]`, `[D1]`, `[B1]`, `[A1]`, `[Q1]`, `[W1]`, `[V1]`

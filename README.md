@@ -2,7 +2,7 @@
 
 > Durable project memory and context for AI-assisted development.
 
-[![Version](https://img.shields.io/badge/version-0.9.1-22c55e)](extension.yml)
+[![Version](https://img.shields.io/badge/version-0.9.2-22c55e)](extension.yml)
 [![Spec Kit](https://img.shields.io/badge/Spec%20Kit-compatible-2563eb)](https://spec-kit.dev)
 [![Repo-native](https://img.shields.io/badge/storage-repo--native-f59e0b)](https://spec-kit.dev)
 [![Pre-1.0](https://img.shields.io/badge/status-pre--1.0-ef4444)](extension.yml)
@@ -14,6 +14,10 @@ A Spec Kit extension that gives your project **persistent, Git-reviewable memory
 It answers one question before every feature:
 
 > What have we already learned that should influence this work?
+
+Memory Hub is intentionally **part of a Spec Kit workflow**. It is not a standalone project-management system or a replacement for Spec Kit. The extension installs Spec Kit command prompts, repository memory files, and optional CLI/MCP helpers so compatible agents can prepare context before `specify`, `plan`, `tasks`, and implementation work.
+
+It can be used from more than one IDE or agent environment as long as that environment can follow the Spec Kit workflow through slash commands, equivalent local commands, MCP tools, or the documented markdown-first fallback.
 
 ## The Problem It Solves
 
@@ -35,7 +39,7 @@ For projects that need even less token usage, there is an optional Node.js + SQL
 This extension acts as a cooperative citizen in the Spec Kit ecosystem by sharing context through explicit handoff artifacts in the `specs/<feature>/` directory.
 
 **The Governed Delivery Lifecycle:**
-1. **`/specify`** -> Write initial feature spec.
+1. **`/speckit.memory-md.specify`** (optional) -> Prepare memory context, then write the feature spec.
 2. **`/speckit.architecture-guard.governed-plan`** -> Orchestrates memory synthesis, technical planning, and security/architecture validation.
 3. **`/speckit.architecture-guard.governed-tasks`** -> Orchestrates task generation with memory, security, and architecture refactor awareness.
 4. **`/speckit.architecture-guard.governed-implement`** -> Orchestrates implementation with memory context and post-implementation governance review.
@@ -123,9 +127,21 @@ Examples:
 memory-synthesis.md
 ```
 
-Capture persists new durable memory. It should be **intentional and human-approved**.
-While Architecture Guard orchestration does not automatically mutate project memory without approval, it now includes a **Mandatory Self-Learning Check** as the penultimate step in every implementation and review flow. This ensures the agent evaluates the execution for architectural lessons and is forced to propose any high-signal findings via `/speckit.memory-md.capture` before finalizing the governance summary.
 Capture commands show proposed durable entries and index rows first. They write only after explicit approval.
+
+### Proactive Self-Governance (Confidence > 50%)
+
+To prevent memory decay and ensure continuous learning without silent changes, agents operate on a tiered **Proactive Self-Governance** model when they identify newly discovered patterns, structural tradeoffs, or recurring bug resolutions during development:
+- **80–100% Confident**: The agent immediately proposes the memory entry in the conversation and initiates the `/speckit.memory-md.capture` command, awaiting a single human confirmation before executing the atomic write.
+- **50–80% Confident**: The agent surfaces the candidate lesson in the active conversation and asks for user confirmation: *"I've identified a potential lesson worth capturing: [X]. Shall I record it?"*
+- **Local Protection**: Direct manual writes to memory markdown files are prohibited. Writing must always go through the `capture` pipeline or the `register-memory` CLI command to keep `INDEX.md` and the SQLite index fully synchronized.
+
+### Cross-Project Sharing Privacy Guarantee
+
+When sharing lessons globally across workspace boundaries (via the MCP `speckit_memory_share_lesson` tool or CLI equivalent), the extension enforces **zero-leak local anonymity**:
+- Real file paths are completely stripped.
+- The project identifier is permanently hashed via **SHA-256** prior to publication.
+- Synced external lessons display origin metadata only via a secure 8-character cryptographic prefix (e.g. `proj-f83b2a5c`).
 
 ---
 
@@ -185,7 +201,8 @@ Memory Hub is a **context and knowledge layer** that runs alongside Spec Kit wor
 
 | Milestone | Recommended Command | Phase Integration | Purpose |
 | --- | --- | --- | --- |
-| **Milestone: Foundation** | `bootstrap` | Once at project setup | Create the memory structure and initial project context. |
+| **Milestone: Foundation** | `init` | Once at project setup | Create the memory structure and initial project context. |
+| **Milestone: Spec Context** | `specify` | Before `/specify` (optional) | Load memory context into `memory.md` and `memory-synthesis.md` before writing the spec. |
 | **Milestone: Synthesis** | `plan-with-memory` | After `/specify` | Read the memory index, retrieve selected entries, and synthesize active constraints. |
 | **Milestone: Strategy** | `plan-with-memory` | After `/tasks` | Ensure the technical plan and tasks respect known constraints. |
 | **Milestone: Self-Learning** | `capture` | **Mandatory Step** after `/verify` | Extract and store only the durable lessons for future features (Approval Gated). |
@@ -266,8 +283,8 @@ The optimizer is described in [docs/optimizer-roadmap.md](docs/optimizer-roadmap
 
 The cache must always be rebuildable from repository sources.
 
-To enable the optimizer in a project, update `.specify/extensions/memory-md/config.yml` and set `optimizer.enabled: true` after bootstrap. Bootstrap should ask whether you want that opt-in path and explain the minimum requirements first.
-When the user approves, bootstrap can prepare the optimizer automatically by verifying or installing the required Node dependencies once, then continue in one-shot CLI mode.
+To enable the optimizer in a project, update `.specify/extensions/memory-md/config.yml` and set `optimizer.enabled: true` after init. The init flow should ask whether you want that opt-in path and explain the minimum requirements first.
+When the user approves, init can prepare the optimizer automatically by verifying or installing the required Node dependencies once, then continue in one-shot CLI mode.
 
 Minimum requirements for the optional optimizer:
 
@@ -306,6 +323,22 @@ npx speckit-memory search-docs "query" --type constitution  # filter by artifact
 npx speckit-memory synthesize-docs --feature specs/<feature>  # write doc-synthesis.md
 npx speckit-memory audit-docs            # stale/missing check for doc cache
 ```
+
+Phase 3 commands and tools — Cross-Project Shared Memory & Syncing:
+
+```text
+# Start the MCP server:
+npx speckit-memory mcp-start
+# Then call MCP tools from the client:
+# - speckit_memory_init_project(language, framework?, projectRoot?)
+# - speckit_memory_share_lesson(id, title, content, language, framework?, tags?)
+# - speckit_memory_sync_shared(projectRoot?)
+npx speckit-memory flush-memory          # Flush project cache (purges WAL/SHM SQLite logs)
+npx speckit-memory flush-global          # Flush global central database (with safety confirmation)
+```
+
+There is currently **no standalone CLI subcommand** for `init-project`, `share-lesson`, or `sync-shared`. Those flows are available through Spec Kit command prompts and MCP tools.
+
 
 Phase 2 builds the doc cache so the AI can read a single compact `doc-synthesis.md` per feature instead of opening every spec, plan, tasks, and constitution file individually. Run `index-docs` once, then `refresh-docs` at the start of each session.
 
@@ -361,6 +394,22 @@ memory-md does not:
 - replace Architecture Guard orchestration
 - load all memory into every workflow
 
+## Why Use Memory Hub?
+
+Memory Hub pays compounding dividends across five dimensions of team-oriented, AI-assisted development. Below is a summary — see [docs/value-proposition.md](docs/value-proposition.md) for the full code-verified analysis.
+
+| Pillar | The Problem | The Value |
+| :--- | :--- | :--- |
+| **Team Onboarding** | New developers and agents start from zero, guessing at intent. | Durable context in `docs/memory/` + agent templates (`CLAUDE.md`, `AGENTS.md`) loaded before every session. |
+| **Cross-Project Standards** | Teams drift from company API standards across microservices. | MCP `share-lesson` / `sync-shared` propagates stack-specific lessons across projects on the same workstation (Phase 3). Machine-wide team sync is Phase 3.5. |
+| **Delivery Velocity** | Developers re-explain constraints in every prompt. Context windows fill with repetition. | `plan-with-memory` compiles a scoped `memory-synthesis.md` (≤ 900 words) pre-primed with relevant constraints. |
+| **Token Cost** | Loading full memory folders inflates context and degrades reasoning quality. | Exact `@dqbd/tiktoken` token counting with SQLite-indexed retrieval. Savings scale with project maturity — **up to 10x** for projects with 5+ features and active history. |
+| **Zero-Leak Privacy** | Sharing lessons globally risks exposing private paths or proprietary identifiers. | Project identity is replaced with `sha256(projectRoot)` before sharing. External consumers see only `proj-<8-char-hash>`. |
+
+> **Human-in-the-Loop:** Memory capture is never fully automatic. The AI evaluates confidence (50–100%) and proposes entries for a single human confirmation before any write. This keeps durable memory clean and trustworthy.
+
+---
+
 ## Benefits
 
 ### Compared to Spec Kit Alone
@@ -373,16 +422,20 @@ memory-md does not:
 | New developers read code, guess at intent | `PROJECT_CONTEXT.md` and `ARCHITECTURE.md` provide structured onboarding |
 | Prompts bloat as you re-explain context every time | `memory-synthesis.md` gives the AI a compact working summary |
 
-### Compared to Personal Agent Memory (claude-mem, etc.)
+### Compared to Personal Agent Memory (claude-mem, IDE memory, etc.)
+
+Even when an IDE or agent has its own memory features, those are usually best at personal continuity: preferences, session habits, and short-term recall inside one client. Memory Hub is the stronger choice for project memory that must be shared, reviewed, versioned, and reused across the whole team.
 
 | Personal Agent Memory | Memory Hub |
 | --- | --- |
-| One person's tool, invisible to the team | Visible in Git, reviewable by everyone |
-| Disappears when you switch tools | Lives in the repo, survives tool and team changes |
-| Auto-captured, grows noisy | Curated — only durable lessons are kept |
-| Good for individual flow and preferences | Good for shared project knowledge and team alignment |
+| Usually scoped to one user, one agent, or one IDE surface | Stored in the repo, visible in Git, and reviewable by the team |
+| Often optimized for a specific environment such as Claude Code, Cursor, Copilot, or a local MCP setup | Works through Spec Kit repository conventions and can be consumed by any compatible agent workflow |
+| May auto-capture session details, preferences, or short-lived observations | Curated by approval so only durable project lessons are kept |
+| Good for individual flow, preferences, and session continuity | Good for shared project knowledge, onboarding, and team alignment |
 
-**They complement each other.** Use personal memory for your own preferences. Use Memory Hub for knowledge the team needs to trust.
+**They complement each other.** Use personal memory for your own preferences and agent-local continuity. Use Memory Hub for knowledge the team needs to trust, review, and carry across Spec Kit features.
+
+The short version: IDE memory helps one agent remember itself. Memory Hub helps the project remember itself.
 
 ## When To Use It
 
@@ -441,6 +494,8 @@ That's it. Steps 4–5 repeat for each feature.
 
 ## Installation
 
+Memory Hub requires a Spec Kit project layout. The standard path is to install it with the Spec Kit CLI so the extension lives under `.specify/extensions/memory-md/` and its commands are available to Spec Kit-capable agents.
+
 ### From Extension Registry
 
 ```text
@@ -451,7 +506,7 @@ specify extension add memory-md
 
 ```text
 specify extension add memory-md --from \
-  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.9.1.zip
+  https://github.com/DyanGalih/spec-kit-memory-hub/archive/refs/tags/v0.9.2.zip
 ```
 
 ### Local Development
@@ -461,6 +516,8 @@ specify extension add --dev /path/to/spec-kit-memory-hub
 ```
 
 ### Manual Install (Without Spec Kit CLI)
+
+Manual install is only a fallback for environments where the Spec Kit CLI is unavailable. The project still needs to follow the Spec Kit-style workflow and file layout for the prompts, memory files, and synthesis artifacts to be useful.
 
 ```bash
 # Copy starter files into a project
@@ -539,6 +596,9 @@ These files help the **current feature only**:
 | `log-finding` | When audit finds something actionable | Converts a high-signal audit finding into a tracked task for GitHub, GitLab, Jira, or other issue tracker |
 | `token-report` | When evaluating optimizer ROI | Compares estimated token usage between full memory reads and optimized synthesis |
 | `index-docs` | Once to build the doc cache, then at session start | Indexes specs, plans, tasks, constitutions, and READMEs into SQLite. Covers CLI commands: `index-docs`, `refresh-docs`, `search-docs`, `synthesize-docs`, `audit-docs`. Writes `doc-synthesis.md` per feature for low-token doc retrieval. |
+| `init-project` | Once to configure project tech profile | Profiles primary programming language and optional web framework to configure cross-project sharing sync channels. Available as a Spec Kit command and MCP tool; no standalone CLI subcommand yet. |
+| `share-lesson` | When a validated local lesson is ready to be shared | Strips project real paths and promotes local lessons securely to the global shared cross-project SQLite database. Available through MCP today; no standalone CLI subcommand yet. |
+| `sync-shared` | To pull down global lessons from other projects | Syncs language/framework specific lessons from other projects and writes them to a local review file `SHARED_LESSONS.md`. Available as a Spec Kit command and MCP tool; no standalone CLI subcommand yet. |
 
 All commands use the fully-qualified form: `speckit.memory-md.<command>`.
 
@@ -598,6 +658,8 @@ After running audit:
 To upgrade your global extension to the latest version:
 1. Run `specify extension update memory-md` in your terminal.
 2. The new prompt files and templates will be downloaded to `.specify/extensions/memory-md/`.
+3. In each upgraded project, run `/speckit.memory-md.prepare-context --feature specs/<feature>` once to resync the local caches and regenerate `memory-synthesis.md` if needed.
+4. If the project is very old or the cache was never built before, `prepare-context` will do a first-time `index-memory` / `index-docs` pass automatically. If you prefer to do it manually, use `npx speckit-memory index-memory` and `npx speckit-memory index-docs` inside `.specify/extensions/memory-md/`.
 
 **Migrating an Existing Project:**
 
@@ -626,7 +688,7 @@ When you run `/speckit.memory-md.init`, Memory Hub creates starter files in your
 | `.github/copilot-instructions.md` | `.github/` | Pre-populated Copilot agent instructions requiring memory review before planning and implementation |
 | `config.yml` | `.specify/extensions/memory-md/` | Default configuration (can be customized to change memory folder path, feature scope, etc.) |
 
-You can customize all templates after bootstrap. They are just starter content.
+You can customize all templates after init. They are just starter content.
 
 ### What Are Prompts?
 
@@ -634,7 +696,7 @@ Prompts are the **instruction templates** that define how each Memory Hub comman
 
 | Prompt File | Used By | Purpose |
 | --- | --- | --- |
-| `bootstrap.memory.prompt.md` | `/speckit.memory-md.bootstrap` | Instructs bootstrap to create memory structure and templates correctly |
+| `bootstrap.memory.prompt.md` | `/speckit.memory-md.init` | Instructs init to create memory structure and templates correctly |
 | `plan-with-memory.prompt.md` | `/speckit.memory-md.plan-with-memory` | Instructs synthesis to extract relevant constraints and decisions |
 | `capture.memory.prompt.md` | `/speckit.memory-md.capture` | Instructs capture to extract durable lessons from full feature journey |
 | `capture-from-diff.memory.prompt.md` | `/speckit.memory-md.capture-from-diff` | Instructs capture to extract lessons from code diffs |
@@ -753,19 +815,35 @@ memory-md does not enforce architecture or security rules. It provides context.
 
 ## IDE and Agent Compatibility
 
-Memory Hub is a **Spec Kit extension**, not a VS Code-only tool. It works with any IDE and AI agent that Spec Kit supports.
+Memory Hub is a **Spec Kit extension**, not a VS Code-only tool. It works best when the host agent can do three things:
+
+1. Read repository instruction files such as `AGENTS.md` or `.github/copilot-instructions.md`
+2. Execute Spec Kit slash commands or equivalent local commands
+3. Optionally connect to MCP over stdio for low-overhead memory operations
 
 This extension ships repository-side files that agents expect:
 - `docs/memory/` — durable project memory
-- `.github/copilot-instructions.md` — agent instructions template
+- `.github/copilot-instructions.md` — Copilot-focused repository instructions
+- `AGENTS.md` / `CODEX.md` / `CLAUDE.md` / `GEMINI.md` / `WINDSURF.md` / `ANTIGRAVITY.md` templates for agent-specific setup
 
-**Supported IDEs/Agents:**
-- VS Code + GitHub Copilot
-- Cursor IDE (any agent)
-- JetBrains IDEs (Spec Kit CLI)
-- Any CLI-compatible environment with a Spec Kit-compatible agent
+### Minimum Compatibility Matrix
 
-For the full compatibility matrix, see [Spec Kit's supported agents and IDEs](https://spec-kit.dev).
+| Client | Repository Instructions | Spec Kit Commands | MCP | Status |
+| --- | --- | --- | --- | --- |
+| OpenAI Codex | `CODEX.md` + `AGENTS.md` | Via local shell / workflow docs | Yes (if MCP configured) | First-class |
+| GitHub Copilot / Copilot Pro | `.github/copilot-instructions.md` | Via VS Code agent mode or terminal | Emerging (check your client) | Minimum-compatible |
+| Claude Code / Claude Desktop | `CLAUDE.md` | Via local shell / workflow docs | Yes | First-class |
+| Gemini CLI | `GEMINI.md` | Via local shell / workflow docs | Yes | First-class |
+| Windsurf | `WINDSURF.md` | Via local shell / workflow docs | Yes when client exposes MCP | First-class |
+| Antigravity | `ANTIGRAVITY.md` | Via local shell / workflow docs | Optional — depends on your build | Minimum-compatible |
+
+> **Copilot Pro note**: GitHub Copilot Pro uses `.github/copilot-instructions.md` as its primary agent context file. When using Copilot in VS Code agent mode, Spec Kit slash commands are available directly. For Copilot Pro in other surfaces (github.com chat, CLI), use the terminal-based `npx speckit-memory` fallback path. MCP support for Copilot is emerging — check your VS Code Copilot extension version.
+
+> **Codex note**: OpenAI Codex reads `AGENTS.md` by default. `CODEX.md` is a supplementary file for environments that support it. Both are injected by `/speckit.memory-md.init` when the agent file is detected or confirmed.
+
+**Important:** the workflow language in this repo is capability-based on purpose. If a client does not support Spec Kit slash commands directly, the agent should still follow the same sequence: prepare context, read synthesis, implement, then capture lessons through the best available path.
+
+For the broader ecosystem view, see [Spec Kit's supported agents and IDEs](https://spec-kit.dev).
 
 **Note:** IDE-specific memory tools (VS Code memory sidebar, GitHub Copilot Memory) are controlled by your editor and GitHub settings. This extension provides the **repository conventions** that make those tools useful alongside your agent.
 
@@ -773,9 +851,9 @@ For the full compatibility matrix, see [Spec Kit's supported agents and IDEs](ht
 
 ## Project Structure
 
-### In Your Project (After Bootstrap)
+### In Your Project (After Init)
 
-These files are created in your project by bootstrap:
+These files are created in your project by init:
 
 ```text
 your-project/
@@ -883,7 +961,7 @@ When the LLM runs a command, it follows this internal logic:
 
 ### Enabling the Optimizer
 
-If you run `/speckit.memory-md.bootstrap`, the AI will ask if you want to enable the optimizer and will attempt to run `npm install` automatically for you. 
+If you run `/speckit.memory-md.init`, the AI will ask if you want to enable the optimizer and will attempt to run `npm install` automatically for you. 
 
 If that fails, or if you are enabling it manually on an existing setup:
 1. Edit `.specify/extensions/memory-md/config.yml` in your project and set:
@@ -900,11 +978,245 @@ If that fails, or if you are enabling it manually on an existing setup:
 
 ---
 
+## Phase 3: Cross-Project Memory Sharing & Syncing (Global Shared Memory)
+
+Memory Hub supports a local-first **cross-project shared memory network**. When you work across multiple repositories or projects sharing a similar technology stack (e.g. NestJS, Laravel, Next.js, Go), projects can publish and subscribe to high-signal architectural lessons and bug prevention patterns in a decentralized local cache.
+
+### Core Architecture & Privacy Principles
+
+1. **Local-Only Boundary (No Network Leaks)**:
+   All sharing occurs strictly within your local environment. The central shared database resides locally at `~/.spec-kit/shared-memory.sqlite` and never makes external HTTP requests or network calls.
+   
+2. **Project Path Anonymization**:
+   To preserve developer privacy, the real folder paths of repositories are **never** shared, stored, or echoed back in tool responses.
+   - When a lesson is elevated, Memory Hub generates a cryptographic `SHA-256` hash of the absolute project root path to act as a unique, anonymized project identifier.
+   
+3. **Self-Exclusion Sync Filter**:
+   When you sync global lessons to a project, Memory Hub calculates the active project's path hash and automatically filters out any lessons originating from the current project itself, ensuring you only receive external learnings.
+
+---
+
+### Step-by-Step Usage Guide
+
+#### Step 1: Profile Your Project Stack
+Run `/speckit.memory-md.init-project` inside a Spec Kit-capable client, or call the MCP tool `speckit_memory_init_project(language="typescript", framework="nestjs")`. This configures `sync_channels` inside your project's `.specify/extensions/memory-md/config.yml`.
+
+#### Step 2: Elevate and Share a Local Lesson
+Once you have written a high-value lesson to your local `docs/memory/BUGS.md` or `DECISIONS.md` file, promote it globally so your other projects benefit from it:
+1. Register the lesson details locally:
+   ```bash
+   npx speckit-memory register-memory \
+     --id "B99" \
+     --title "Prevent NicePay Webhook 403 Forbidden Errors" \
+     --tags "nicepay,webhook,cors,csrf" \
+     --file "docs/memory/BUGS.md"
+   ```
+2. Publish it to the global cross-project store:
+   - When the AI runs `/speckit.memory-md.share-lesson`, it automatically calls the high-level `speckit_memory_share_lesson` MCP tool.
+   - The lesson is safely published globally under the `typescript/nestjs` channels.
+
+#### Step 3: Synchronize External Lessons
+When starting a new feature in another repository that shares the same stack:
+1. Run `/speckit.memory-md.sync-shared` inside a Spec Kit-capable client or call the MCP tool `speckit_memory_sync_shared(projectRoot?)`.
+2. Memory Hub retrieves matching lessons from other projects and writes them to a temporary local review buffer at `docs/memory/SHARED_LESSONS.md` formatted with interactive review banners:
+   ```markdown
+   # Shared Lessons — Synced 2026-05-17
+   
+   > These lessons were synced from the global cross-project memory.
+   > **Review carefully before adopting.** Delete entries that do not apply to this project.
+   
+   ---
+   ### B99 — Prevent NicePay Webhook 403 Forbidden Errors
+   **Stack**: `typescript/nestjs`
+   **Tags**: nicepay,webhook,cors,csrf
+   **Source**: `proj-f83b2a5c`
+   
+   Verify that NicePay webhooks are explicitly exempted from local NestJS CSRF guards and that route wildcards are configured in the reverse-proxy.
+   ```
+3. Open `docs/memory/SHARED_LESSONS.md`, review the entries, copy any relevant patterns into your permanent local decisions or bugs files, and delete the temporary review file.
+
+---
+
+## Model Context Protocol (MCP) Integration
+
+Spec Kit Memory Hub includes a native, fully-compliant **Model Context Protocol (MCP) Server**. This server enables modern LLM clients (such as Claude Desktop, VS Code Cline, Roo-Cline, Cursor, etc.) to query, synthesize, share, and sync memory directly via JSON-RPC, without needing to execute terminal CLI subprocesses.
+
+### Why Use MCP Over CLI?
+
+- **Zero Overhead**: Instead of invoking `npx speckit-memory` or shell commands, the LLM calls standard tools directly inside the chat interface. This is faster and avoids subprocess execution overhead.
+- **MCP-First Prompts**: The Spec Kit workflows are fully aware of the MCP server. If registered and active, the LLM automatically invokes the native MCP tools (like `speckit_memory_share_lesson` or `speckit_memory_sync_shared`). If the MCP server is not active, the prompts automatically fall back to equivalent `npx` CLI commands.
+
+### Exposed MCP Tools
+
+The server registers the following native JSON-RPC tools with the LLM client:
+
+| Tool Name | Description | Key Arguments |
+|---|---|---|
+| `speckit_memory_search` | Search the local project's SQLite memory cache & indexing. | `query` (string, required), `projectRoot` (string, optional) |
+| `speckit_memory_synthesize` | Generate the `memory-synthesis.md` file for a feature scope. | `feature` (string, required), `query` (string, optional), `projectRoot` (string, optional) |
+| `speckit_memory_share_lesson` | Elevate an approved local technical lesson to the global database. | `id`, `title`, `content`, `language` (required); `framework` (optional), `tags` (array, optional) |
+| `speckit_memory_sync_shared` | Sync matching tech stack lessons from global memory into review buffer. | `projectRoot` (string, optional) |
+| `speckit_memory_init_project` | Profile and initialize project language/framework sync channels in `config.yml`. | `language` (required); `framework`, `projectRoot` (optional) |
+
+### How to Run the MCP Server (No Publishing Required!)
+
+You **do not** need to publish this plugin to npm to use it! You can run and test it completely locally in your development environment.
+
+Because MCP uses Standard Input/Output (`stdio`) as its transport, the LLM client automatically launches and manages the lifecycle of the server process behind the scenes. You **do not** need to keep a terminal window open or manually run a background command.
+
+To connect your LLM client to your local, unpublished plugin, configure the client using one of the two methods below:
+
+#### Method A: Direct Node Path (Recommended for local development)
+Point your LLM client directly to the built bundle in your local repository checkout. This guarantees that any code changes you make and build locally are immediately active:
+
+- **Command**: `node`
+- **Arguments**: `["/absolute/path/to/spec-kit-memory-hub/dist/bin/speckit-memory.js", "mcp-start"]`
+
+#### Method B: Local npm Linking
+If you prefer to use the standard CLI command globally without publishing, you can link the package to your local environment:
+
+1. Inside your `spec-kit-memory-hub` repository root, run:
+   ```bash
+   npm link
+   ```
+2. This creates a global symlink on your machine. You can now configure the client to run the executable directly:
+   - **Command**: `speckit-memory`
+   - **Arguments**: `["mcp-start"]`
+
+### Client Integration Configurations
+
+#### 1. Claude Desktop Configuration
+Add the server config block to your global Claude Desktop configuration file (typically `~/.config/Claude/claude_desktop_config.json` on Linux/macOS or `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+
+```json
+{
+  "mcpServers": {
+    "speckit-memory-hub": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "speckit-memory",
+        "mcp-start"
+      ]
+    }
+  }
+}
+```
+
+*For local development/development builds, you can point directly to your node installation path:*
+```json
+{
+  "mcpServers": {
+    "speckit-memory-hub": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/spec-kit-memory-hub/dist/bin/speckit-memory.js",
+        "mcp-start"
+      ]
+    }
+  }
+}
+```
+
+#### 2. VS Code Extensions (Cline, Roo-Cline)
+If you use Cline or Roo-Cline in VS Code, add the configuration under the client's MCP Settings panel or directly in the settings file (e.g., `cline_mcp_settings.json`):
+
+```json
+{
+  "mcpServers": {
+    "speckit-memory-hub": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "speckit-memory",
+        "mcp-start"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
+#### 3. Antigravity Configuration
+If your Antigravity build exposes a local MCP stdio configuration, you can register Memory Hub using the same `command` + `args` pattern shown below. The exact settings file path and schema may vary by Antigravity release, so treat this as a compatibility template rather than a guaranteed product-specific path:
+
+```json
+{
+  "mcpServers": {
+    "speckit-memory-hub": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "speckit-memory",
+        "mcp-start"
+      ]
+    }
+  }
+}
+```
+
+If your Antigravity installation does not currently expose MCP settings, use the repository instruction template `ANTIGRAVITY.md` and the markdown-first workflow instead.
+
+*For local active development, you can point directly to your build directory:*
+```json
+{
+  "mcpServers": {
+    "speckit-memory-hub": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/spec-kit-memory-hub/dist/bin/speckit-memory.js",
+        "mcp-start"
+      ]
+    }
+  }
+}
+```
+
+#### 4. Codex CLI & Skills Configuration
+For **Codex** (the OpenAI skills-based developer agent), you can hook up the MCP server by specifying the stdio configurations inside the Codex CLI configuration file (typically `~/.config/codex/config.toml`):
+
+```toml
+[mcp_servers.speckit_memory_hub]
+command = "npx"
+args = ["-y", "speckit-memory", "mcp-start"]
+```
+
+*For local active development, you can point directly to your build directory:*
+```toml
+[mcp_servers.speckit_memory_hub]
+command = "node"
+args = [
+  "/absolute/path/to/spec-kit-memory-hub/dist/bin/speckit-memory.js",
+  "mcp-start"
+]
+```
+
+---
+
+### Database Cache Maintenance
+
+Memory Hub separates local project caches from the global shared database to allow atomic purging:
+
+- **Flush Local Project Cache**:
+  Purges the local repository SQLite database and cleans up orphaned `-wal` and `-shm` transaction logs.
+  ```bash
+  npx speckit-memory flush-memory
+  ```
+- **Flush Global Shared Database**:
+  Deletes the central cross-project memory database. Because this affects all repositories on your system, it requires a manual confirmation prompt:
+  ```bash
+  npx speckit-memory flush-global
+  ```
+
+---
+
 ## First 10 Minutes: A Concrete Example
+
 
 **1. Bootstrap:**
 ```text
-/speckit.memory-md.bootstrap
+/speckit.memory-md.init
 ```
 
 **2. Fill in project context:**

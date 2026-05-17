@@ -1,19 +1,21 @@
-# Claude Code Instructions
+# Codex Instructions
 
-This repository is built to work with Spec Kit Memory Hub and Claude Code.
+This repository is built to work with Spec Kit Memory Hub and OpenAI Codex (and Codex-compatible agents).
 
 ## Mandatory Workflow
 1. **Core Governance**: You MUST follow the memory-first workflow defined in [.specify/memory/workflow.md](.specify/memory/workflow.md).
 2. **Proactive Check**: Before planning or tasking, you MUST prepare context using the best available path:
-   - MCP: call `speckit_memory_search` and `speckit_memory_synthesize`
-   - Spec Kit commands: run `/speckit.memory-md.prepare-context`
+   - MCP: call `speckit_memory_search` and `speckit_memory_synthesize` if your Codex environment exposes MCP tools
+   - Spec Kit commands: run `/speckit.memory-md.prepare-context` if command prompts are available
    - Markdown-first fallback: follow `.specify/memory/workflow.md` and refresh `memory-synthesis.md` manually
 3. **Capture Lessons**: After implementation, you MUST review whether there is durable knowledge to preserve and use the best available capture path:
    - Spec Kit commands: `/speckit.memory-md.capture` or `/speckit.memory-md.capture-from-diff`
    - Local maintenance flow: `register-memory` only after explicit approval
 
 ## MCP Optimization (Preferred)
-If you are running with an active Model Context Protocol (MCP) server integration (e.g., speckit-memory-hub), you DO NOT need to run shell commands or execute `/speckit.memory-md.*` commands via CLI. You can instead invoke the MCP tools directly (`speckit_memory_search`, `speckit_memory_synthesize`, `speckit_memory_share_lesson`, `speckit_memory_sync_shared`, `speckit_memory_init_project`) to query the SQLite cache and synchronize lessons silently and instantly in the background!
+If you are running with an active Model Context Protocol (MCP) server integration (e.g., speckit-memory-hub), you DO NOT need to run shell commands or execute `/speckit.memory-md.*` commands via CLI. You can instead invoke the MCP tools directly (`speckit_memory_search`, `speckit_memory_synthesize`, `speckit_memory_share_lesson`, `speckit_memory_sync_shared`, `speckit_memory_init_project`) to query the SQLite cache and synchronize lessons silently and instantly in the background.
+
+> **Note for Codex environments**: MCP tool availability depends on your Codex client configuration. If MCP tools are not available, use the CLI fallback path via `npx speckit-memory` commands.
 
 ## Proactive Self-Governance (Confidence > 50%)
 Do not wait for a manual capture request at the end of your task. If you evaluate your confidence in a newly discovered design pattern, architectural trade-off, or bug resolution to be **greater than 50%**, you MUST proactively surface it for capture:

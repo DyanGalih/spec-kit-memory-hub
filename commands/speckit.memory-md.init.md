@@ -11,11 +11,14 @@ Tasks:
 1. Read `config-template.yml` at the extension root for default values.
    If the project has `.specify/extensions/memory-md/config.yml`, use those values instead.
    Fall back to defaults: `memory_root: docs/memory`, `specs_root: specs`.
-2. Ask whether the project wants the optional SQLite optimizer enabled.
-   Explain the minimum requirements first: Node.js 18+, npm, local filesystem access, and the ability to install the `better-sqlite3` native dependency if a prebuilt binary is not available.
-   If the user says no, keep the markdown-first workflow only.
-   If the user says yes, set `optimizer.enabled: true` in `.specify/extensions/memory-md/config.yml`, and then automatically prepare the local optimizer by running `npm install && npm run build` inside the `.specify/extensions/memory-md` directory using the terminal.
-   If the `npm install` or `npm run build` fails (e.g. due to missing prerequisites), explain exactly what is missing, provide them the manual commands (`cd .specify/extensions/memory-md && npm install && npm run build`), and then continue with markdown-first mode.
+2. **Check for optimizer mode first**:
+   - If `speckit-memory-hub` MCP is already configured in the user's AI client (e.g., present in `mcp_config.json` or `config.toml`): explain that **Phase 1 durable memory retrieval** can use MCP immediately, but **Phase 2 doc caching still requires the local CLI** in the current release.
+     - If the project wants MCP-only operation for now: keep `optimizer.enabled: false` and document that the project is running markdown-first plus MCP-assisted Phase 1 retrieval.
+     - If the project wants full Phase 1 + Phase 2 local caching: continue with the local install flow below.
+   - If MCP is **not** configured: Ask whether the project wants the optional local SQLite optimizer enabled. Explain the minimum requirements: Node.js 18+, npm, local filesystem access, and the ability to install the `better-sqlite3` native dependency if a prebuilt binary is not available.
+     - If the user says no: keep the markdown-first workflow only.
+     - If the user says yes: set `optimizer.enabled: true` in `.specify/extensions/memory-md/config.yml`, then run `npm install && npm run build` inside the `.specify/extensions/memory-md` directory.
+     - If `npm install` or `npm run build` fails: explain exactly what is missing, provide the manual commands (`cd .specify/extensions/memory-md && npm install && npm run build`), and continue with markdown-first mode.
 3. Ensure these folders exist:
    - `{memory_root}` (default: docs/memory)
    - `{specs_root}` (default: specs)
@@ -35,8 +38,9 @@ Tasks:
    - `{memory_synthesis_filename}` (default: memory-synthesis.md)
 6. **Centralize Memory Governance**:
    - **Mandatory**: Create or Update `.specify/memory/workflow.md`. If the file already exists, reconcile its content with the extension template to ensure it contains the latest mandatory command references, while strictly preserving any existing project-specific governance rules.
-   - **Migration**: Detect active agent context files: `.github/copilot-instructions.md`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and Windsurf rules.
-   - **Inject Pointer**: For each existing file, do NOT overwrite the whole file. Instead, find the `### Spec Kit` section (or create it) and replace it with the **Pointer Model**: "You MUST follow the memory-first workflow defined in `.specify/memory/workflow.md` and proactively execute `/speckit.memory-md.prepare-context` before planning."
+   - **Migration**: Detect active agent context files: `.github/copilot-instructions.md`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`, and other local agent rules if present.
+   - **Inject Pointer**: For each existing file, do NOT overwrite the whole file. Instead, find the `### Spec Kit` section (or create it) and replace it with the **Pointer Model**: "You MUST follow the memory-first workflow defined in `.specify/memory/workflow.md`. Before planning, prepare context using the best available path: MCP tools if configured, `/speckit.memory-md.prepare-context` if Spec Kit commands are available, otherwise the documented markdown-first fallback."
+   - **Create Missing Templates**: For any agent file that does not yet exist but is in the standard set (`CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`), create it from the corresponding extension template only if the user confirms they use that agent. Never create agent files speculatively.
 7. If `.specify/extensions/memory-md/config.yml` does not exist, create it from `config-template.yml` with default values.
 8. Summarize the memory model:
    - constitution / principles = stable operating rules

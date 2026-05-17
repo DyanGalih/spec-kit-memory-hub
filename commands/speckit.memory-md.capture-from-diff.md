@@ -17,7 +17,10 @@ Capture is manual and human-approved. Do not write durable memory unless the use
 
 1. **Identify Changed Files**:
    - If the user provided a diff or explicit instructions, follow them.
-   - Otherwise, you **MUST** execute the `{SCRIPT}` with `--json` to detect changed files since the merge-base or in the working directory.
+   - Otherwise, you **MUST** execute the platform-appropriate script with `--json` to detect changed files since the merge-base or in the working directory.
+     - **Linux/macOS**: run the script at `scripts/bash/detect-changed-files.sh --json`
+     - **Windows**: run the script at `scripts/powershell/detect-changed-files.ps1 --json`
+     - When invoked via a Spec Kit command context that resolves `{SCRIPT}`, use the provided value directly.
    - Use the `changed_files` list as the primary set for knowledge extraction.
 
 ### Durable Memory Context (Duplicate Prevention)

@@ -55,3 +55,4 @@ indexing:
     - coverage/**
     - .git/**
     - .spec-kit-memory/**
+    - docs/memory/SHARED_LESSONS.md

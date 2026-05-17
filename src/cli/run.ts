@@ -2,6 +2,8 @@ import chalk from "chalk";
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
+import os from "os";
+import readline from "readline";
 import { auditMemoryCache } from "../audit";
 import { loadConfig, resolveProjectPaths } from "../config";
 import { closeDatabase, countEntries, countEntriesBySourceType, loadIndexingState, openDatabase } from "../db";
@@ -22,6 +24,7 @@ import {
   printTokenComparisonBanner,
   shouldShowTokenBanner,
 } from "./token-report";
+import { runMcpServer } from "../mcp/server";
 
 interface CliOptions {
   projectRoot: string;
@@ -173,6 +176,72 @@ async function runRebuildMemory(projectRoot: string): Promise<void> {
     }
   } finally {
     freeTokenizer();
+  }
+}
+
+function askConfirmation(question: string): Promise<boolean> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      const clean = answer.trim().toLowerCase();
+      resolve(clean === "y" || clean === "yes");
+    });
+  });
+}
+
+async function runFlushMemory(projectRoot: string): Promise<void> {
+  console.log("Flushing local memory cache...");
+  const { paths, db } = createContext(projectRoot);
+  try {
+    closeDatabase(db);
+    // Issue 8 fix: also remove WAL and SHM sibling files to avoid orphaned SQLite journal files
+    const walPath = paths.dbPath + "-wal";
+    const shmPath = paths.dbPath + "-shm";
+    if (await pathExists(paths.dbPath)) {
+      await removePath(paths.dbPath);
+      console.log(`Successfully flushed local memory cache at ${paths.dbPath}`);
+    } else {
+      console.log("No local database cache exists to flush.");
+    }
+    if (await pathExists(walPath)) await removePath(walPath);
+    if (await pathExists(shmPath)) await removePath(shmPath);
+  } finally {
+    freeTokenizer();
+  }
+}
+
+async function runFlushGlobal(): Promise<void> {
+  const globalDbPath = path.join(os.homedir(), ".spec-kit", "shared-memory.sqlite");
+  if (!fs.existsSync(globalDbPath)) {
+    console.log("No global shared memory database cache exists to flush.");
+    return;
+  }
+
+  console.log(chalk.red.bold("\n⚠️  WARNING: FLUSH GLOBAL SHARED MEMORY"));
+  console.log(`This will delete ALL shared memories and lessons across ALL projects stored in:\n  ${globalDbPath}\n`);
+  
+  const confirmed = await askConfirmation(chalk.yellow("Are you absolutely sure you want to proceed? This action CANNOT be undone. (y/N): "));
+  if (!confirmed) {
+    console.log(chalk.green("Action cancelled. Global shared memory remains untouched."));
+    return;
+  }
+
+  try {
+    fs.unlinkSync(globalDbPath);
+    if (fs.existsSync(`${globalDbPath}-wal`)) {
+      fs.unlinkSync(`${globalDbPath}-wal`);
+    }
+    if (fs.existsSync(`${globalDbPath}-shm`)) {
+      fs.unlinkSync(`${globalDbPath}-shm`);
+    }
+    console.log(chalk.green.bold("✅ Successfully flushed and deleted the global shared memory cache database."));
+  } catch (error: any) {
+    console.error(chalk.red(`Failed to flush global shared memory cache: ${error.message}`));
   }
 }
 
@@ -539,9 +608,17 @@ export async function runCli(argv = process.argv): Promise<void> {
 
   program
     .command("flush-memory")
-    .description("[planned] Clear the SQLite cache without reindexing")
-    .action(() => {
-      console.log("flush-memory is planned but not yet implemented. Use rebuild-memory to clear and reindex.");
+    .description("Clear the local SQLite cache without reindexing")
+    .action(async () => {
+      const options = program.opts<CliOptions>();
+      await runFlushMemory(options.projectRoot);
+    });
+
+  program
+    .command("flush-global")
+    .description("Delete the global central shared memory cache database across all projects (requires confirmation)")
+    .action(async () => {
+      await runFlushGlobal();
     });
 
   program
@@ -550,6 +627,13 @@ export async function runCli(argv = process.argv): Promise<void> {
     .action(async () => {
       const options = program.opts<CliOptions>();
       await runDoctor(options.projectRoot);
+    });
+
+  program
+    .command("mcp-start")
+    .description("Start the Model Context Protocol (MCP) server for Spec Kit Memory Hub")
+    .action(async () => {
+      await runMcpServer();
     });
 
   program
@@ -621,8 +705,8 @@ export async function runCli(argv = process.argv): Promise<void> {
       await runAuditDocs(options.projectRoot);
     });
 
-  // Phase 3 (index-code, search-code) is documented in docs/optimizer-roadmap.md
-  // but not yet implemented.
+  // Phase 3 (MCP integration & cross-project memory sharing): implemented via mcp-start, flush-memory, flush-global.
+  // Phase 4 (index-code, search-code): documented in docs/optimizer-roadmap.md, not yet implemented.
 
   await program.parseAsync(argv);
 }

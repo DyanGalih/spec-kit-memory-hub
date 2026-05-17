@@ -33,6 +33,7 @@ They are not yet backed by separate `/tasks` or `/verify` extension commands.
 Before `/specify`:
 - Read constitution, durable project memory, and any closely related bug or decision entries.
 - Produce or refresh a compact `memory-synthesis.md` section for constraints, reused decisions, bug patterns, boundaries, conflicts, assumptions, and watchpoints.
+- Use `/speckit.memory-md.specify` if Spec Kit commands are available; otherwise follow the markdown-first fallback in `.specify/memory/workflow.md`.
 
 Before `/plan` and `/tasks`:
 - Read the active spec plus `memory.md` and `memory-synthesis.md`.

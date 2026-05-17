@@ -14,9 +14,21 @@ Run this command by providing the feature directory and an optional search query
 /speckit.memory-md.prepare-context --feature specs/<feature> --query "<optional_search_terms>"
 ```
 
-## Optimizer-Aware Flow
+## MCP Path (Preferred for Phase 1 durable memory)
 
-When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the CLI is available:
+If `speckit-memory-hub` MCP server is active, use this streamlined path instead of the full CLI pipeline:
+
+1. **Search & Auto-Index**: Call `speckit_memory_search(query="<your query>")` — the server auto-indexes the durable memory cache if cold. No `doctor` check or `npx` commands needed.
+2. **Generate Synthesis**: Call `speckit_memory_synthesize(feature="specs/<feature>")` — writes `specs/<feature>/memory-synthesis.md` directly.
+3. **Read the output**: Read the file at the `outputPath` returned by the tool.
+
+> **Phase 2 gap (important)**: MCP tools `speckit_memory_search_docs` and `speckit_memory_synthesize_docs` are not yet implemented. **Phase 2 doc cache synthesis always requires the CLI path below**, even when MCP is active. Do not skip Phase 2 when running via MCP — proceed to the CLI Fallback steps 5–7 after completing the MCP Phase 1 steps above.
+
+---
+
+## Optimizer-Aware Flow (CLI Fallback)
+
+When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the local CLI is installed:
 
 ### Step 0 — Doctor Check (always run first)
 
@@ -53,7 +65,7 @@ Use these counts to decide whether Phase 1 and Phase 2 need a full index or just
 
 ## Markdown-Only Flow
 
-When the optimizer is disabled, fall back to manual index retrieval:
+When the optimizer is disabled, unavailable, or intentionally left off for MCP-only Phase 1 usage, fall back to manual index retrieval:
 1. Run `/speckit.memory-md.plan-with-memory` to manually refresh synthesis and review the index.
 
 ## Orchestration Note
