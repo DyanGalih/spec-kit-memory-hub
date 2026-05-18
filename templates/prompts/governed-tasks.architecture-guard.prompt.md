@@ -1,5 +1,7 @@
 Before generating tasks:
 
+If an optimizer or MCP-backed Memory Hub is available, use `/speckit.memory-md.prepare-context` or the MCP tools exposed by `spec-kit-memory-hub`; do not shell out to `npx memory-hub` directly.
+
 Read:
 - the approved plan
 - `{specs_root}/<feature>/{memory_synthesis_filename}` when present

@@ -1,5 +1,7 @@
 Before planning the feature:
 
+If an optimizer or MCP-backed Memory Hub is available, use `/speckit.memory-md.prepare-context` or the MCP tools exposed by `spec-kit-memory-hub`; do not shell out to `npx memory-hub` directly.
+
 Read:
 - config, including retrieval budgets and `show_token_banner`
 - Governance Layer (`.specify/memory/`) constitution, standards, or principles first

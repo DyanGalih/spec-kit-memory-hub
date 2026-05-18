@@ -171,6 +171,24 @@ Prompts are the **instruction templates** that define how each Memory Hub comman
 
 **These prompts are not customized per-project.** They are shared infrastructure that ensure consistent behavior across all projects using Memory Hub.
 
+### Optional Integration Model
+
+When another extension wires into Memory Hub, treat the connection as an optional capability, not a hard dependency. The stable integration surface is:
+
+- `.specify/extensions/memory-md/config.yml` for capability and optimization settings
+- `/speckit.memory-md.prepare-context` for memory-first orchestration
+- `memory-synthesis.md` for compact feature context
+- The MCP tools exposed by the installed Memory Hub when the client supports them
+
+Consumer extensions should:
+
+- detect availability first
+- use the optimized path when enabled
+- fall back to markdown-only retrieval when unavailable
+- avoid importing Memory Hub internals or assuming a specific launch mechanism
+
+This keeps the extensions loosely coupled while still allowing an optimized, wired-together workflow when both sides are present.
+
 ---
 
 ## Configuration

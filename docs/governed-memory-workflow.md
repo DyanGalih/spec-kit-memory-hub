@@ -61,6 +61,16 @@ Architecture Guard orchestrator commands automatically consume memory synthesis:
 - **`governed-tasks`**: Ensures tasks respect known constraints and architecture boundaries.
 - **`governed-implement`**: Provides the implementation watchpoints from the synthesis.
 
+### Optional Wiring Contract
+Memory Hub remains optional, but when another extension wires into it, the integration should be predictable:
+
+1. Detect capability first, then prefer the optimized path.
+2. Use `/speckit.memory-md.prepare-context` or the equivalent MCP tools as the entrypoint.
+3. Read `memory-synthesis.md` before broad repository scans.
+4. Fall back to markdown-only, index-first retrieval when the optimizer or MCP server is unavailable.
+5. Depend on command names, artifact names, and MCP tool names only. Do not couple to Memory Hub internals.
+6. Keep the token-savings banner visible when the optimized path emits one.
+
 ### Direct Usage
 The user can manually run memory commands:
 - **`init`**: Initialize the memory structure.
