@@ -6,7 +6,7 @@ Read:
 - feature memory, only if the synthesis is insufficient
 - selected index entries relevant to task decomposition
 
-When `optimizer.enabled` is `true` and the CLI is available:
+When `optimizer.enabled` is `true` and the MCP server is available:
 1. Reuse the current synthesis instead of reopening the full durable memory set.
 2. Re-check the cache only if the feature scope or approved plan changed.
 3. Keep retrieval targeted to the modules and decisions that affect task breakdown.

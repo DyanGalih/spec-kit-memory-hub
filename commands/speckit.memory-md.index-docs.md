@@ -24,53 +24,42 @@ The indexer scans all files matching `config.indexing.include.docs` (default: `d
 
 ## Execution Steps
 
-When `optimizer.enabled: true` and the CLI is available, execute the following in the project root:
+When `optimizer.enabled: true` and the `speckit-memory-hub` MCP server is active, use MCP tools:
 
 ### First-time setup (no cache yet)
 
-```bash
-npx speckit-memory index-docs
-```
+Call `speckit_memory_rebuild_cache(scope="docs")`.
 
 Indexes all discovered doc files from scratch. This may take a few seconds on large repos.
 
 ### Subsequent runs (incremental)
 
-```bash
-npx speckit-memory refresh-docs
-```
+Call `speckit_memory_refresh_cache(scope="docs")`.
 
 Skips files whose hash has not changed since the last index. Use this at the start of each session.
 
 ### Verify the cache
 
-```bash
-npx speckit-memory audit-docs
-```
+Call `speckit_memory_audit_cache(scope="docs")`.
 
-Reports total indexed entries, stale files (hash mismatch), and missing files. Run this if `synthesize-docs` returns empty results.
+Reports total indexed entries, stale files (hash mismatch), and missing files. Run this if `speckit_memory_synthesize_docs` returns empty results.
 
 ### Search the cache
 
-```bash
-npx speckit-memory search-docs "auth flow" --feature 001-auth
-npx speckit-memory search-docs "security constraints" --type constitution
-```
+Call `speckit_memory_search_docs(query="auth flow", featureId="001-auth")` or `speckit_memory_search_docs(query="security constraints", artifactType="constitution")`.
 
 Returns ranked doc snippets without opening any files.
 
 ### Generate a feature synthesis
 
-```bash
-npx speckit-memory synthesize-docs --feature specs/001-auth
-```
+Call `speckit_memory_synthesize_docs(feature="specs/001-auth")`.
 
 Writes `specs/001-auth/doc-synthesis.md` — a single compact file containing the top spec, plan, tasks, constitution, architecture, and security snippets for that feature. Read this file instead of opening individual docs.
 
 ## When the Optimizer is Disabled
 
-If `optimizer.enabled: false` or the CLI is unavailable, skip this command. Read `specs/<feature>/spec.md`, `plan.md`, and `tasks.md` directly using file-reading tools with explicit paths (do not rely on workspace search or semantic indexers — these files are often in `.gitignore`).
+If `optimizer.enabled: false` or the MCP server is unavailable, skip this command. Read `specs/<feature>/spec.md`, `plan.md`, and `tasks.md` directly using file-reading tools with explicit paths (do not rely on workspace search or semantic indexers — these files are often in `.gitignore`).
 
 ## Relationship to Phase 1
 
-Phase 1 (`index-memory`, `refresh-memory`, `synthesize`) caches durable memory from `docs/memory/` — decisions, bugs, architecture constraints, worklog. Phase 2 (`index-docs`, `refresh-docs`, `synthesize-docs`) caches the current feature's working artifacts — specs, plans, tasks — and project-level governance docs (constitutions, READMEs). Both phases reduce token usage and should be run together at the start of a governed workflow session.
+Phase 1 MCP tools cache durable memory from `docs/memory/` — decisions, bugs, architecture constraints, worklog. Phase 2 MCP tools cache the current feature's working artifacts — specs, plans, tasks — and project-level governance docs (constitutions, READMEs). Both phases reduce token usage and should be run together at the start of a governed workflow session.

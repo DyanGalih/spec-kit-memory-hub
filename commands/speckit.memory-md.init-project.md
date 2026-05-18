@@ -23,13 +23,12 @@ Tasks:
    - Confirm detected stack with the user before proceeding.
 
 2. **Execution Path**:
-   - **Spec Kit command path**: If your client supports Spec Kit command prompts, continue with `/speckit.memory-md.init-project`.
-   - **MCP Path (Preferred for generic agents)** — If `speckit-memory-hub` MCP server is active:
+   - Use the MCP tool exposed by the `speckit-memory-hub` server:
    ```
    speckit_memory_init_project(language="<lang>", framework="<fw>")
    ```
    *(Omit `framework` if the project uses a pure language stack.)*
-   - **CLI note**: There is currently no standalone `npx speckit-memory init-project` subcommand. Do not instruct the user to run one.
+   - Do not instruct the user to run a local command-line cache tool for project profiling.
 
 3. Confirm that the command successfully ran and saved the new configuration profile. The config file will now have a strictly typed `project_profile` field:
 

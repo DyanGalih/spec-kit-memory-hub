@@ -10,8 +10,8 @@ Capture is manual and human-approved. Show proposed durable entries and matching
 ### Duplicate Prevention (run before proposing)
 
 When `optimizer.enabled` is `true`:
-1. Execute `npx speckit-memory refresh-memory` (or `npx . refresh-memory` in the extension repo).
-2. Execute `npx speckit-memory search-memory "architecture constraints boundaries decisions <topic>"` for candidate topics.
+1. Call `speckit_memory_refresh_cache(scope="memory")`.
+2. Call `speckit_memory_search(query="architecture constraints boundaries decisions <topic>")` for candidate topics.
 3. Review results — do NOT read durable memory files directly. Search results are the authoritative dedup source.
 
 When the optimizer is disabled, read `{memory_root}/INDEX.md` and the relevant source sections to check for existing entries.
@@ -54,21 +54,25 @@ Use a letter prefix + sequential number. Count existing entries in `INDEX.md` wi
 
 ### INDEX.md Size Guard
 
-Before writing, count existing `|`-prefixed table rows in `INDEX.md`. If the count exceeds 50, warn the user and recommend running `/speckit.memory-md.audit` to remove stale entries before adding more.
+Before writing, count existing `|`-prefixed table rows in `INDEX.md`. If the count exceeds 50, warn the user and recommend running `/speckit.memory-md.audit` to review stale or duplicate entries before adding more. Do not remove `INDEX.md` rows automatically.
 
 ### Registration
 
-When the optimizer is available, use `register-memory` to write the entry, update `INDEX.md`, and sync the SQLite cache in a single command:
+When the optimizer is available, use `speckit_memory_register` to write the entry, update `INDEX.md`, and sync the SQLite cache in a single MCP call:
 
-```bash
-cd .specify/extensions/memory-md && npx speckit-memory register-memory \
-  --id <ID> --title "<Short title>" --tags "<tag1,tag2>" \
-  --file "<SourceFile.md>" --status "active" \
-  --content "### YYYY-MM-DD - <Title>
+```text
+speckit_memory_register(
+  id="<ID>",
+  title="<Short title>",
+  tags="<tag1,tag2>",
+  file="<SourceFile.md>",
+  status="active",
+  content="### YYYY-MM-DD - <Title>
 ..."
+)
 ```
 
-Add `--prepend` for `WORKLOG.md` only (newest-first order).
+Set `prepend=true` for `WORKLOG.md` only (newest-first order).
 
 When the optimizer is disabled, write the entry manually using the `### YYYY-MM-DD - Title` format, then update `INDEX.md`.
 

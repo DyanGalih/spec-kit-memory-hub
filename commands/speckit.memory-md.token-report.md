@@ -12,11 +12,9 @@ Use this when:
 - you are deciding whether the optional SQLite cache is worth enabling for a repo
 - you want to compare the baseline markdown-only read against the synthesis path
 
-When the optimizer is enabled and the CLI is available, run:
+When the optimizer and MCP server are enabled, call:
 
-```bash
-cd .specify/extensions/memory-md && npx speckit-memory token-report --feature specs/<feature>
-```
+`speckit_memory_token_report(feature="specs/<feature>")`
 
 Report:
 
@@ -24,7 +22,7 @@ Report:
 - optimized index-and-synthesis flow
 - estimated token reduction
 
-When the optimizer is enabled, the same baseline/cached/saved summary is also printed automatically by memory-aware `search-memory` and `synthesize` runs so the comparison stays visible during normal use.
+When the optimizer is enabled, the same baseline/cached/saved summary should be surfaced after memory-aware MCP search and synthesis runs so the comparison stays visible during normal use.
 
 Token counts are estimates using `@dqbd/tiktoken` with the **`cl100k_base` encoding (GPT-4 calibrated)**.
 Actual provider billing tokens may differ. Use these calibration factors when interpreting results for other models:

@@ -35,4 +35,4 @@ If no write integration exists, produce a tracker-ready draft that can be pasted
 Do not rewrite memory here.
 Do not create noisy or speculative follow-up items.
 
-If the finding is approved as durable memory after tracking, refresh the local cache with `cd .specify/extensions/memory-md && npx speckit-memory refresh-memory` (or `npx . refresh-memory` if in the extension repo) when the optimizer is enabled and available.
+If the finding is approved as durable memory after tracking, call `speckit_memory_refresh_cache(scope="memory")` when the optimizer and MCP server are enabled and available.

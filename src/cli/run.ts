@@ -38,7 +38,7 @@ function createContext(projectRoot: string) {
 }
 
 async function ensureIndexedMemory(projectRoot: string, db: any, config: ReturnType<typeof loadConfig>): Promise<void> {
-  if (countEntries(db) > 0) {
+  if (countEntriesBySourceType(db, "memory") > 0) {
     return;
   }
   console.log("No cached memory found; indexing durable memory first.");
@@ -356,12 +356,6 @@ async function runAuditDocs(projectRoot: string): Promise<void> {
   console.log("Auditing doc cache...");
   const { config, db } = createContext(projectRoot);
 
-  // Phase 1 memory file basenames — excluded from doc audit.
-  const MEMORY_BASENAMES = new Set([
-    "INDEX.md", "PROJECT_CONTEXT.md", "ARCHITECTURE.md",
-    "DECISIONS.md", "BUGS.md", "WORKLOG.md",
-  ]);
-
   try {
     const docCount = countEntriesBySourceType(db, "doc");
     printHeader("Doc Cache Audit");
@@ -372,8 +366,7 @@ async function runAuditDocs(projectRoot: string): Promise<void> {
       return;
     }
 
-    const state = loadIndexingState(db);
-    const docState = state.filter((row) => !MEMORY_BASENAMES.has(path.basename(row.source_path)));
+    const docState = loadIndexingState(db, "doc");
 
     let staleCount = 0;
     let missingCount = 0;

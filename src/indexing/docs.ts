@@ -138,7 +138,7 @@ export async function indexDocFiles(
   const relSpecsRoot = path.relative(projectRoot, specsRoot);
 
   const files = await discoverDocFiles(projectRoot, config);
-  const stateMap = loadIndexingStateMap(db);
+  const stateMap = loadIndexingStateMap(db, "doc");
   const now = new Date().toISOString();
 
   const result: IndexDocResult = {
@@ -171,7 +171,7 @@ export async function indexDocFiles(
     const chunks = parseMarkdownFile(relPath, raw).map((chunk) =>
       chunkDocToEntry(relPath, chunk, now, relSpecsRoot),
     );
-    upsertIndexedFile(db, relPath, hash, now, chunks);
+    upsertIndexedFile(db, relPath, "doc", hash, now, chunks);
     result.indexedFiles += 1;
     result.indexedEntries += chunks.length;
   }
@@ -183,7 +183,7 @@ export async function indexDocFiles(
       (sp) => !PHASE1_BASENAMES.has(path.basename(sp)) && !seenPaths.has(sp),
     );
     for (const sourcePath of missingDocPaths) {
-      deleteSourceEntries(db, sourcePath);
+      deleteSourceEntries(db, sourcePath, "doc");
       result.deletedFiles += 1;
     }
   }

@@ -46,6 +46,9 @@ provides:
     - name: "speckit.memory-md.audit"
       file: commands/speckit.memory-md.audit.md
       description: "Audit memory quality, index integrity, freshness, and synthesis hygiene."
+    - name: "speckit.memory-md.repair-index"
+      file: commands/speckit.memory-md.repair-index.md
+      description: "Recover missing INDEX.md routing rows from durable memory files without deleting existing rows."
     - name: "speckit.memory-md.log-finding"
       file: commands/speckit.memory-md.log-finding.md
       description: "Turn a high-signal audit finding into a tracker-ready follow-up for GitHub, GitLab, Jira, or another issue system."
@@ -57,7 +60,7 @@ provides:
       description: "Centralized context preparation: refresh cache, search memory, and refresh synthesis for a feature. Automatically executed by Architecture Guard governed workflows."
     - name: "speckit.memory-md.index-docs"
       file: commands/speckit.memory-md.index-docs.md
-      description: "Index development docs (specs, plans, tasks, constitutions) into SQLite for low-token retrieval. Covers Phase 2 CLI commands: index-docs, refresh-docs, search-docs, synthesize-docs, audit-docs."
+      description: "Index development docs (specs, plans, tasks, constitutions) into SQLite for low-token retrieval through MCP cache tools."
     - name: "speckit.memory-md.init-project"
       file: commands/speckit.memory-md.init-project.md
       description: "Profile and configure project technical stack for cross-project shared memory sync channels."

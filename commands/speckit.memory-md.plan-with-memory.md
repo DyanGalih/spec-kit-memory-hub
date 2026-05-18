@@ -10,9 +10,9 @@ If `require_memory_synthesis_before_plan` is `false`, skip the synthesis gate bu
 
 ### Optimizer-Aware Flow
 
-When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the CLI is available:
+When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the MCP server is available:
 
-1. **Prepare Context**: Execute `/speckit.memory-md.prepare-context --feature specs/<feature>`.
+1. **Prepare Context**: Run `/speckit.memory-md.prepare-context --feature specs/<feature>` or call `speckit_memory_refresh_cache(scope="all")` and `speckit_memory_synthesize(feature="specs/<feature>")`.
 2. **Read Synthesis**: Read `specs/<feature>/memory-synthesis.md` to identify constraints and decisions.
 3. Open additional durable memory files only if synthesis is insufficient or the user explicitly requests a deeper audit.
 4. Print the baseline / cached / saved token comparison so the savings are visible during the normal planning flow.

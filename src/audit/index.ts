@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { sha256 } from "../utils/hash";
 import { loadConfig, resolveProjectPaths } from "../config";
-import { loadAllEntries, MemoryDatabase, loadIndexingState } from "../db";
+import { loadEntriesBySourceType, MemoryDatabase, loadIndexingState } from "../db";
 import { pathExists, readTextFile } from "../utils/fs";
 import { wordCount } from "../utils/text";
 
@@ -28,10 +28,10 @@ export async function auditMemoryCache(
   featurePath?: string,
   config = loadConfig(projectRoot),
 ): Promise<AuditReport> {
-  const { memoryRoot, specsRoot } = resolveProjectPaths(projectRoot, config);
+  const { specsRoot } = resolveProjectPaths(projectRoot, config);
   const issues: AuditIssue[] = [];
-  const entries = loadAllEntries(db);
-  const state = loadIndexingState(db);
+  const entries = loadEntriesBySourceType(db, "memory");
+  const state = loadIndexingState(db, "memory");
 
   let staleCount = 0;
   let missingCount = 0;

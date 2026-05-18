@@ -8,9 +8,9 @@ Before writing or revising the feature spec, resolve configuration. If `.specify
 
 ### Optimizer-Aware Flow
 
-When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the CLI is available:
+When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the MCP server is available:
 
-1. **Prepare Context**: Execute `/speckit.memory-md.prepare-context --feature specs/<feature>`.
+1. **Prepare Context**: Run `/speckit.memory-md.prepare-context --feature specs/<feature>` or call `speckit_memory_refresh_cache(scope="all")` and `speckit_memory_synthesize(feature="specs/<feature>")`.
 2. **Read Synthesis**: Read `specs/<feature>/memory-synthesis.md` to identify constraints and decisions relevant to this feature.
 3. Open additional durable memory files only if synthesis is insufficient.
 

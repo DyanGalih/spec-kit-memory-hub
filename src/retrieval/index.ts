@@ -1,5 +1,5 @@
 import path from "path";
-import { MemoryDatabase, loadAllEntries, searchFts } from "../db";
+import { MemoryDatabase, loadAllEntries, searchFtsFiltered } from "../db";
 import { MemoryEntryRecord, MemoryHubConfig, SearchResult, SynthesisSectionItem } from "../types";
 import { normalizeWhitespace, uniqueSorted, wordCount } from "../utils/text";
 
@@ -76,7 +76,7 @@ export function searchMemoryEntries(
   // max_index_entries caps how many FTS candidates we fetch before re-ranking.
   const ftsCandidateLimit = config.retrieval.max_index_entries * FTS_OVER_FETCH_FACTOR;
   const normalizedQuery = buildFtsQuery(query);
-  const candidates = searchFts(db, normalizedQuery, ftsCandidateLimit).map((candidate) => scoreResult(candidate, query));
+  const candidates = searchFtsFiltered(db, normalizedQuery, "memory", ftsCandidateLimit).map((candidate) => scoreResult(candidate, query));
 
   const deduped = new Map<string, SearchResult>();
   for (const candidate of candidates) {

@@ -6,7 +6,7 @@ Read:
 - active feature memory only when extra detail is needed
 - selected index entries relevant to implementation and verification
 
-When `optimizer.enabled` is `true` and the CLI is available:
+When `optimizer.enabled` is `true` and the MCP server is available:
 1. Load the cached synthesis and active watchpoints first.
 2. Prefer cache-backed retrieval instead of raw markdown scans.
 3. Recheck the cache only when the approved plan or tasks changed.

@@ -8,9 +8,9 @@ Read:
 - `{memory_root}/INDEX.md`
 - existing `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 
-When `optimizer.enabled` is `true` and the CLI is available:
-1. Refresh the cache if needed.
-2. Generate or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
+When `optimizer.enabled` is `true` and the MCP server is available:
+1. Call `speckit_memory_refresh_cache(scope="all")` if the scope may have changed.
+2. Call `speckit_memory_synthesize(feature="specs/<feature>")` to generate or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
 3. Read `{specs_root}/<feature>/{memory_synthesis_filename}` first.
 4. Open additional durable memory files only when synthesis is insufficient or audit mode is requested.
 5. If `show_token_banner` is enabled, surface the baseline / cached / saved token banner.

@@ -7,9 +7,9 @@ Read:
 - existing `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 - any nearby feature memory from related unfinished work when clearly relevant
 
-When `optimizer.enabled` is `true` and the CLI is available:
-1. Refresh the cache if needed.
-2. Generate or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
+When `optimizer.enabled` is `true` and the MCP server is available:
+1. Call `speckit_memory_refresh_cache(scope="all")` if the scope may have changed.
+2. Call `speckit_memory_synthesize(feature="specs/<feature>")` to generate or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
 3. Read `{specs_root}/<feature>/{memory_synthesis_filename}` first.
 4. Open additional durable memory files only if synthesis is insufficient.
 

@@ -15,10 +15,7 @@ Use this when:
 Tasks:
 
 1. Confirm that the project is profiled (`speckit.memory-md.init-project` has been run and `project_profile` is configured in `config.yml`).
-2. Run the sync flow to pull matching external memories from the global shared SQLite store (`~/.spec-kit/shared-memory.sqlite`):
-   - If your client supports Spec Kit commands, continue with `/speckit.memory-md.sync-shared`.
-   - Otherwise, execute the `speckit_memory_sync_shared` MCP tool.
-   - There is currently no standalone `npx speckit-memory sync-shared` subcommand.
+2. Call `speckit_memory_sync_shared` to pull matching external memories from the global shared SQLite store (`~/.spec-kit/shared-memory.sqlite`).
 
 3. The sync operation will:
    - Calculate the SHA-256 hash of the project's root path

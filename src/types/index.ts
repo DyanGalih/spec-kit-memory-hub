@@ -78,6 +78,7 @@ export interface MemoryEntryRecord {
 
 export interface IndexingStateRecord {
   source_path: string;
+  source_type: MemorySourceType;
   hash: string;
   indexed_at: string;
 }

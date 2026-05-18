@@ -54,7 +54,7 @@ export async function indexPhase1MemoryFiles(
 ): Promise<IndexMemoryResult> {
   const { memoryRoot } = resolveProjectPaths(projectRoot, config);
   const allowedFiles = await discoverPhase1MemoryFiles(projectRoot, config);
-  const stateMap = loadIndexingStateMap(db);
+  const stateMap = loadIndexingStateMap(db, "memory");
   const now = new Date().toISOString();
   const result: IndexMemoryResult = {
     scannedFiles: allowedFiles.length,
@@ -78,7 +78,7 @@ export async function indexPhase1MemoryFiles(
     }
 
     const chunks = parseMarkdownFile(relPath, raw).map((chunk) => chunkToEntry(projectRoot, relPath, chunk, now));
-    upsertIndexedFile(db, relPath, hash, now, chunks);
+    upsertIndexedFile(db, relPath, "memory", hash, now, chunks);
     result.indexedFiles += 1;
     result.indexedEntries += chunks.length;
   }
@@ -86,7 +86,7 @@ export async function indexPhase1MemoryFiles(
   if (options.removeDeleted !== false) {
     const missingPaths = [...stateMap.keys()].filter((sourcePath) => !seenPaths.has(sourcePath));
     for (const sourcePath of missingPaths) {
-      deleteSourceEntries(db, sourcePath);
+      deleteSourceEntries(db, sourcePath, "memory");
       result.deletedFiles += 1;
     }
   }
@@ -130,4 +130,3 @@ export function buildSearchQuery(query: string): string {
     .match(/\b[\p{L}\p{N}_-]+\b/gu) ?? [];
   return terms.length > 0 ? terms.join(" ") : query.trim();
 }
-
