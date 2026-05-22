@@ -129,7 +129,7 @@ spec-kit-memory-hub/
 
 ## ⚖️ Design Philosophy
 
-*   **Curated, Not Automatic**: Memory capture requires human approval; we keep permanent memory pristine.
+*   **Automated Confidence-Based Capture**: Memory capture evaluates AI confidence. If confidence is > 50%, memory is automatically captured and registered. If <= 50%, it is ignored to keep permanent memory pristine.
 *   **Visible in Git**: All decisions and lessons are fully tracked in Git history, not hidden in local app state.
 *   **Specs Remain Clean**: Specifications define the active target; Memory Hub captures durable past constraints.
 *   **AI Complements Thinking**: The agent prepares synthesis context, but developers review and authorize all changes.

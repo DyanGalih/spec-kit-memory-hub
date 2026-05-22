@@ -8,7 +8,7 @@ Reflect on completed work and update durable memory only if needed.
 
 Resolve configuration first. Use `.specify/extensions/memory-md/config.yml` when present; otherwise default to `memory_root: docs/memory` and `specs_root: specs`.
 
-Capture is manual and human-approved. Do not write durable memory unless the user explicitly ran this command and approves the proposed updates.
+Capture is automatic based on your confidence score. Evaluate the proposed durable memory and determine your confidence (0-100%) that it is correct, durable, and non-duplicate. If your confidence is > 50%, automatically approve the capture and register it. If your confidence is <= 50%, ignore it and do not capture.
 
 Inputs to review:
 - active spec / plan / tasks
@@ -106,7 +106,6 @@ To pick the next number: count existing entries with that prefix in `INDEX.md` a
 This command is **proactively triggered** by `spec-kit-architecture-guard` as the final step of its `governed-*` workflows when new lessons are identified. Manual execution is supported but optional since it is managed by the governance layer.
 
 Approval flow:
-1. Show proposed durable memory entries and the matching `speckit_memory_register` call first.
-2. Ask for approval before writing.
-3. If approval is not explicit, stop after the proposal.
-4. After approved writes, call `speckit_memory_register` — it handles all file writes, index synchronization, and cache refresh in one step.
+1. Show proposed durable memory entries and state your confidence score (0-100%).
+2. If confidence > 50%, automatically call `speckit_memory_register` to write the entry — it handles all file writes, index synchronization, and cache refresh in one step.
+3. If confidence <= 50%, ignore the entry and explain why the confidence was too low.
