@@ -5,16 +5,13 @@ Review completed work using:
 - review findings
 - incident context when available
 
-Capture is manual and human-approved. Show proposed durable entries and matching `{memory_root}/INDEX.md` rows first, then ask for approval before writing.
+Capture is manual and human-approved. Show proposed durable entries first, then ask for approval before writing.
 
 ### Duplicate Prevention (run before proposing)
 
-When `optimizer.enabled` is `true`:
-1. Call `speckit_memory_refresh_cache(scope="memory")`.
+1. Call `speckit_memory_refresh_cache(scope="memory")` or `npx speckit-memory refresh-memory`.
 2. Call `speckit_memory_search(query="architecture constraints boundaries decisions <topic>")` for candidate topics.
-3. Review results — do NOT read durable memory files directly. Search results are the authoritative dedup source.
-
-When the optimizer is disabled, read `{memory_root}/INDEX.md` and the relevant source sections to check for existing entries.
+3. Review results — do NOT read `.md` memory files directly. SQLite search results are the authoritative source.
 
 ### Entry Criteria
 
@@ -43,7 +40,7 @@ Every entry must explain:
 
 ### ID Convention
 
-Use a letter prefix + sequential number. Count existing entries in `INDEX.md` with that prefix and add 1.
+Use a letter prefix + sequential number. Query the SQLite cache to estimate the next ID, or pick a high enough number to avoid collisions.
 
 | Prefix | File |
 |---|---|
@@ -52,13 +49,9 @@ Use a letter prefix + sequential number. Count existing entries in `INDEX.md` wi
 | `D` | `DECISIONS.md` |
 | `W` | `WORKLOG.md` |
 
-### INDEX.md Size Guard
-
-Before writing, count existing `|`-prefixed table rows in `INDEX.md`. If the count exceeds 50, warn the user and recommend running `/speckit.memory-md.audit` to review stale or duplicate entries before adding more. Do not remove `INDEX.md` rows automatically.
-
 ### Registration
 
-When the optimizer is available, use `speckit_memory_register` to write the entry, update `INDEX.md`, and sync the SQLite cache in a single MCP call:
+Use `speckit_memory_register` to write the entry, update `INDEX.md`, and sync the SQLite cache in a single MCP call:
 
 ```text
 speckit_memory_register(
@@ -74,7 +67,5 @@ speckit_memory_register(
 
 Set `prepend=true` for `WORKLOG.md` only (newest-first order).
 
-When the optimizer is disabled, write the entry manually using the `### YYYY-MM-DD - Title` format, then update `INDEX.md`.
-
-When writing durable memory, update `{memory_root}/INDEX.md` with compact routing metadata that points to the source entry.
+The MCP call will automatically update the `.md` backups and `INDEX.md`. Do not edit the files manually.
 Reject changelog-style, speculative, or feature-local updates.

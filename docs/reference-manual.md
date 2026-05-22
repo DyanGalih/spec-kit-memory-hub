@@ -171,23 +171,21 @@ Prompts are the **instruction templates** that define how each Memory Hub comman
 
 **These prompts are not customized per-project.** They are shared infrastructure that ensure consistent behavior across all projects using Memory Hub.
 
-### Optional Integration Model
+### Integration Model
 
-When another extension wires into Memory Hub, treat the connection as an optional capability, not a hard dependency. The stable integration surface is:
+When another extension wires into Memory Hub, the stable integration surface is:
 
-- `.specify/extensions/memory-md/config.yml` for capability and optimization settings
 - `/speckit.memory-md.prepare-context` for memory-first orchestration
 - `memory-synthesis.md` for compact feature context
-- The MCP tools exposed by the installed Memory Hub when the client supports them
+- The MCP tools exposed by the installed Memory Hub
 
 Consumer extensions should:
 
-- detect availability first
-- use the optimized path when enabled
-- fall back to markdown-only retrieval when unavailable
+- prefer the optimized MCP tool path
 - avoid importing Memory Hub internals or assuming a specific launch mechanism
+- rely on `memory-synthesis.md` instead of attempting full markdown scans
 
-This keeps the extensions loosely coupled while still allowing an optimized, wired-together workflow when both sides are present.
+This keeps the extensions loosely coupled while enforcing the fast, SQLite-native workflow.
 
 ---
 
@@ -225,8 +223,8 @@ Then edit the YAML file:
 | `retrieval.max_memory_results` | `10` | Max durable memory results considered for search and synthesis | Raise only if the cache is very broad |
 | `retrieval.max_synthesis_words` | `900` | Maximum size for generated `memory-synthesis.md` | Lower for stricter token budgets |
 | `retrieval.full_scan_allowed` | `false` | Whether expensive full memory scans are allowed | Keep `false` for normal lightweight use |
-| `optimizer.*` | See defaults | Optional SQLite cache for faster search and synthesis | Keep disabled for basic markdown-only usage |
-| `indexing.*` | See defaults | File globs for optional optimizer indexing | Tune what gets cached locally |
+| `optimizer.*` | See defaults | SQLite cache engine configuration | Leave as `sqlite` for standard performance |
+| `indexing.*` | See defaults | File globs for optimizer indexing | Tune what gets cached locally |
 
 Default config:
 
@@ -251,7 +249,7 @@ retrieval:
   max_synthesis_words: 900
   full_memory_read_allowed: false
 optimizer:
-  enabled: false
+  enabled: true
   engine: sqlite
   db_path: .spec-kit-memory/memory.sqlite
   auto_index_on_memory_change: true

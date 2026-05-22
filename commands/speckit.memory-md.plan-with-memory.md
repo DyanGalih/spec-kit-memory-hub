@@ -8,32 +8,21 @@ Before planning the feature, resolve configuration. If `.specify/extensions/memo
 Otherwise use defaults: `memory_root: docs/memory`, `specs_root: specs`, `feature_memory_filename: memory.md`, `memory_synthesis_filename: memory-synthesis.md`, `require_memory_synthesis_before_plan: true`, and the retrieval defaults below.
 If `require_memory_synthesis_before_plan` is `false`, skip the synthesis gate but still produce a synthesis when possible.
 
-### Optimizer-Aware Flow
-
-When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true` and the MCP server is available:
-
-1. **Prepare Context**: Run `/speckit.memory-md.prepare-context --feature specs/<feature>` or call `speckit_memory_refresh_cache(scope="all")` and `speckit_memory_synthesize(feature="specs/<feature>")`.
+1. **Prepare Context**: Run `/speckit.memory-md.prepare-context --feature specs/<feature>` or call `speckit_memory_refresh_cache(scope="all")` (to sync backup `.md` files to SQLite if empty) and then `speckit_memory_synthesize(feature="specs/<feature>")`.
 2. **Read Synthesis**: Read `specs/<feature>/memory-synthesis.md` to identify constraints and decisions.
-3. Open additional durable memory files only if synthesis is insufficient or the user explicitly requests a deeper audit.
+3. **Targeted Search**: If the synthesis is insufficient or the user requests a deeper audit, call `speckit_memory_search` to query the SQLite cache. **Do NOT read `.md` memory files directly.** The SQLite cache is the single source of truth.
 4. Print the baseline / cached / saved token comparison so the savings are visible during the normal planning flow.
 
-When `optimizer.enabled` is `false`, missing, or unavailable, keep using markdown-only, index-first retrieval.
-
 ## Retrieval Order
-
-**IMPORTANT**: You MUST read the following files explicitly using your file-reading tools (absolute or relative paths). Do not rely solely on workspace search or semantic indexers, as these files are often in `.gitignore`:
 
 1. Read config.
 2. Read constitution or project principles only if present and small.
 3. Read the active feature spec.
 4. Read `{specs_root}/<feature>/{feature_memory_filename}` if present.
-5. **Optimizer Priority**: When the optimizer is enabled, use `speckit_memory_search` and bypass reading `{memory_root}/INDEX.md` entirely. When the optimizer is disabled, read `{memory_root}/INDEX.md`.
-6. Select relevant index entries by feature scope, affected modules, named technologies, security/data boundaries, known bug patterns, and active decisions.
-7. Only then read the smallest necessary source sections from durable memory files.
-8. Create or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
+5. Call `speckit_memory_search` or use MCP tools for any durable memory queries. Do NOT read `{memory_root}/INDEX.md` or other memory `.md` files directly.
+6. Create or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
 
-Do not read or paste entire durable memory files unless the index is missing, incomplete, or the user explicitly requests a full audit.
-Do not load all durable memory files during normal planning when the optimizer is enabled.
+Do not read or paste entire durable memory files. Rely on the MCP tools which respect configured retrieval budgets.
 
 ## Semantic Modeling
 

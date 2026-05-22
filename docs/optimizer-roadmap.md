@@ -1,8 +1,8 @@
 # Local Optimizer Roadmap
 
-This roadmap documents an optional Node.js + SQLite optimizer for projects that want to reduce token usage by searching local caches before the AI reads context.
+This roadmap documents the Node.js + SQLite optimizer and Model Context Protocol (MCP) server, which serve as the primary engine for Spec Kit Memory Hub starting in v1.0.0.
 
-The optimizer is an enhancement, not a requirement. Basic markdown-only usage remains the default.
+The optimizer is no longer an optional enhancement; it is the default, mandatory workflow. The legacy markdown-only fallback has been deprecated.
 
 ## Trust Model
 
@@ -13,14 +13,12 @@ The LLM should read synthesis or search results first, not all files.
 
 ## Memory Hub Command Flow
 
-When the optimizer is enabled, the normal Memory Hub flow is:
+The normal Memory Hub flow is:
 
-1. Refresh the SQLite cache.
+1. Refresh the SQLite cache via MCP tools.
 2. Generate or refresh `memory-synthesis.md`.
 3. Read `memory-synthesis.md` first.
 4. Open additional source files only when needed.
-
-When the optimizer is disabled or unavailable, Memory Hub falls back to markdown-first, index-first retrieval without hard dependence on SQLite.
 
 ## Phase 1: Cache Durable Memory
 

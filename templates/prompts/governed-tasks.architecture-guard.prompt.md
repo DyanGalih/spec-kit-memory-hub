@@ -6,11 +6,10 @@ Read:
 - the approved plan
 - `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 - feature memory, only if the synthesis is insufficient
-- selected index entries relevant to task decomposition
+- selected context from SQLite cache relevant to task decomposition
 
-When `optimizer.enabled` is `true` and the MCP server is available:
 1. Reuse the current synthesis instead of reopening the full durable memory set.
-2. Re-check the cache only if the feature scope or approved plan changed.
+2. Re-check the cache using MCP tools only if the feature scope or approved plan changed. Do NOT read `.md` files directly.
 3. Keep retrieval targeted to the modules and decisions that affect task breakdown.
 4. If `show_token_banner` is enabled, surface the baseline / cached / saved token banner.
 

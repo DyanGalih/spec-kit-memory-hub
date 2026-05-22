@@ -16,7 +16,7 @@ Run this command by providing the feature directory and an optional search query
 
 ## MCP-Managed Flow
 
-If `speckit-memory-hub` MCP server is active, use MCP tools for the full cache lifecycle:
+Use MCP tools for the full cache lifecycle:
 
 1. **Refresh Cache**: Call `speckit_memory_refresh_cache(scope="all")`.
 2. **Search Memory (Optional)**: If a custom query is provided, call `speckit_memory_search(query="<query>")`.
@@ -25,11 +25,6 @@ If `speckit-memory-hub` MCP server is active, use MCP tools for the full cache l
 5. **Read Results**: Read the returned `memory-synthesis.md` and `doc-synthesis.md` output paths.
 
 **Token Banner**: Show the baseline / cached / saved token summary after the synthesis step so the savings stay visible during normal runs.
-
-## Markdown-Only Flow
-
-When the optimizer or MCP server is disabled/unavailable, fall back to manual index retrieval:
-1. Run `/speckit.memory-md.plan-with-memory` to manually refresh synthesis and review the index.
 
 ## Orchestration Note
 

@@ -1,8 +1,8 @@
 {
   "name": "speckit-memory",
-  "version": "0.9.7",
+  "version": "1.0.0",
   "private": true,
-  "description": "Optional local memory optimizer for Spec Kit Memory Hub.",
+  "description": "Local memory database optimizer and MCP server for Spec Kit Memory Hub.",
   "type": "commonjs",
   "main": "dist/index.js",
   "bin": {

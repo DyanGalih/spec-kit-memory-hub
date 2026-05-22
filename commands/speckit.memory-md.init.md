@@ -11,13 +11,10 @@ Tasks:
 1. Read `config-template.yml` at the extension root for default values.
    If the project has `.specify/extensions/memory-md/config.yml`, use those values instead.
    Fall back to defaults: `memory_root: docs/memory`, `specs_root: specs`.
-2. **Check for optimizer mode first**:
-   - If `speckit-memory-hub` MCP is configured in the user's AI client (e.g., present in `mcp_config.json` or `config.toml`): explain that Phase 1 durable memory and Phase 2 doc cache management can run through MCP tools without per-project command-line cache calls.
-     - If the project wants MCP-managed optimization: set `optimizer.enabled: true` in `.specify/extensions/memory-md/config.yml`.
-     - If the project wants markdown-only operation: keep `optimizer.enabled: false`.
-   - If MCP is **not** configured: Ask whether the project wants the optional SQLite optimizer enabled later through MCP. Explain the minimum runtime requirements for the central MCP server: Node.js 18+, npm, local filesystem access, and the ability to install the `better-sqlite3` native dependency if a prebuilt binary is not available.
-     - If the user says no: keep the markdown-first workflow only.
-     - If the user says yes: set `optimizer.enabled: true` in `.specify/extensions/memory-md/config.yml` and instruct them to configure/start the MCP server through their AI client before relying on cache tools.
+2. **MCP / Node Dependency Check**:
+   - The memory hub fundamentally relies on SQLite cache via MCP or Node.js to manage project memory. 
+   - Explain the minimum runtime requirements for the central MCP server: Node.js 18+, npm, local filesystem access, and the ability to install the `better-sqlite3` native dependency.
+   - Instruct the user to configure/start the `speckit-memory-hub` MCP server through their AI client (e.g., present in `mcp_config.json` or `config.toml`) to enable all memory features.
 3. Ensure these folders exist:
    - `{memory_root}` (default: docs/memory)
    - `{specs_root}` (default: specs)
@@ -42,7 +39,7 @@ Tasks:
 8. **Centralize Memory Governance**:
    - **Mandatory**: Create or Update `.specify/memory/workflow.md`. If the file already exists, reconcile its content with the extension template (located at `.specify/extensions/memory-md/templates/.specify/memory/workflow.md`) to ensure it contains the latest mandatory command references, while strictly preserving any existing project-specific governance rules.
    - **Migration**: Detect active agent context files: `.github/copilot-instructions.md`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`, and other local agent rules if present.
-   - **Inject Pointer**: For each existing file, do NOT overwrite the whole file. Instead, find the `### Spec Kit` section (or create it) and replace it with the **Pointer Model**: "You MUST follow the memory-first workflow defined in `.specify/memory/workflow.md`. Before planning, prepare context using the best available path: MCP tools if configured, `/speckit.memory-md.prepare-context` if Spec Kit commands are available, otherwise the documented markdown-first fallback."
+   - **Inject Pointer**: For each existing file, do NOT overwrite the whole file. Instead, find the `### Spec Kit` section (or create it) and replace it with the **Pointer Model**: "You MUST follow the memory-first workflow defined in `.specify/memory/workflow.md`. Before planning, prepare context using the best available path: MCP tools if configured, or `/speckit.memory-md.prepare-context` if Spec Kit commands are available."
    - **Create Missing Templates**: For any agent file that does not yet exist but is in the standard set (`CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`), create it from the corresponding extension template (located in `.specify/extensions/memory-md/templates/`) only if the user confirms they use that agent. Never create agent files speculatively.
 9. If `.specify/extensions/memory-md/config.yml` does not exist, create it from `config-template.yml` with default values.
 10. Summarize the memory model:

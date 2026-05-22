@@ -8,7 +8,7 @@ Use this command when an older Memory Hub workflow may have removed valid `docs/
 
 ## Source of Truth
 
-Markdown memory files are canonical. SQLite is a derived cache. `INDEX.md` is source routing metadata and must not be pruned automatically.
+SQLite is the primary operational cache. The Markdown memory files are the durable backups. `INDEX.md` is routing metadata for the backups and must not be pruned automatically.
 
 ## MCP Flow
 
@@ -16,7 +16,7 @@ Markdown memory files are canonical. SQLite is a derived cache. `INDEX.md` is so
 2. Review the proposed `missingRows`.
 3. If the proposed rows are valid, ask the user for approval.
 4. After explicit approval, call `speckit_memory_repair_index(apply=true)`.
-5. Read the updated `docs/memory/INDEX.md` if you need to verify the appended rows.
+5. Call `speckit_memory_search` if you need to verify the appended rows are now indexed.
 
 ## Behavior
 

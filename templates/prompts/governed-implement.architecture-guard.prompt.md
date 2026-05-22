@@ -6,11 +6,10 @@ Read:
 - the approved tasks
 - `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 - active feature memory only when extra detail is needed
-- selected index entries relevant to implementation and verification
+- selected context from SQLite cache relevant to implementation and verification
 
-When `optimizer.enabled` is `true` and the MCP server is available:
 1. Load the cached synthesis and active watchpoints first.
-2. Prefer cache-backed retrieval instead of raw markdown scans.
+2. Use `speckit_memory_search` if you need to query memory. Do NOT read `.md` files directly.
 3. Recheck the cache only when the approved plan or tasks changed.
 4. If `show_token_banner` is enabled, surface the baseline / cached / saved token banner.
 

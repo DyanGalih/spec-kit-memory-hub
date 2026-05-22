@@ -427,17 +427,12 @@ async function runDoctor(projectRoot: string): Promise<void> {
   if (fs.existsSync(configPath)) {
     pass("Config file found (.specify/extensions/memory-md/config.yml)");
     const config = loadConfig(projectRoot);
-    if (config.optimizer?.enabled) {
-      pass("Optimizer enabled — SQLite acceleration active");
-    } else {
-      warn(
-        "Optimizer disabled — running in markdown-only mode (higher token usage)",
-        "Set 'optimizer.enabled: true' in config.yml to enable SQLite caching"
-      );
+    if (config.optimizer?.engine === "sqlite" || !config.optimizer) {
+      pass("SQLite acceleration active");
     }
   } else {
     warn(
-      "Config file not found — using built-in defaults (markdown-only, no optimizer)",
+      "Config file not found — using built-in defaults",
       "Run /speckit.memory-md.init to create .specify/extensions/memory-md/config.yml"
     );
   }
@@ -475,31 +470,27 @@ async function runDoctor(projectRoot: string): Promise<void> {
     }
   }
 
-  // 4. SQLite cache (optimizer only)
+  // 4. SQLite Cache
   section("4. SQLite Cache");
-  if (config.optimizer?.enabled) {
-    if (fs.existsSync(paths.dbPath)) {
-      pass(`SQLite cache found (${path.relative(projectRoot, paths.dbPath)})`);
-      try {
-        const db = openDatabase(paths.dbPath);
-        const count = countEntries(db);
-        closeDatabase(db);
-        if (count > 0) {
-          pass(`Cache contains ${count} indexed entr${count === 1 ? "y" : "ies"}`);
-        } else {
-          warn("Cache is empty — run 'npx speckit-memory index-memory' to populate it");
-        }
-      } catch {
-        fail("SQLite cache exists but could not be opened", "Run 'npx speckit-memory rebuild-memory' to reset it");
+  if (fs.existsSync(paths.dbPath)) {
+    pass(`SQLite cache found (${path.relative(projectRoot, paths.dbPath)})`);
+    try {
+      const db = openDatabase(paths.dbPath);
+      const count = countEntries(db);
+      closeDatabase(db);
+      if (count > 0) {
+        pass(`Cache contains ${count} indexed entr${count === 1 ? "y" : "ies"}`);
+      } else {
+        warn("Cache is empty — run 'npx speckit-memory index-memory' to populate it");
       }
-    } else {
-      warn(
-        "SQLite cache not found — memory commands will index automatically on first run",
-        `Expected at: ${path.relative(projectRoot, paths.dbPath)}`
-      );
+    } catch {
+      fail("SQLite cache exists but could not be opened", "Run 'npx speckit-memory rebuild-memory' to reset it");
     }
   } else {
-    console.log(chalk.gray("  — SQLite cache check skipped (optimizer disabled)"));
+    warn(
+      "SQLite cache not found — memory commands will index automatically on first run",
+      `Expected at: ${path.relative(projectRoot, paths.dbPath)}`
+    );
   }
 
   // 5. Spec Kit structure

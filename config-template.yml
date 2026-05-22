@@ -22,7 +22,6 @@ retrieval:
   full_memory_read_allowed: false
   full_scan_allowed: false
 optimizer:
-  enabled: false
   engine: sqlite
   db_path: .spec-kit-memory/memory.sqlite
   auto_index_on_memory_change: true
@@ -34,10 +33,11 @@ indexing:
     memory:
       - docs/memory/INDEX.md
       - docs/memory/PROJECT_CONTEXT.md
-      - docs/memory/ARCHITECTURE.md
-      - docs/memory/DECISIONS.md
-      - docs/memory/BUGS.md
-      - docs/memory/WORKLOG.md
+      - docs/memory/architecture/**/*.md
+      - docs/memory/decisions/**/*.md
+      - docs/memory/bugs/**/*.md
+      - docs/memory/worklog/**/*.md
+
       - .specify/memory/constitution.md
       - .specify/memory/architecture_constitution.md
       - .specify/memory/DECISIONS.md

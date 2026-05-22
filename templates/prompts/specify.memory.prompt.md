@@ -3,18 +3,16 @@ Before writing or revising the feature spec:
 Read:
 - config from `.specify/extensions/memory-md/config.yml` when present; otherwise use `memory_root: docs/memory` and `specs_root: specs`
 - Governance Layer (`.specify/memory/`) constitution, standards, or principles first
-- `{memory_root}/INDEX.md` when present
 - existing `{specs_root}/<feature>/{memory_synthesis_filename}` when present
 - any nearby feature memory from related unfinished work when clearly relevant
 
-When `optimizer.enabled` is `true` and the MCP server is available:
-1. Call `speckit_memory_refresh_cache(scope="all")` if the scope may have changed.
+1. Call `speckit_memory_refresh_cache(scope="all")` if the scope may have changed or SQLite cache needs restoring.
 2. Call `speckit_memory_synthesize(feature="specs/<feature>")` to generate or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
 3. Read `{specs_root}/<feature>/{memory_synthesis_filename}` first.
-4. Open additional durable memory files only if synthesis is insufficient.
+4. Call `speckit_memory_search` if synthesis is insufficient. Do NOT read `.md` files directly.
 
-Select only relevant index entries by feature scope, affected modules, named technologies, security/data boundaries, active decisions, and known bug patterns. Read only the selected source sections when needed.
-Respect configured retrieval budgets. If the budget is exceeded, summarize and prioritize instead of reading more memory.
+Call `speckit_memory_search` to query the SQLite cache. Do NOT read `.md` files directly, rely on the MCP tools.
+Respect configured retrieval budgets via MCP search constraints. If the budget is exceeded, summarize and prioritize instead of searching more memory.
 
 Then:
 - extract only the constraints, reused decisions, bug patterns, and architecture boundaries relevant to this feature

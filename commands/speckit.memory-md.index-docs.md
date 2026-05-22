@@ -24,7 +24,7 @@ The indexer scans all files matching `config.indexing.include.docs` (default: `d
 
 ## Execution Steps
 
-When `optimizer.enabled: true` and the `speckit-memory-hub` MCP server is active, use MCP tools:
+Use MCP tools to interact with the doc cache:
 
 ### First-time setup (no cache yet)
 
@@ -56,9 +56,6 @@ Call `speckit_memory_synthesize_docs(feature="specs/001-auth")`.
 
 Writes `specs/001-auth/doc-synthesis.md` — a single compact file containing the top spec, plan, tasks, constitution, architecture, and security snippets for that feature. Read this file instead of opening individual docs.
 
-## When the Optimizer is Disabled
-
-If `optimizer.enabled: false` or the MCP server is unavailable, skip this command. Read `specs/<feature>/spec.md`, `plan.md`, and `tasks.md` directly using file-reading tools with explicit paths (do not rely on workspace search or semantic indexers — these files are often in `.gitignore`).
 
 ## Relationship to Phase 1
 

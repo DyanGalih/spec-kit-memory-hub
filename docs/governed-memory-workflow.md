@@ -1,4 +1,4 @@
-# Governed Memory Workflow (v0.9)
+# Governed Memory Workflow (v1.0.0)
 
 ## Architectural Critique
 
@@ -61,15 +61,14 @@ Architecture Guard orchestrator commands automatically consume memory synthesis:
 - **`governed-tasks`**: Ensures tasks respect known constraints and architecture boundaries.
 - **`governed-implement`**: Provides the implementation watchpoints from the synthesis.
 
-### Optional Wiring Contract
-Memory Hub remains optional, but when another extension wires into it, the integration should be predictable:
+### Integration Contract
+When another extension wires into Memory Hub, the integration should be predictable:
 
-1. Detect capability first, then prefer the optimized path.
+1. Detect capability first, then prefer the optimized SQLite/MCP path.
 2. Use `/speckit.memory-md.prepare-context` or the equivalent MCP tools as the entrypoint.
 3. Read `memory-synthesis.md` before broad repository scans.
-4. Fall back to markdown-only, index-first retrieval when the optimizer or MCP server is unavailable.
-5. Depend on command names, artifact names, and MCP tool names only. Do not couple to Memory Hub internals.
-6. Keep the token-savings banner visible when the optimized path emits one.
+4. Depend on command names, artifact names, and MCP tool names only. Do not couple to Memory Hub internals.
+5. Keep the token-savings banner visible when the optimized path emits one.
 
 ### Direct Usage
 The user can manually run memory commands:
@@ -160,9 +159,9 @@ Every new durable entry must be **evidenced** by:
 
 ## Migration Guidance
 
-For projects moving to v0.8:
+For projects moving to v1.0.0:
 1. **Re-run Init**: Run `/speckit.memory-md.init` to ensure the latest `config.yml` and `INDEX.md` structure are in place. This is safe and will not overwrite your existing memory content.
 2. **Review `INDEX.md`**: Ensure your routing table correctly points to active decisions, architecture constraints, and bug patterns.
-3. **Build the Optimizer**: If using the local SQLite optimizer, run `cd .specify/extensions/memory-md && npm install && npm run build`. After building, use `npx .specify/extensions/memory-md speckit-memory` for subsequent CLI calls.
+3. **Adopt MCP Tools**: Configure your AI client to use the `speckit-memory-hub` MCP server, as the markdown-only fallback is now deprecated.
 4. **Adopt the Orchestrator**: Transition from manual `/plan` to `/speckit.architecture-guard.governed-plan`.
 5. **Preserve Selective Capture**: Continue to use the **Durable Lesson Test** before running `/speckit.memory-md.capture`.

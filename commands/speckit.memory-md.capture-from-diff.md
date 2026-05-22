@@ -27,15 +27,10 @@ Capture is automatic based on your confidence score. Evaluate the proposed durab
 
 Before proposing new entries, check the existing memory to avoid duplicates.
 
-#### Optimizer-Aware Flow
-When `.specify/extensions/memory-md/config.yml` has `optimizer.enabled: true`:
-1. **Refresh Cache**: Call `speckit_memory_refresh_cache(scope="memory")`.
+1. **Refresh Cache**: If memory search is empty or you need the latest state, call `speckit_memory_refresh_cache(scope="memory")` or `npx speckit-memory refresh-memory` to restore the SQLite cache from the backup `.md` files.
 2. **Targeted Search**: Call `speckit_memory_search(query="architecture constraints boundaries decisions <topic>")` for candidate topics identified from the diff.
-3. **Read Results**: Review the search results or the index to ensure the candidate lesson is not already captured.
-4. **Do NOT read durable memory files directly** (`DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, `WORKLOG.md`). When the optimizer is enabled, MCP search results are the authoritative dedup source.
-
-#### Markdown-Only Flow
-When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and relevant source sections.
+3. **Read Results**: Review the search results to ensure the candidate lesson is not already captured.
+4. **Do NOT read `.md` memory files directly**. MCP search results via SQLite are the single source of truth. The `.md` files are only backups managed by the extension.
 
 ## Capture Process
 
@@ -53,7 +48,7 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
    - Create a date-based file in the appropriate subfolder: `<category>/YYYY-MM-DD-short-title.md` (e.g., `bugs/2026-05-22-auth-bug.md`).
    - Allowed categories: `decisions`, `architecture`, `bugs`, `worklog`.
    - DO NOT use monolithic category files like `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`.
-   - `INDEX.md`: Compact routing rows for every durable entry added or changed. Use the ID prefix to correctly categorize the entry in the index (A for Architecture, B for Bugs, D for Decisions, W for Worklog).
+   - Use the ID prefix to correctly categorize the entry (A for Architecture, B for Bugs, D for Decisions, W for Worklog).
 5. **Filter Noise**: Reject entries that are obvious, transient, feature-local, or weakly evidenced.
 
 ## Output Format
@@ -62,8 +57,7 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
    - **File**: [Target memory file]
    - **Category**: [Decision / Bug Pattern / Milestone]
    - Use `worklog/` for concise, high-value project milestones and durable lessons that do not belong in decisions, architecture, or bugs.
-   - When adding durable memory, you MUST register the update in `INDEX.md`.
-   - **Optimizer-Aware Registration (Preferred)**: When the optimizer is available, call `speckit_memory_register`. **Do NOT read or rewrite the target durable file yourself** — the MCP tool writes the durable entry, updates `INDEX.md`, and syncs SQLite:
+   - **Registration**: You MUST call `speckit_memory_register` to add new memory. **Do NOT read or rewrite the target `.md` files yourself** — the MCP tool writes the entry to SQLite and backs it up to the `.md` files automatically:
      ```text
      speckit_memory_register(
        id="<ID>",
@@ -89,23 +83,20 @@ Active
      )
      ```
      For `worklog/` only, set `prepend=true` to insert at the top (newest-first order).
-     This single MCP call: (1) writes the entry to the date-based file behind a `---` separator, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
-   - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually following the `### YYYY-MM-DD - Title` format, then update `INDEX.md` with the compact row.
-   - Keep `INDEX.md` short (20-50 rows target) ONLY when the optimizer is disabled.
-   - **INDEX.md size guard (Markdown-Only Flow)**: When the optimizer is disabled, before writing, count the existing `|`-prefixed table rows in `INDEX.md`. If the count already exceeds 50, do not proceed silently — warn the user and recommend running `/speckit.memory-md.audit` first. When the optimizer is enabled, `INDEX.md` is unlimited, you MUST avoid reading the `INDEX.md` file entirely, and you should skip this size guard.
+     This single MCP call syncs the SQLite cache and backs it up to the file system. No further file edits are needed.
 
    #### ID Convention
 
    The `--id` value uses a letter prefix + sequential number:
 
-   | Prefix | Category Folder | INDEX.md section |
-   |--------|-----------------|------------------|
-   | `A` | `architecture/` | `## Architecture` |
-   | `B` | `bugs/`         | `## Bugs` |
-   | `D` | `decisions/`    | `## Decisions` |
-   | `W` | `worklog/`      | `## Workflow` |
+   | Prefix | Category Folder |
+   |--------|-----------------|
+   | `A` | `architecture/` |
+   | `B` | `bugs/`         |
+   | `D` | `decisions/`    |
+   | `W` | `worklog/`      |
 
-   To pick the next number: count existing entries with that prefix in `INDEX.md` and add 1.
+   To pick the next number: use `speckit_memory_search` to query for the prefix to estimate the next ID, or pick a high enough number to avoid collisions.
 
    Approval flow:
    1. Show proposed durable memory entries and state your confidence score (0-100%).

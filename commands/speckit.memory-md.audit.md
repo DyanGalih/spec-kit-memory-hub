@@ -6,13 +6,12 @@ description: "Audit memory quality, index integrity, freshness, and synthesis hy
 
 You are running a high-integrity audit of the project's durable and feature memory for `memory-hub`.
 
-> **Scope note**: When the optimizer is enabled, `speckit_memory_audit_cache(scope="memory")` validates **SQLite cache integrity** only (stale hashes, orphaned rows, missing files, synthesis word budget). It does not evaluate content quality. Full content-quality checks (stale decisions, contradictions, leakage, noise) are performed by **this AI command only** — they require reading the markdown files and applying the rubric below.
+> **Scope note**: The tool `speckit_memory_audit_cache(scope="memory")` validates **SQLite cache integrity** only (stale hashes, orphaned rows, missing files, synthesis word budget). It does not evaluate content quality. Full content-quality checks (stale decisions, contradictions, leakage, noise) are performed by **this AI command only** — they require querying the cache or reading the backup markdown files and applying the rubric below.
 
 ## Goal
-Validate the quality, accuracy, and density of memory artifacts (`{memory_root}/*.md` and `{specs_root}/<feature>/memory*.md`). Identify stale, contradictory, or low-signal entries that degrade the project's long-term intelligence.
+Validate the quality, accuracy, and density of memory artifacts. Identify stale, contradictory, or low-signal entries that degrade the project's long-term intelligence.
 
-Audit is intentionally expensive and may read all memory files. Normal synthesis must not; it should use `{memory_root}/INDEX.md` and selected source sections only. **IMPORTANT**: You MUST read these files explicitly using your file-reading tools (absolute or relative paths). Do not rely solely on workspace search or semantic indexers, as these files are often in `.gitignore`.
-When the optimizer and MCP server are enabled and available, call `speckit_memory_audit_cache(scope="memory")` to validate the SQLite cache, then fall back to markdown-only audit checks if the cache is unavailable.
+Audit is intentionally expensive and may read all memory. Normal synthesis must not; it relies on MCP queries. **IMPORTANT**: You MUST run `speckit_memory_audit_cache(scope="memory")` first to validate the SQLite cache sync health. If the cache is synced, query the cache for content quality evaluation. If you must read `.md` backups to evaluate content, read them explicitly using your file-reading tools.
 
 ## Operating Constraints
 - **STRICTLY READ-ONLY**: This command is analytical. Do **not** modify any files.
@@ -23,13 +22,12 @@ Check for:
 - **Stale/Obsolete**: Decisions or patterns that no longer apply to the current codebase.
 - **Contradictions**: Memory entries that conflict with the Constitution or other memory files.
 - **Noise/Triviality**: Routine history, speculative notes, or implementation details that lack durable value.
-- **Index Integrity**: `{memory_root}/INDEX.md` points to valid source entries and stays compact.
 - **Selection Hygiene**: Deprecated or superseded decisions are not selected during synthesis.
 - **Leakage**: Feature-specific details that belong in `{specs_root}/` but have leaked into `{memory_root}/`.
 - **Synthesis Drift**: `{memory_synthesis_filename}` is out of sync with selected memory.
 - **Synthesis Budget**: `{memory_synthesis_filename}` exceeds configured `retrieval.max_synthesis_words`.
 - **Formatting Issues**: Entries that are too long, vague, or repetitive.
-- **Cache Integrity**: Missing source files, invalid references, orphaned DB rows, duplicate memory entries, and stale hashes in the local SQLite cache.
+- **Cache Integrity**: Missing source files, invalid references, orphaned DB rows, duplicate memory entries, and stale hashes in the local SQLite cache (detected via `speckit_memory_audit_cache`).
 
 ## Severity Guide
 - **CRITICAL**: Contradicts the Constitution, contains dangerous/incorrect security guidance, or is fundamentally stale.
@@ -64,7 +62,7 @@ Check for:
 
 `audit-memory` may be expensive because it validates the entire cache.
 
-If audit finds that valid durable entries are missing from `INDEX.md`, do **not** remove more index rows. Run `/speckit.memory-md.repair-index` or call `speckit_memory_repair_index(apply=false)` to propose recovered rows, then apply only after user approval.
+If the SQLite cache has orphaned files missing from the index, run `/speckit.memory-md.repair-index` or call `speckit_memory_repair_index(apply=false)` to propose recovered rows, then apply only after user approval.
 
 ---
 ## Cleanup Rubric

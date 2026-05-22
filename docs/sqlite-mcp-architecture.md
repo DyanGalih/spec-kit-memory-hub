@@ -4,39 +4,32 @@ This document describes the under-the-hood caching and communication architectur
 
 ---
 
-## Optional: Local SQLite Optimizer
+## Local SQLite Optimizer
 
-For massive projects where reading multiple markdown files consumes too many tokens, Memory Hub includes a **local SQLite cache optimizer**.
+Memory Hub includes a **local SQLite cache optimizer** to serve as the primary engine for fast, low-token semantic memory retrieval.
 
-When enabled, the CLI (`npx speckit-memory`) parses all markdown memory files, chunks them by section, calculates token costs, and stores them in a local `.specify/extensions/memory-md/cache.db`.
+The CLI (`npx speckit-memory`) and MCP Server parse all markdown memory files, chunk them by section, and store them in a local `.specify/extensions/memory-md/cache.db`.
 
 ### How it is Wired to the LLM Commands
 
-You do **not** need to run `npx speckit-memory` manually. The LLM commands (like `/speckit.memory-md.plan-with-memory`) are explicitly programmed to detect if the optimizer is enabled. 
+You do **not** need to run `npx speckit-memory` manually. The LLM commands (like `/speckit.memory-md.plan-with-memory`) mandate the use of the SQLite cache via MCP tools.
 
 When the LLM runs a command, it follows this internal logic:
-1. It reads `.specify/extensions/memory-md/config.yml`.
-2. If `optimizer.enabled: true`, the LLM executes the command line hook (`{SCRIPT}` or direct `npx speckit-memory refresh-memory`).
-3. The Node.js binary updates the SQLite cache in the background.
-4. The LLM runs `npx speckit-memory synthesize` to generate a highly compressed `memory-synthesis.md`.
-5. The LLM reads only the final compressed synthesis file, saving thousands of context tokens.
+1. The LLM invokes the MCP tool `speckit_memory_refresh_cache` to sync the SQLite cache with the backup `.md` files.
+2. The Node.js binary updates the SQLite cache in the background.
+3. The LLM runs `speckit_memory_synthesize` to generate a highly compressed `memory-synthesis.md`.
+4. The LLM reads only the final compressed synthesis file, saving thousands of context tokens.
 
-### Enabling the Optimizer
+### Enabling the Engine
 
-If you run `/speckit.memory-md.init`, the AI will ask if you want to enable the optimizer and will attempt to run `npm install` automatically for you. 
+The SQLite cache engine is the default workflow starting in v1.0.0. To use it, simply configure the MCP server in your AI client.
 
-If that fails, or if you are enabling it manually on an existing setup:
-1. Edit `.specify/extensions/memory-md/config.yml` in your project and set:
-   ```yaml
-   optimizer:
-     enabled: true
-   ```
-2. Navigate to the extension directory and build the Node.js binary:
+If you are running from a local developer setup instead of the npm registry:
+1. Navigate to the extension directory and build the Node.js binary:
    ```bash
    cd .specify/extensions/memory-md
    npm install && npm run build
    ```
-3. That's it! The LLM prompts will automatically switch to using the `npx speckit-memory` caching workflows.
 
 ---
 
@@ -218,7 +211,7 @@ If your Antigravity build exposes a local MCP stdio configuration, you can regis
 }
 ```
 
-If your Antigravity installation does not currently expose MCP settings, use the repository instruction template `ANTIGRAVITY.md` and the markdown-first workflow instead.
+If your Antigravity installation does not currently expose MCP settings, use the repository instruction template `ANTIGRAVITY.md` and ensure `npx speckit-memory` commands are explicitly invoked in the prompts.
 
 *For local active development, you can point directly to your build directory:*
 ```json
