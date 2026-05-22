@@ -3,7 +3,7 @@ schema_version: "1.0"
 extension:
   id: "memory-md"
   name: "Spec Kit Memory MD"
-  version: "0.9.6"
+  version: "0.9.7"
   description: "Spec Kit extension for repository-native Markdown memory that captures durable decisions, bugs, and project context."
   author: "DyanGalih"
   repository: "https://github.com/DyanGalih/spec-kit-memory-hub"
@@ -15,15 +15,15 @@ requires:
 hooks:
   before_specify:
     command: "speckit.memory-md.specify"
-    optional: true
+    optional: false
     prompt: "Would you like to prepare memory context before writing this spec?"
   before_plan:
     command: "speckit.memory-md.plan-with-memory"
-    optional: true
+    optional: false
     prompt: "Would you like to synthesize project memory before planning?"
   after_implement:
     command: "speckit.memory-md.capture"
-    optional: true
+    optional: false
     prompt: "Would you like to capture durable lessons from this feature into project memory?"
 
 provides:

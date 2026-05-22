@@ -32,7 +32,7 @@ class MemoryHubMcpServer {
   constructor() {
     this.server = new McpServer({
       name: "speckit-memory-hub",
-      version: "0.9.6",
+      version: "0.9.7",
     });
 
     this.setupTools();

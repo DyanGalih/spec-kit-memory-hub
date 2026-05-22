@@ -71,6 +71,7 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
        tags="<tag1,tag2>",
        file="<category>/YYYY-MM-DD-short-title.md",
        status="active",
+       projectRoot="<absolute_path_to_project>",
        content="### YYYY-MM-DD - <Title>
 
 **Status**

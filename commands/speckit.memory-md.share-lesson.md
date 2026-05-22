@@ -28,7 +28,7 @@ Tasks:
    Call `speckit_memory_register` to write the entry to your local `docs/memory/` file, update `INDEX.md`, and sync the local SQLite cache atomically:
 
    ```text
-   speckit_memory_register(id="<id>", title="<title>", tags="<tags>", file="<source_file>", content="<full markdown entry>")
+   speckit_memory_register(id="<id>", title="<title>", tags="<tags>", file="<source_file>", projectRoot="<absolute_path_to_project>", content="<full markdown entry>")
    ```
 
    **Step 2B — Promote to Global Shared Memory**:
