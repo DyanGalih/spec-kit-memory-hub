@@ -27,7 +27,7 @@ Tasks:
    - `{memory_root}/architecture/`
    - `{memory_root}/bugs/`
    - `{memory_root}/worklog/`
-5. Create or verify core memory files from the extension templates:
+5. Create or verify core memory files from the extension templates (located in `.specify/extensions/memory-md/templates/docs/memory/`):
    - `{memory_root}/INDEX.md`
    - `{memory_root}/PROJECT_CONTEXT.md`
 6. **Automatic Migration (Re-install Scenario)**:
@@ -40,10 +40,10 @@ Tasks:
    - `{feature_memory_filename}` (default: memory.md)
    - `{memory_synthesis_filename}` (default: memory-synthesis.md)
 8. **Centralize Memory Governance**:
-   - **Mandatory**: Create or Update `.specify/memory/workflow.md`. If the file already exists, reconcile its content with the extension template to ensure it contains the latest mandatory command references, while strictly preserving any existing project-specific governance rules.
+   - **Mandatory**: Create or Update `.specify/memory/workflow.md`. If the file already exists, reconcile its content with the extension template (located at `.specify/extensions/memory-md/templates/.specify/memory/workflow.md`) to ensure it contains the latest mandatory command references, while strictly preserving any existing project-specific governance rules.
    - **Migration**: Detect active agent context files: `.github/copilot-instructions.md`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`, and other local agent rules if present.
    - **Inject Pointer**: For each existing file, do NOT overwrite the whole file. Instead, find the `### Spec Kit` section (or create it) and replace it with the **Pointer Model**: "You MUST follow the memory-first workflow defined in `.specify/memory/workflow.md`. Before planning, prepare context using the best available path: MCP tools if configured, `/speckit.memory-md.prepare-context` if Spec Kit commands are available, otherwise the documented markdown-first fallback."
-   - **Create Missing Templates**: For any agent file that does not yet exist but is in the standard set (`CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`), create it from the corresponding extension template only if the user confirms they use that agent. Never create agent files speculatively.
+   - **Create Missing Templates**: For any agent file that does not yet exist but is in the standard set (`CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`), create it from the corresponding extension template (located in `.specify/extensions/memory-md/templates/`) only if the user confirms they use that agent. Never create agent files speculatively.
 9. If `.specify/extensions/memory-md/config.yml` does not exist, create it from `config-template.yml` with default values.
 10. Summarize the memory model:
    - constitution / principles = stable operating rules
