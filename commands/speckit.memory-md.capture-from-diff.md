@@ -11,7 +11,7 @@ You are capturing durable knowledge for `memory-hub` by analyzing code changes.
 
 Resolve configuration first. Use `.specify/extensions/memory-md/config.yml` when present; otherwise default to `memory_root: docs/memory` and `specs_root: specs`.
 
-Capture is automatic based on your confidence score. Evaluate the proposed durable memory and determine your confidence (0-100%) that it is correct, durable, and non-duplicate. If your confidence is > 50%, automatically approve the capture and register it. If your confidence is <= 50%, ignore it and do not capture.
+Capture is automatic based on your confidence score. Evaluate the proposed durable memory and determine your confidence (0-100%) that it is correct, durable, and non-duplicate. If your confidence is > 50%, automatically approve the capture and register it. If your confidence is <= 50%, ignore it and do not capture. However, you must always allow the user to trigger this manually and bypass the confidence check if they explicitly request a capture.
 
 ## Determine Review Scope
 
@@ -50,11 +50,9 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
    - Successful tests or verification results.
    - Explicit task completion in `tasks.md`.
 4. **Categorize and Route**:
-   - `DECISIONS.md`: Durable architectural or technical choices.
-   - `ARCHITECTURE.md`: Durable boundaries or constraints.
-   - `BUGS.md`: Lessons from fixed bugs and prevention rules.
-   - `WORKLOG.md`: High-value project milestones.
-   - `INDEX.md`: Compact routing rows for every durable entry added or changed.
+   - Create a flat date-based file: `YYYY-MM-DD-short-title.md` (e.g., `2026-05-22-auth-pattern.md`).
+   - DO NOT use monolithic category files like `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`.
+   - `INDEX.md`: Compact routing rows for every durable entry added or changed. Use the ID prefix to correctly categorize the entry in the index (A for Architecture, B for Bugs, D for Decisions, W for Worklog).
 5. **Filter Noise**: Reject entries that are obvious, transient, feature-local, or weakly evidenced.
 
 ## Output Format
@@ -70,7 +68,7 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
        id="<ID>",
        title="<Short title>",
        tags="<tag1,tag2>",
-       file="<SourceFile.md>",
+       file="YYYY-MM-DD-short-title.md",
        status="active",
        content="### YYYY-MM-DD - <Title>
 
@@ -91,8 +89,8 @@ Active
      For `WORKLOG.md` only, set `prepend=true` to insert at the top (newest-first order).
      This single MCP call: (1) writes the entry to `<SourceFile.md>` behind a `---` separator, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
    - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually following the `### YYYY-MM-DD - Title` format, then update `INDEX.md` with the compact row.
-   - Keep `INDEX.md` short (20-50 rows target). It points to source entries; it does not duplicate full lessons.
-   - Refuse routine implementation detail, feature narrative, or speculative lessons.
+   - Keep `INDEX.md` short (20-50 rows target) ONLY when the optimizer is disabled.
+   - **INDEX.md size guard (Markdown-Only Flow)**: When the optimizer is disabled, before writing, count the existing `|`-prefixed table rows in `INDEX.md`. If the count already exceeds 50, do not proceed silently — warn the user and recommend running `/speckit.memory-md.audit` first. When the optimizer is enabled, `INDEX.md` is unlimited, you MUST avoid reading the `INDEX.md` file entirely, and you should skip this size guard.
 
    #### ID Convention
 
@@ -109,8 +107,9 @@ Active
 
    Approval flow:
    1. Show proposed durable memory entries and state your confidence score (0-100%).
-   2. If confidence > 50%, automatically call `speckit_memory_register` to write the entry — it handles all file writes, index synchronization, and cache refresh in one step.
+   2. If confidence > 50%, automatically call `speckit_memory_register` to write the entry WITHOUT asking the user for confirmation — it handles all file writes, index synchronization, and cache refresh in one step.
    3. If confidence <= 50%, ignore the entry and explain why the confidence was too low.
+   4. After successfully capturing a memory in step 2, automatically trigger the `/speckit.memory-md.share-lesson` command to evaluate if it should be published globally.
 
 ---
 ## Capture Principles

@@ -6,6 +6,8 @@ description: "Sync matching framework/language specific lessons from global shar
 
 Query the global cross-project shared memory database for external lessons that match this project's technical profile, and synchronize them into a local review buffer.
 
+This action is automatic based on your confidence score. Evaluate the necessity of syncing shared lessons based on the current context. If your confidence is > 50% that syncing is needed, automatically perform the sync. If your confidence is <= 50%, ignore it. However, you must always allow the user to trigger this manually if they explicitly request it.
+
 Use this when:
 
 - starting a new project and you want to pull in lessons from other projects using the same stack

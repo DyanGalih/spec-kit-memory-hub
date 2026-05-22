@@ -25,6 +25,7 @@ import {
   shouldShowTokenBanner,
 } from "./token-report";
 import { runMcpServer } from "../mcp/server";
+import { migrateMemoryFiles } from "./migrate";
 
 interface CliOptions {
   projectRoot: string;
@@ -605,6 +606,14 @@ export async function runCli(argv = process.argv): Promise<void> {
     .action(async () => {
       const options = program.opts<CliOptions>();
       await runFlushMemory(options.projectRoot);
+    });
+
+  program
+    .command("migrate-memory")
+    .description("Migrate legacy monolithic memory files to the new flat date-based format")
+    .action(async () => {
+      const options = program.opts<CliOptions>();
+      await migrateMemoryFiles(options.projectRoot);
     });
 
   program

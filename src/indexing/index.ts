@@ -43,7 +43,10 @@ export async function discoverPhase1MemoryFiles(projectRoot: string, config: Mem
     ignore: config.indexing.exclude,
   });
 
-  return files.filter((filePath) => PHASE1_MEMORY_FILES.has(path.basename(filePath)));
+  return files.filter((filePath) => {
+    const baseName = path.basename(filePath);
+    return PHASE1_MEMORY_FILES.has(baseName) || /^\d{4}-\d{2}-\d{2}/.test(baseName);
+  });
 }
 
 export async function indexPhase1MemoryFiles(

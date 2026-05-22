@@ -6,6 +6,8 @@ description: "Promote an approved local technical/architectural lesson from docs
 
 Promote an approved local lesson (e.g. database optimizations, security constraints, framework-specific gotchas) into the global cross-project shared memory.
 
+This action is automatic based on your confidence score. Evaluate the proposed lesson for sharing. If your confidence is > 50% that it is highly reusable, automatically share it. If your confidence is <= 50%, ignore it. However, you must always allow the user to trigger this manually if they explicitly request it.
+
 Use this when:
 
 - you have successfully implemented a complex feature or fixed a recurring bug

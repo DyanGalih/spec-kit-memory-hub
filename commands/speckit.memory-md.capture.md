@@ -8,7 +8,7 @@ Reflect on completed work and update durable memory only if needed.
 
 Resolve configuration first. Use `.specify/extensions/memory-md/config.yml` when present; otherwise default to `memory_root: docs/memory` and `specs_root: specs`.
 
-Capture is automatic based on your confidence score. Evaluate the proposed durable memory and determine your confidence (0-100%) that it is correct, durable, and non-duplicate. If your confidence is > 50%, automatically approve the capture and register it. If your confidence is <= 50%, ignore it and do not capture.
+Capture is automatic based on your confidence score. Evaluate the proposed durable memory and determine your confidence (0-100%) that it is correct, durable, and non-duplicate. If your confidence is > 50%, automatically approve the capture and register it. If your confidence is <= 50%, ignore it and do not capture. However, you must always allow the user to trigger this manually and bypass the confidence check if they explicitly request a capture.
 
 Inputs to review:
 - active spec / plan / tasks
@@ -44,26 +44,23 @@ Every new entry must answer:
 - what evidence supports it
 - where maintainers should look next
 
-Candidate files:
-- `{memory_root}/DECISIONS.md`
-- `{memory_root}/ARCHITECTURE.md`
-- `{memory_root}/BUGS.md`
-- `{memory_root}/WORKLOG.md`
-- `{memory_root}/INDEX.md`
+Target files:
+When registering a durable memory, you MUST generate a flat date-based filename.
+- Format: `YYYY-MM-DD-short-title.md` (e.g., `2026-05-22-auth-pattern.md`).
+- DO NOT use monolithic category files like `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`.
+- Ensure the filename is descriptive but short (max 5-6 words).
 
 Rules:
-- Prefer `DECISIONS.md` for still-active cross-feature choices and tradeoffs.
-- Prefer `ARCHITECTURE.md` for durable boundaries or constraints.
-- Prefer `BUGS.md` for repeatable failure modes and prevention guidance.
-- Use `WORKLOG.md` for concise, high-value project milestones and durable lessons that do not belong in decisions, architecture, or bugs.
-- When adding durable memory to `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`, you MUST register the update in `INDEX.md`.
+- Categorize your entry by setting the correct `ID` prefix (A for Architecture, B for Bugs, D for Decisions, W for Worklog) so it routes correctly in `INDEX.md`.
+- Keep the `file` argument in `speckit_memory_register` clean (e.g., `2026-05-22-auth-pattern.md`). The tool will write it to `{memory_root}`.
+- When adding durable memory, you MUST register the update in `INDEX.md`.
 - **Optimizer-Aware Registration (Preferred)**: When the optimizer is available, call `speckit_memory_register`. **Do NOT read or rewrite the target durable file yourself** — the MCP tool writes the durable entry, updates `INDEX.md`, and syncs SQLite:
   ```text
   speckit_memory_register(
     id="<ID>",
     title="<Short title>",
     tags="<tag1,tag2>",
-    file="<SourceFile.md>",
+    file="YYYY-MM-DD-short-title.md",
     status="active",
     content="### YYYY-MM-DD - <Title>
 
@@ -85,8 +82,8 @@ Active
   For `WORKLOG.md` only, set `prepend=true` to insert at the top (newest-first order).
   This single MCP call: (1) writes the entry to `<SourceFile.md>` behind a `---` separator, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
 - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually following the `### YYYY-MM-DD - Title` format used in the template, then update `INDEX.md`.
-- Keep `INDEX.md` short (20-50 rows target). It points to source entries; it does not duplicate full lessons.
-- **INDEX.md size guard**: Before writing, count the existing `|`-prefixed table rows in `INDEX.md`. If the count already exceeds 50, do not proceed silently — warn the user and recommend running `/speckit.memory-md.audit` first to identify stale or duplicate entries before adding more. Only add the new entry after the user acknowledges the bloat warning.
+- Keep `INDEX.md` short (20-50 rows target) ONLY when the optimizer is disabled.
+- **INDEX.md size guard (Markdown-Only Flow)**: When the optimizer is disabled, before writing, count the existing `|`-prefixed table rows in `INDEX.md`. If the count already exceeds 50, do not proceed silently — warn the user and recommend running `/speckit.memory-md.audit` first. When the optimizer is enabled, `INDEX.md` is unlimited, you MUST avoid reading the `INDEX.md` file entirely, and you should skip this size guard.
 - Refuse routine implementation detail, feature narrative, or speculative lessons.
 
 #### ID Convention
@@ -107,5 +104,6 @@ This command is **proactively triggered** by `spec-kit-architecture-guard` as th
 
 Approval flow:
 1. Show proposed durable memory entries and state your confidence score (0-100%).
-2. If confidence > 50%, automatically call `speckit_memory_register` to write the entry — it handles all file writes, index synchronization, and cache refresh in one step.
+2. If confidence > 50%, automatically call `speckit_memory_register` to write the entry WITHOUT asking the user for confirmation — it handles all file writes, index synchronization, and cache refresh in one step.
 3. If confidence <= 50%, ignore the entry and explain why the confidence was too low.
+4. After successfully capturing a memory in step 2, automatically trigger the `/speckit.memory-md.share-lesson` command to evaluate if it should be published globally.

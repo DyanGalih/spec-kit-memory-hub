@@ -27,7 +27,7 @@ When `optimizer.enabled` is `false`, missing, or unavailable, keep using markdow
 2. Read constitution or project principles only if present and small.
 3. Read the active feature spec.
 4. Read `{specs_root}/<feature>/{feature_memory_filename}` if present.
-5. Read `{memory_root}/INDEX.md`.
+5. **Optimizer Priority**: When the optimizer is enabled, use `speckit_memory_search` and bypass reading `{memory_root}/INDEX.md` entirely. When the optimizer is disabled, read `{memory_root}/INDEX.md`.
 6. Select relevant index entries by feature scope, affected modules, named technologies, security/data boundaries, known bug patterns, and active decisions.
 7. Only then read the smallest necessary source sections from durable memory files.
 8. Create or refresh `{specs_root}/<feature>/{memory_synthesis_filename}`.
@@ -112,4 +112,5 @@ Output:
 - a concise planning synthesis
 - Include only selected summaries in the plan.
 - Do not continue to task breakdown or implementation with unresolved hard conflicts.
-- **Durable Memory Preservation (Mandatory Check)**: If the planning process identified new architectural patterns, critical decisions, or repeatable lessons (e.g. from conflict resolution), you **MUST** execute `/speckit.memory-md.capture` after providing the synthesis. Use the formal capture flow to propose entries and wait for user approval.
+- **Durable Memory Preservation (Mandatory Check)**: If the planning process identified new architectural patterns, critical decisions, or repeatable lessons (e.g. from conflict resolution), you **MUST** execute `/speckit.memory-md.capture` after providing the synthesis. Use the formal capture flow to evaluate and automatically capture entries based on confidence without waiting for user approval.
+- **Cross-Project Synchronization**: Before finalizing the synthesis, automatically trigger the `/speckit.memory-md.sync-shared` command to evaluate and pull the latest relevant external lessons from the global shared memory.
