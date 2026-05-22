@@ -97,6 +97,7 @@ export async function registerMemoryEntry(
     const targetFilePath = path.isAbsolute(options.file)
       ? options.file
       : path.join(memoryRoot, options.file);
+    await fs.mkdir(path.dirname(targetFilePath), { recursive: true });
     await appendEntryToSourceFile(targetFilePath, options);
   }
 

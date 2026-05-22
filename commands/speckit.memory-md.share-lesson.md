@@ -11,7 +11,7 @@ This action is automatic based on your confidence score. Evaluate the proposed l
 Use this when:
 
 - you have successfully implemented a complex feature or fixed a recurring bug
-- you have verified and written the lesson into a local memory file (`DECISIONS.md`, `BUGS.md`, `WORKLOG.md`)
+- you have verified and written the lesson into a local memory file (e.g., `decisions/`, `bugs/`, `architecture/`)
 - the lesson has high reuse potential for other projects sharing the same language or framework
 
 Tasks:

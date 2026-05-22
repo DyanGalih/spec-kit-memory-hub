@@ -4,7 +4,7 @@ description: "Recover missing docs/memory/INDEX.md routing rows from durable mem
 
 # Repair Memory Index
 
-Use this command when an older Memory Hub workflow may have removed valid `docs/memory/INDEX.md` rows, or when durable entries exist in `DECISIONS.md`, `BUGS.md`, `ARCHITECTURE.md`, or `WORKLOG.md` but are no longer discoverable through the index.
+Use this command when an older Memory Hub workflow may have removed valid `docs/memory/INDEX.md` rows, or when durable entries exist in `docs/memory/**/*.md` but are no longer discoverable through the index.
 
 ## Source of Truth
 

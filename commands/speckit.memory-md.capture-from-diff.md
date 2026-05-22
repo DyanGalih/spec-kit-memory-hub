@@ -50,7 +50,8 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
    - Successful tests or verification results.
    - Explicit task completion in `tasks.md`.
 4. **Categorize and Route**:
-   - Create a flat date-based file: `YYYY-MM-DD-short-title.md` (e.g., `2026-05-22-auth-pattern.md`).
+   - Create a date-based file in the appropriate subfolder: `<category>/YYYY-MM-DD-short-title.md` (e.g., `bugs/2026-05-22-auth-bug.md`).
+   - Allowed categories: `decisions`, `architecture`, `bugs`, `worklog`.
    - DO NOT use monolithic category files like `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`.
    - `INDEX.md`: Compact routing rows for every durable entry added or changed. Use the ID prefix to correctly categorize the entry in the index (A for Architecture, B for Bugs, D for Decisions, W for Worklog).
 5. **Filter Noise**: Reject entries that are obvious, transient, feature-local, or weakly evidenced.
@@ -60,15 +61,15 @@ When the optimizer is disabled, you **MUST** read `{memory_root}/INDEX.md` and r
 1. **Proposed Memory Updates**
    - **File**: [Target memory file]
    - **Category**: [Decision / Bug Pattern / Milestone]
-   - Use `WORKLOG.md` for concise, high-value project milestones and durable lessons that do not belong in decisions, architecture, or bugs.
-   - When adding durable memory to `DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, or `WORKLOG.md`, you MUST register the update in `INDEX.md`.
+   - Use `worklog/` for concise, high-value project milestones and durable lessons that do not belong in decisions, architecture, or bugs.
+   - When adding durable memory, you MUST register the update in `INDEX.md`.
    - **Optimizer-Aware Registration (Preferred)**: When the optimizer is available, call `speckit_memory_register`. **Do NOT read or rewrite the target durable file yourself** — the MCP tool writes the durable entry, updates `INDEX.md`, and syncs SQLite:
      ```text
      speckit_memory_register(
        id="<ID>",
        title="<Short title>",
        tags="<tag1,tag2>",
-       file="YYYY-MM-DD-short-title.md",
+       file="<category>/YYYY-MM-DD-short-title.md",
        status="active",
        content="### YYYY-MM-DD - <Title>
 
@@ -86,8 +87,8 @@ Active
 - Reconsider: ..."
      )
      ```
-     For `WORKLOG.md` only, set `prepend=true` to insert at the top (newest-first order).
-     This single MCP call: (1) writes the entry to `<SourceFile.md>` behind a `---` separator, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
+     For `worklog/` only, set `prepend=true` to insert at the top (newest-first order).
+     This single MCP call: (1) writes the entry to the date-based file behind a `---` separator, (2) updates `INDEX.md`, and (3) syncs the SQLite cache. No further file edits are needed.
    - **Markdown-Only Registration (Fallback)**: When the optimizer is disabled, write the entry to the target file manually following the `### YYYY-MM-DD - Title` format, then update `INDEX.md` with the compact row.
    - Keep `INDEX.md` short (20-50 rows target) ONLY when the optimizer is disabled.
    - **INDEX.md size guard (Markdown-Only Flow)**: When the optimizer is disabled, before writing, count the existing `|`-prefixed table rows in `INDEX.md`. If the count already exceeds 50, do not proceed silently — warn the user and recommend running `/speckit.memory-md.audit` first. When the optimizer is enabled, `INDEX.md` is unlimited, you MUST avoid reading the `INDEX.md` file entirely, and you should skip this size guard.
@@ -96,12 +97,12 @@ Active
 
    The `--id` value uses a letter prefix + sequential number:
 
-   | Prefix | File | INDEX.md section |
-   |--------|------|------------------|
-   | `A` | `ARCHITECTURE.md` | `## Architecture` |
-   | `B` | `BUGS.md` | `## Bugs` |
-   | `D` | `DECISIONS.md` | `## Decisions` |
-   | `W` | `WORKLOG.md` | `## Workflow` |
+   | Prefix | Category Folder | INDEX.md section |
+   |--------|-----------------|------------------|
+   | `A` | `architecture/` | `## Architecture` |
+   | `B` | `bugs/`         | `## Bugs` |
+   | `D` | `decisions/`    | `## Decisions` |
+   | `W` | `worklog/`      | `## Workflow` |
 
    To pick the next number: count existing entries with that prefix in `INDEX.md` and add 1.
 

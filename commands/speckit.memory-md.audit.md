@@ -41,9 +41,10 @@ Check for:
 
 # Memory Audit Report
 
-| ID | File | Severity | Issue | Recommendation |
-|:---|:---|:---|:---|:---|
-| M1 | `DECISIONS.md` | CRITICAL | Stale decision on [X] | Remove/Update to reflect [Y] |
+| ID | File | Severity | Finding | Recommendation |
+|---|---|---|---|---|
+| M1 | `decisions/2026-05-22-xyz.md` | CRITICAL | Stale decision on [X] | Remove/Update to reflect [Y] |
+| M2 | `bugs/2026-05-22-abc.md` | MINOR | Vague finding | Rewrite to be actionable |
 
 ### Metrics
 - **Memory Quality Score**: [e.g. 85/100]
@@ -73,8 +74,8 @@ If audit finds that valid durable entries are missing from `INDEX.md`, do **not*
 - **Evidenced**: Is it backed by a PR, bug, or explicit decision?
 - **Correctly Scoped**: Is it in the right file?
   - `PROJECT_CONTEXT.md` for stable product and domain context.
-  - `ARCHITECTURE.md` for system shape and boundaries.
-  - `DECISIONS.md` for explicit tradeoffs and chosen direction.
-  - `BUGS.md` for recurring failure modes and prevention.
-  - `WORKLOG.md` for concise high-value milestone notes.
+  - `architecture/` for system shape and boundaries.
+  - `decisions/` for explicit tradeoffs and chosen direction.
+  - `bugs/` for recurring failure modes and prevention.
+  - `worklog/` for concise high-value milestone notes.
   - `INDEX.md` for compact routing metadata only.

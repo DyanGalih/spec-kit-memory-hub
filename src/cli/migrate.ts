@@ -45,6 +45,10 @@ export async function migrateMemoryFiles(projectRoot: string): Promise<void> {
     
     let entriesExtracted = 0;
 
+    const subfolder = legacyFile.replace('.md', '').toLowerCase();
+    const targetDir = path.join(memoryRoot, subfolder);
+    await fs.mkdir(targetDir, { recursive: true });
+
     for (let block of blocks) {
       block = block.trim();
       const headingMatch = /^###\s+(\d{4}-\d{2}-\d{2})\s+-\s+(.*)$/m.exec(block);
@@ -53,14 +57,14 @@ export async function migrateMemoryFiles(projectRoot: string): Promise<void> {
         const dateStr = headingMatch[1];
         const titleStr = headingMatch[2].trim();
         const shortTitle = sanitizeFilename(titleStr);
-        const newFilename = `${dateStr}-${shortTitle}.md`;
-        const newFilePath = path.join(memoryRoot, newFilename);
+        const newRelativePath = `${subfolder}/${dateStr}-${shortTitle}.md`;
+        const newFilePath = path.join(memoryRoot, newRelativePath);
 
         // Write the new flat file
         await fs.writeFile(newFilePath, block + "\n", "utf8");
         entriesExtracted++;
         migratedCount++;
-        console.log(chalk.green(`  Created: ${newFilename}`));
+        console.log(chalk.green(`  Created: ${newRelativePath}`));
 
         // Update INDEX.md
         // Look for the row in INDEX.md that contains this title and points to the legacy file.
@@ -74,7 +78,7 @@ export async function migrateMemoryFiles(projectRoot: string): Promise<void> {
           if (line.includes(`|`) && line.toLowerCase().includes(titleStr.toLowerCase())) {
             // Found the row. Replace the file link.
             // Regex to find a markdown link that might point to the legacy file
-            const newRow = line.replace(/\[([^\]]+)\]\([^)]+\)/, `[${newFilename}](${newFilename})`);
+            const newRow = line.replace(/\[([^\]]+)\]\([^)]+\)/, `[${path.basename(newRelativePath)}](${newRelativePath})`);
             if (line !== newRow) {
               lines[i] = newRow;
               updated = true;

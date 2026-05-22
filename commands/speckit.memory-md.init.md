@@ -22,26 +22,30 @@ Tasks:
    - `{memory_root}` (default: docs/memory)
    - `{specs_root}` (default: specs)
    - .github
-4. Create missing durable memory files from the extension templates:
+4. Ensure these subdirectories exist for flat date-based memory files:
+   - `{memory_root}/decisions/`
+   - `{memory_root}/architecture/`
+   - `{memory_root}/bugs/`
+   - `{memory_root}/worklog/`
+5. Create or verify core memory files from the extension templates:
    - `{memory_root}/INDEX.md`
    - `{memory_root}/PROJECT_CONTEXT.md`
-   - `{memory_root}/ARCHITECTURE.md`
-   - `{memory_root}/DECISIONS.md`
-   - `{memory_root}/BUGS.md`
-   - `{memory_root}/WORKLOG.md`
-5. Create or update spec starter files so every feature folder can contain:
+6. **Automatic Migration (Re-install Scenario)**:
+   - Check if legacy monolithic files (`DECISIONS.md`, `ARCHITECTURE.md`, `BUGS.md`, `WORKLOG.md`) exist in `{memory_root}`.
+   - If they do, this is an upgrade/re-install. Automatically run `npx speckit-memory migrate-memory` or `npm run migrate` (if available in the project) to safely split them into the new flat subfolder format.
+7. Create or update spec starter files so every feature folder can contain:
    - spec.md
    - plan.md
    - tasks.md
    - `{feature_memory_filename}` (default: memory.md)
    - `{memory_synthesis_filename}` (default: memory-synthesis.md)
-6. **Centralize Memory Governance**:
+8. **Centralize Memory Governance**:
    - **Mandatory**: Create or Update `.specify/memory/workflow.md`. If the file already exists, reconcile its content with the extension template to ensure it contains the latest mandatory command references, while strictly preserving any existing project-specific governance rules.
    - **Migration**: Detect active agent context files: `.github/copilot-instructions.md`, `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`, and other local agent rules if present.
    - **Inject Pointer**: For each existing file, do NOT overwrite the whole file. Instead, find the `### Spec Kit` section (or create it) and replace it with the **Pointer Model**: "You MUST follow the memory-first workflow defined in `.specify/memory/workflow.md`. Before planning, prepare context using the best available path: MCP tools if configured, `/speckit.memory-md.prepare-context` if Spec Kit commands are available, otherwise the documented markdown-first fallback."
    - **Create Missing Templates**: For any agent file that does not yet exist but is in the standard set (`CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `WINDSURF.md`, `ANTIGRAVITY.md`), create it from the corresponding extension template only if the user confirms they use that agent. Never create agent files speculatively.
-7. If `.specify/extensions/memory-md/config.yml` does not exist, create it from `config-template.yml` with default values.
-8. Summarize the memory model:
+9. If `.specify/extensions/memory-md/config.yml` does not exist, create it from `config-template.yml` with default values.
+10. Summarize the memory model:
    - constitution / principles = stable operating rules
    - durable project memory = reusable cross-feature knowledge
    - active feature memory = feature-local constraints, open questions, and carry-forward context
@@ -53,7 +57,7 @@ Tasks:
 - **No Destruction**: Never overwrite project-specific memory or custom agent instructions without explicit approval.
 - **Reconciliation**: If `.specify/memory/workflow.md` exists, treat it as a "living document"—improve its technical requirements without deleting its existing context.
 
-9. List the first customization steps:
+11. List the first customization steps:
    - fill in project context and architecture
    - migrate any durable lessons into decisions or bugs
    - stop using worklog as a changelog

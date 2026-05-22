@@ -25,4 +25,4 @@ Tasks:
    - Exclude any lessons that originated from this project itself to prevent redundancy
    - Write all new external lessons into a reviewable markdown file at `docs/memory/SHARED_LESSONS.md` pre-populated with interactive banners
 
-4. Guide the user to open and review `docs/memory/SHARED_LESSONS.md`. Instruct them to merge any relevant findings into their permanent `DECISIONS.md` or `BUGS.md` and delete the temporary review file.
+4. Guide the user to open and review `docs/memory/SHARED_LESSONS.md`. Instruct them to merge any relevant findings into their permanent `decisions/` or `bugs/` folders and delete the temporary review file.

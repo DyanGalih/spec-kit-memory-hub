@@ -13,6 +13,7 @@
     "postbuild": "chmod +x dist/bin/speckit-memory.js",
     "clean": "rm -rf dist",
     "start": "node dist/bin/speckit-memory.js",
+    "migrate": "node dist/bin/speckit-memory.js migrate-memory",
     "test-root": "./scripts/test-root-resolution.sh"
   },
   "engines": {
