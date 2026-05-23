@@ -90,6 +90,7 @@ Memory Hub includes a native, fully-compliant **Model Context Protocol (MCP) Ser
 *   **`speckit_memory_share_lesson`**: Elevates and publishes an approved local lesson into the global local database.
 *   **`speckit_memory_sync_shared`**: Pulls matching technology stack lessons into `docs/memory/SHARED_LESSONS.md` with interactive review banners.
 *   **`speckit_memory_init_project`**: Profiles active project languages/frameworks to configure sync channels.
+*   **`speckit_memory_token_report`**: Generates an estimated token savings report. *(Note: This compares the theoretical token cost of reading raw codebase files vs. reading the optimized `.spec-kit-memory` cache. It does not track real-time LLM API usage.)*
 
 To start the server, configure your client to run the `mcp-start` command:
 ```bash

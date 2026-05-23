@@ -468,6 +468,7 @@ class MemoryHubMcpServer {
               text: JSON.stringify({
                 success: true,
                 feature: args.feature,
+                note: "This is an estimation comparing raw file reads vs the optimized cache. It does not track real-time LLM API token usage.",
                 ...comparison,
               }, null, 2),
             }],

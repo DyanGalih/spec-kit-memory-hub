@@ -82,6 +82,9 @@ export function printTokenComparisonBanner(comparison: TokenComparison): void {
   console.log(formatSummaryLine("Baseline", comparison.baselineTokens));
   console.log(formatSummaryLine("Cached flow", comparison.cachedTokens));
   console.log(formatSavedLine(comparison.savedTokens, comparison.savedPercent));
+  console.log("");
+  console.log("Note: This is an estimation comparing raw file reads vs the optimized cache.");
+  console.log("It does not track real-time LLM API token usage.");
 }
 
 export function shouldShowTokenBanner(config: MemoryHubConfig): boolean {
